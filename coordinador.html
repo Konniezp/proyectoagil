@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnoMed - Asignación de Turnos</title>
+    <style>
+        /* Estilos generales con paleta lila/celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-gray: #e1e5eb;
+            --color-error: #ff6b6b;
+            --color-success: #6bff8f;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+        
+        /* Encabezado */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Menú principal */
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 1rem 0;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .main-menu a {
+            color: var(--color-white);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: var(--color-primary-dark);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--color-primary-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Formulario de asignación */
+        .assignment-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-undo {
+            background-color: var(--color-secondary);
+        }
+        
+        .btn-undo:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
+        /* Mensajes de error */
+        .error-message {
+            color: var(--color-error);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--color-success);
+            color: var(--color-white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-error {
+            background-color: var(--color-error);
+        }
+        
+        .notification-close {
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        /* Lista de turnos */
+        .shifts-list {
+            margin-top: 2rem;
+            border: 1px solid var(--color-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .shift-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .shift-item:last-child {
+            border-bottom: none;
+        }
+        
+        .shift-info {
+            flex: 1;
+        }
+        
+        .shift-info h3 {
+            color: var(--color-primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .shift-info p {
+            color: var(--color-text);
+            font-size: 0.9rem;
+        }
+        
+        .shift-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .assignment-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-menu ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Asignación de Turnos - Coordinador</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="#" style="background-color: var(--color-primary);">Asignar Turnos</a></li>
+            <li><a href="gestion-empleados.html">Gestión de Empleados</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>Asignar Nuevo Turno</h2>
+        
+        <div class="assignment-form">
+            <div class="form-group">
+                <label for="employee">Empleado:</label>
+                <select id="employee" required>
+                    <option value="">Seleccione un empleado</option>
+                    <!-- Opciones se llenarán con JS -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="area">Área de trabajo:</label>
+                <select id="area" required>
+                    <option value="">Seleccione un área</option>
+                    <option value="Urgencias">Urgencias</option>
+                    <option value="Pediatría">Pediatría</option>
+                    <option value="Cirugía">Cirugía</option>
+                    <option value="Cardiología">Cardiología</option>
+                    <option value="Neurología">Neurología</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Fecha:</label>
+                <input type="date" id="date" required>
+                <div id="date-error" class="error-message">La fecha debe estar dentro de los próximos 14 días</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="start-time">Hora de inicio:</label>
+                <input type="time" id="start-time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="end-time">Hora de fin:</label>
+                <input type="time" id="end-time" required>
+                <div id="time-error" class="error-message">La hora de fin debe ser posterior a la hora de inicio</div>
+            </div>
+        </div>
+        
+        <div id="overlap-error" class="error-message" style="display: none; margin-bottom: 1.5rem;"></div>
+        
+        <button id="assign-btn" class="btn btn-block">Asignar Turno</button>
+        
+        <h2 style="margin-top: 3rem;">Turnos Asignados Recientemente</h2>
+        <div class="shifts-list" id="shifts-list">
+            <!-- Turnos se cargarán aquí con JS -->
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo
+        const employees = [
+            { id: 1, name: "María González", area: "Urgencias" },
+            { id: 2, name: "Carlos López", area: "Pediatría" },
+            { id: 3, name: "Ana Rodríguez", area: "Cirugía" },
+            { id: 4, name: "Pedro Sánchez", area: "Cardiología" },
+            { id: 5, name: "Lucía Fernández", area: "Neurología" }
+        ];
+        
+        let shifts = [
+            {
+                id: 1,
+                employeeId: 1,
+                employeeName: "María González",
+                area: "Urgencias",
+                date: "2024-04-15",
+                startTime: "08:00",
+                endTime: "16:00"
+            },
+            {
+                id: 2,
+                employeeId: 2,
+                employeeName: "Carlos López",
+                area: "Pediatría",
+                date: "2024-04-15",
+                startTime: "14:00",
+                endTime: "22:00"
+            }
+        ];
+        
+        // Elementos del DOM
+        const employeeSelect = document.getElementById('employee');
+        const areaSelect = document.getElementById('area');
+        const dateInput = document.getElementById('date');
+        const startTimeInput = document.getElementById('start-time');
+        const endTimeInput = document.getElementById('end-time');
+        const assignBtn = document.getElementById('assign-btn');
+        const shiftsList = document.getElementById('shifts-list');
+        const dateError = document.getElementById('date-error');
+        const timeError = document.getElementById('time-error');
+        const overlapError = document.getElementById('overlap-error');
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            loadRecentShifts();
+            setupDateRestrictions();
+            setupEventListeners();
+        });
+        
+        // Funciones
+        function loadEmployees() {
+            employeeSelect.innerHTML = '<option value="">Seleccione un empleado</option>';
+            employees.forEach(employee => {
+                const option = document.createElement('option');
+                option.value = employee.id;
+                option.textContent = `${employee.name} (${employee.area})`;
+                employeeSelect.appendChild(option);
+            });
+        }
+        
+        function loadRecentShifts() {
+            shiftsList.innerHTML = '';
+            
+            if (shifts.length === 0) {
+                shiftsList.innerHTML = '<div class="shift-item"><p>No hay turnos asignados recientemente</p></div>';
+                return;
+            }
+            
+            // Ordenar por fecha más reciente primero
+            const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedShifts.forEach(shift => {
+                const shiftItem = document.createElement('div');
+                shiftItem.className = 'shift-item';
+                
+                const formattedDate = formatDate(shift.date);
+                
+                shiftItem.innerHTML = `
+                    <div class="shift-info">
+                        <h3>${shift.employeeName}</h3>
+                        <p><strong>Área:</strong> ${shift.area}</p>
+                        <p><strong>Fecha:</strong> ${formattedDate}</p>
+                        <p><strong>Horario:</strong> ${shift.startTime} - ${shift.endTime}</p>
+                    </div>
+                    <div class="shift-actions">
+                        <button class="btn btn-undo" data-id="${shift.id}">Deshacer</button>
+                    </div>
+                `;
+                
+                shiftsList.appendChild(shiftItem);
+            });
+            
+            // Agregar event listeners a los botones de deshacer
+            document.querySelectorAll('.btn-undo').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const shiftId = parseInt(this.getAttribute('data-id'));
+                    undoShiftAssignment(shiftId);
+                });
+            });
+        }
+        
+        function setupDateRestrictions() {
+            // Establecer fecha mínima (hoy) y máxima (14 días después)
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 14);
+            
+            dateInput.min = formatDateForInput(today);
+            dateInput.max = formatDateForInput(maxDate);
+        }
+        
+        function setupEventListeners() {
+            assignBtn.addEventListener('click', assignShift);
+            
+            // Validar fecha al cambiar
+            dateInput.addEventListener('change', function() {
+                validateDate();
+            });
+            
+            // Validar horas al cambiar
+            startTimeInput.addEventListener('change', validateTimes);
+            endTimeInput.addEventListener('change', validateTimes);
+        }
+        
+        function validateDate() {
+            const selectedDate = new Date(dateInput.value);
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 14);
+            
+            if (selectedDate < today || selectedDate > maxDate) {
+                dateError.style.display = 'block';
+                return false;
+            } else {
+                dateError.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function validateTimes() {
+            if (startTimeInput.value && endTimeInput.value) {
+                if (startTimeInput.value >= endTimeInput.value) {
+                    timeError.style.display = 'block';
+                    return false;
+                } else {
+                    timeError.style.display = 'none';
+                    return true;
+                }
+            }
+            return true;
+        }
+        
+        function checkForOverlaps(employeeId, date, startTime, endTime) {
+            const employeeShifts = shifts.filter(shift => shift.employeeId === employeeId && shift.date === date);
+            
+            if (employeeShifts.length === 0) {
+                return null; // No hay turnos para este empleado en esta fecha
+            }
+            
+            // Convertir tiempos a minutos para comparación
+            const newStart = timeToMinutes(startTime);
+            const newEnd = timeToMinutes(endTime);
+            
+            for (const shift of employeeShifts) {
+                const existingStart = timeToMinutes(shift.startTime);
+                const existingEnd = timeToMinutes(shift.endTime);
+                
+                // Verificar solapamiento con margen de 30 minutos
+                if ((newStart < existingEnd + 30) && (newEnd > existingStart - 30)) {
+                    return shift; // Retorna el turno conflictivo
+                }
+            }
+            
+            return null; // No hay solapamientos
+        }
+        
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        function assignShift() {
+            // Validar formulario
+            if (!employeeSelect.value || !areaSelect.value || !dateInput.value || 
+                !startTimeInput.value || !endTimeInput.value) {
+                showNotification('Por favor complete todos los campos', true);
+                return;
+            }
+            
+            if (!validateDate() || !validateTimes()) {
+                return;
+            }
+            
+            const employeeId = parseInt(employeeSelect.value);
+            const employeeName = employeeSelect.options[employeeSelect.selectedIndex].text.split(' (')[0];
+            const area = areaSelect.value;
+            const date = dateInput.value;
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+            
+            // Verificar solapamientos
+            const conflictingShift = checkForOverlaps(employeeId, date, startTime, endTime);
+            
+            if (conflictingShift) {
+                overlapError.style.display = 'block';
+                overlapError.innerHTML = `
+                    <strong>Conflicto de horario detectado:</strong><br>
+                    El empleado ya tiene asignado un turno el ${formatDate(conflictingShift.date)} 
+                    de ${conflictingShift.startTime} a ${conflictingShift.endTime} en ${conflictingShift.area}.
+                    <br>Debe haber al menos 30 minutos entre turnos.
+                `;
+                return;
+            } else {
+                overlapError.style.display = 'none';
+            }
+            
+            // Crear nuevo turno
+            const newShift = {
+                id: shifts.length > 0 ? Math.max(...shifts.map(s => s.id)) + 1 : 1,
+                employeeId,
+                employeeName,
+                area,
+                date,
+                startTime,
+                endTime
+            };
+            
+            // Agregar a la lista de turnos
+            shifts.unshift(newShift);
+            
+            // Mostrar notificación de confirmación
+            showConfirmationNotification(newShift);
+            
+            // Actualizar lista de turnos
+            loadRecentShifts();
+            
+            // Limpiar formulario
+            employeeSelect.value = '';
+            areaSelect.value = '';
+            dateInput.value = '';
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+        }
+        
+        function undoShiftAssignment(shiftId) {
+            shifts = shifts.filter(shift => shift.id !== shiftId);
+            loadRecentShifts();
+            showNotification('Turno eliminado correctamente');
+        }
+        
+        function showConfirmationNotification(shift) {
+            const notification = document.createElement('div');
+            notification.className = 'notification show';
+            
+            const formattedDate = formatDate(shift.date);
+            
+            notification.innerHTML = `
+                <div style="flex: 1;">
+                    <strong>Turno asignado correctamente</strong>
+                    <p><strong>Empleado:</strong> ${shift.employeeName}</p>
+                    <p><strong>Área:</strong> ${shift.area}</p>
+                    <p><strong>Fecha:</strong> ${formattedDate}</p>
+                    <p><strong>Horario:</strong> ${shift.startTime} - ${shift.endTime}</p>
+                </div>
+                <button class="btn btn-undo btn-small" id="undo-notification-btn" data-id="${shift.id}">Deshacer</button>
+                <span class="notification-close">×</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Cerrar notificación
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Botón de deshacer en la notificación
+            notification.querySelector('#undo-notification-btn').addEventListener('click', function() {
+                const shiftId = parseInt(this.getAttribute('data-id'));
+                undoShiftAssignment(shiftId);
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Cerrar automáticamente después de 10 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 10000);
+        }
+        
+        function showNotification(message, isError = false) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${isError ? 'notification-error' : ''} show`;
+            notification.innerHTML = `
+                <div>${message}</div>
+                <span class="notification-close">×</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Cerrar notificación
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Cerrar automáticamente después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        function formatDate(dateStr) {
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+        }
+        
+        function formatDateForInput(date) {
+            return date.toISOString().split('T')[0];
+        }
+    </script>
+</body>
+</html>
