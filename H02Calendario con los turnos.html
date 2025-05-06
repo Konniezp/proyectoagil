@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Turnos</title>
+    <style>
+        /* Estilos generales */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Paleta de colores lila y celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+        }
+        
+        /* Header y navegación */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 1rem 0;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .main-menu a {
+            color: var(--color-white);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* Contenedor principal */
+        .calendar-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Filtros */
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: var(--color-background);
+            border-radius: 8px;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .filter-select {
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--color-primary-light);
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: var(--color-white);
+        }
+        
+        .filter-select:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Calendario */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .month-title {
+            color: var(--color-primary-dark);
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: var(--color-primary-light);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .day-header {
+            background-color: var(--color-primary-dark);
+            color: var(--color-white);
+            text-align: center;
+            font-weight: bold;
+            padding: 1rem;
+        }
+        
+        .calendar-day {
+            min-height: 120px;
+            background: var(--color-white);
+            padding: 0.8rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background-color: var(--color-background);
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-dark);
+        }
+        
+        /* Día actual */
+        .calendar-day.current-day {
+            background-color: var(--color-secondary-light);
+            border: 2px solid var(--color-secondary);
+        }
+        
+        .calendar-day.current-day .day-number {
+            color: var(--color-primary-dark);
+            font-weight: bold;
+        }
+        
+        /* Turnos */
+        .shift {
+            background-color: var(--color-background);
+            border-left: 3px solid var(--color-primary);
+            padding: 0.6rem;
+            margin: 0.4rem 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .shift:hover {
+            transform: translateX(3px);
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .shift p {
+            margin: 0.2rem 0;
+        }
+        
+        .shift-title {
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .shift-time {
+            color: var(--color-text);
+            font-size: 0.8rem;
+        }
+        
+        /* Días sin turnos */
+        .calendar-day.empty {
+            background-color: var(--color-background);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .day-header {
+                display: none;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .app-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú principal (CA-02-1) -->
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Visualización de Turnos</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="#" id="inicioLink">Inicio</a></li>
+            <li><a href="#" id="calendarioLink" style="background-color: var(--color-primary);">Calendario</a></li>
+            <li><a href="#" id="perfilLink">Perfil</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Contenedor principal del calendario -->
+    <div class="calendar-container">
+        <div class="user-info">
+            <h2 id="nombreFuncionario"></h2>
+            <span id="rutFuncionario"></span>
+        </div>
+        
+        <!-- Filtros (CA-02-3) -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label for="monthSelector">Mes:</label>
+                <select id="monthSelector" class="filter-select">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4" selected>Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="areaFilter">Área:</label>
+                <select id="areaFilter" class="filter-select">
+                    <option value="">Todas las áreas</option>
+                    <option value="Urgencias">Urgencias</option>
+                    <option value="Pediatría">Pediatría</option>
+                    <option value="Cirugía">Cirugía</option>
+                    <option value="Cardiología">Cardiología</option>
+                </select>
+            </div>
+            
+            <button id="resetFilters" class="btn btn-small">Limpiar filtros</button>
+        </div>
+        
+        <!-- Calendario (CA-02-2) -->
+        <div class="calendar-header">
+            <h2 class="month-title" id="currentMonth"></h2>
+            <div class="calendar-nav">
+                <button id="prevMonth" class="btn">‹ Mes Anterior</button>
+                <button id="nextMonth" class="btn">Mes Siguiente ›</button>
+            </div>
+        </div>
+        
+        <div class="calendar-grid" id="calendarBody"></div>
+    </div>
+
+    <script>
+        // Datos del funcionario actual
+        const funcionarioActual = {
+            nombre: "María González",
+            rut: "12.345.678-9",
+            area: "Urgencias"
+        };
+        
+        // Datos de ejemplo de turnos
+        const misTurnos = [
+            { fecha: "2024-04-04", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
+            { fecha: "2024-04-12", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
+            { fecha: "2024-04-15", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" },
+            { fecha: "2024-04-20", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
+            { fecha: "2024-05-03", area: "Cardiología", nombre: "Turno Noche", horario: "00:00 - 08:00" }
+        ];
+        
+        // Variables globales
+        let currentMonth = new Date().getMonth() + 1;
+        let currentYear = new Date().getFullYear();
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar información del funcionario
+            document.getElementById('nombreFuncionario').textContent = funcionarioActual.nombre;
+            document.getElementById('rutFuncionario').textContent = funcionarioActual.rut;
+            
+            // Actualizar calendario
+            updateCalendar(currentMonth, currentYear);
+            
+            // Configurar event listeners
+            setupEventListeners();
+        });
+        
+        // Función para actualizar el calendario
+        function updateCalendar(month, year) {
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                              "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            document.getElementById('currentMonth').textContent = `${monthNames[month - 1]} ${year}`;
+            
+            const calendarBody = document.getElementById('calendarBody');
+            calendarBody.innerHTML = '';
+            
+            // Obtener turnos filtrados
+            const selectedArea = document.getElementById('areaFilter').value;
+            let filteredTurnos = misTurnos.filter(t => {
+                const turnoMonth = parseInt(t.fecha.split('-')[1]);
+                return turnoMonth === month && (selectedArea === '' || t.area === selectedArea);
+            });
+            
+            // Encabezados de días
+            const daysOfWeek = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+            daysOfWeek.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day;
+                calendarBody.appendChild(header);
+            });
+            
+            // Días del mes
+            const firstDay = getFirstDayOfMonth(month, year);
+            const totalDays = daysInMonth(month, year);
+            
+            // Obtener fecha actual
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const currentDateStr = formatDate(today.getFullYear(), today.getMonth() + 1, today.getDate());
+            
+            // Días vacíos al inicio
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                calendarBody.appendChild(emptyCell);
+            }
+            
+            // Días del mes
+            for (let day = 1; day <= totalDays; day++) {
+                const dateStr = formatDate(year, month, day);
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day';
+                
+                // Resaltar día actual
+                if (dateStr === currentDateStr) {
+                    cell.classList.add('current-day');
+                }
+                
+                cell.innerHTML = `<div class="day-number">${day}</div>`;
+                
+                // Mostrar turnos para este día
+                const turnosDia = filteredTurnos.filter(t => t.fecha === dateStr);
+                if (turnosDia.length > 0) {
+                    turnosDia.forEach(turno => {
+                        const turnoDiv = document.createElement('div');
+                        turnoDiv.className = 'shift';
+                        turnoDiv.innerHTML = `
+                            <p class="shift-title">${turno.nombre}</p>
+                            <p class="shift-time">${turno.horario} - ${turno.area}</p>
+                        `;
+                        cell.appendChild(turnoDiv);
+                    });
+                }
+                
+                calendarBody.appendChild(cell);
+            }
+        }
+        
+        // Función para configurar event listeners
+        function setupEventListeners() {
+            // Navegación entre meses
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+                currentYear = currentMonth === 12 ? currentYear - 1 : currentYear;
+                updateCalendar(currentMonth, currentYear);
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+                currentYear = currentMonth === 1 ? currentYear + 1 : currentYear;
+                updateCalendar(currentMonth, currentYear);
+            });
+            
+            // Selector de mes
+            document.getElementById('monthSelector').addEventListener('change', function() {
+                currentMonth = parseInt(this.value);
+                updateCalendar(currentMonth, currentYear);
+            });
+            
+            // Filtro por área
+            document.getElementById('areaFilter').addEventListener('change', function() {
+                updateCalendar(currentMonth, currentYear);
+            });
+            
+            // Limpiar filtros
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('areaFilter').value = '';
+                document.getElementById('monthSelector').value = currentMonth;
+                updateCalendar(currentMonth, currentYear);
+            });
+        }
+        
+        // Funciones utilitarias
+        function formatDate(year, month, day) {
+            return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+        }
+        
+        function daysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+        
+        function getFirstDayOfMonth(month, year) {
+            let day = new Date(year, month - 1, 1).getDay();
+            return day === 0 ? 6 : day - 1;
+        }
+    </script>
+</body>
+</html>
