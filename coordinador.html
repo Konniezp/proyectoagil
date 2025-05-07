@@ -19,7 +19,6 @@
             --color-gray: #e1e5eb;
             --color-error: #ff6b6b;
             --color-success: #6bff8f;
-            --color-warning: #ffcc6b;
         }
         
         * {
@@ -121,7 +120,7 @@
             color: var(--color-primary-dark);
         }
         
-        select, input, textarea {
+        select, input {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid var(--color-primary-light);
@@ -130,7 +129,7 @@
             transition: all 0.3s;
         }
         
-        select:focus, input:focus, textarea:focus {
+        select:focus, input:focus {
             border-color: var(--color-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
@@ -170,18 +169,6 @@
             background-color: var(--color-secondary-dark);
         }
         
-        .btn-approve {
-            background-color: var(--color-success);
-        }
-        
-        .btn-reject {
-            background-color: var(--color-error);
-        }
-        
-        .btn-warning {
-            background-color: var(--color-warning);
-        }
-        
         /* Mensajes de error */
         .error-message {
             color: var(--color-error);
@@ -214,10 +201,6 @@
         
         .notification-error {
             background-color: var(--color-error);
-        }
-        
-        .notification-warning {
-            background-color: var(--color-warning);
         }
         
         .notification-close {
@@ -317,101 +300,6 @@
             color: var(--color-text);
         }
         
-        /* Tabla de solicitudes */
-        .requests-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-        }
-        
-        .requests-table th, .requests-table td {
-            padding: 0.8rem;
-            text-align: left;
-            border-bottom: 1px solid var(--color-primary-light);
-        }
-        
-        .requests-table th {
-            background-color: var(--color-primary-light);
-            color: var(--color-primary-dark);
-            font-weight: bold;
-        }
-        
-        .requests-table tr:hover {
-            background-color: var(--color-background);
-        }
-        
-        .request-pending {
-            background-color: rgba(255, 204, 107, 0.2);
-        }
-        
-        .request-approved {
-            background-color: rgba(107, 255, 143, 0.2);
-        }
-        
-        .request-rejected {
-            background-color: rgba(255, 107, 107, 0.2);
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .badge-pending {
-            background-color: var(--color-warning);
-            color: var(--color-text);
-        }
-        
-        .badge-approved {
-            background-color: var(--color-success);
-            color: white;
-        }
-        
-        .badge-rejected {
-            background-color: var(--color-error);
-            color: white;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        /* Pestañas */
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid var(--color-primary-light);
-            margin-bottom: 1.5rem;
-        }
-        
-        .tab {
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .tab:hover {
-            background-color: var(--color-background);
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--color-primary);
-            font-weight: bold;
-            color: var(--color-primary-dark);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .assignment-form {
@@ -430,24 +318,11 @@
             .day-header {
                 display: none;
             }
-            
-            .requests-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
         }
         
         @media (max-width: 480px) {
             .calendar-grid {
                 grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                flex-direction: column;
             }
         }
     </style>
@@ -462,205 +337,92 @@
         <ul>
             <li><a href="index.html">Inicio</a></li>
             <li><a href="#" style="background-color: var(--color-primary);">Asignar Turnos</a></li>
-            <li><a href="#" id="permisosLink">Gestión de Permisos</a></li>
+            <li><a href="gestion-permisos.html">Gestión de Permisos</a></li>
             <li><a href="gestion-empleados.html">Gestión de Empleados</a></li>
             <li><a href="reportes.html">Reportes</a></li>
         </ul>
     </nav>
 
     <div class="container">
-        <!-- Sección de Asignación de Turnos -->
-        <div id="asignacion-turnos" class="tab-content active">
-            <h2>Asignar Nuevo Turno</h2>
-            
-            <div class="assignment-form">
-                <div class="form-group">
-                    <label for="employee">Empleado:</label>
-                    <select id="employee" required>
-                        <option value="">Seleccione un empleado</option>
-                        <!-- Opciones se llenarán con JS -->
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="area">Área de trabajo:</label>
-                    <select id="area" required>
-                        <option value="">Seleccione un área</option>
-                        <option value="Urgencias">Urgencias</option>
-                        <option value="Pediatría">Pediatría</option>
-                        <option value="Cirugía">Cirugía</option>
-                        <option value="Cardiología">Cardiología</option>
-                        <option value="Neurología">Neurología</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="date">Fecha:</label>
-                    <input type="date" id="date" required>
-                    <div id="date-error" class="error-message">La fecha debe estar dentro de los próximos 14 días</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="start-time">Hora de inicio:</label>
-                    <input type="time" id="start-time" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="end-time">Hora de fin:</label>
-                    <input type="time" id="end-time" required>
-                    <div id="time-error" class="error-message">La hora de fin debe ser posterior a la hora de inicio</div>
-                </div>
+        <h2>Asignar Nuevo Turno</h2>
+        
+        <div class="assignment-form">
+            <div class="form-group">
+                <label for="employee">Empleado:</label>
+                <select id="employee" required>
+                    <option value="">Seleccione un empleado</option>
+                    <!-- Opciones se llenarán con JS -->
+                </select>
             </div>
             
-            <div id="overlap-error" class="error-message" style="display: none; margin-bottom: 1.5rem;"></div>
+            <div class="form-group">
+                <label for="area">Área de trabajo:</label>
+                <select id="area" required>
+                    <option value="">Seleccione un área</option>
+                    <option value="Urgencias">Urgencias</option>
+                    <option value="Pediatría">Pediatría</option>
+                    <option value="Cirugía">Cirugía</option>
+                    <option value="Cardiología">Cardiología</option>
+                    <option value="Neurología">Neurología</option>
+                </select>
+            </div>
             
-            <button id="assign-btn" class="btn btn-block">Asignar Turno</button>
+            <div class="form-group">
+                <label for="date">Fecha:</label>
+                <input type="date" id="date" required>
+                <div id="date-error" class="error-message">La fecha debe estar dentro de los próximos 14 días</div>
+            </div>
             
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <h2 class="month-title" id="current-month"></h2>
-                    <div class="calendar-nav">
-                        <button id="prev-month" class="btn">‹</button>
-                        <button id="next-month" class="btn">›</button>
-                    </div>
-                </div>
-                
-                <div class="calendar-grid" id="calendar">
-                    <!-- Encabezados de días -->
-                    <div class="day-header">Lun</div>
-                    <div class="day-header">Mar</div>
-                    <div class="day-header">Mié</div>
-                    <div class="day-header">Jue</div>
-                    <div class="day-header">Vie</div>
-                    <div class="day-header">Sáb</div>
-                    <div class="day-header">Dom</div>
-                    
-                    <!-- Días se llenarán con JS -->
-                </div>
+            <div class="form-group">
+                <label for="start-time">Hora de inicio:</label>
+                <input type="time" id="start-time" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="end-time">Hora de fin:</label>
+                <input type="time" id="end-time" required>
+                <div id="time-error" class="error-message">La hora de fin debe ser posterior a la hora de inicio</div>
             </div>
         </div>
         
-        <!-- Sección de Gestión de Permisos (HU-10) -->
-        <div id="gestion-permisos" class="tab-content">
-            <h2>Gestión de Permisos y Vacaciones</h2>
-            
-            <div class="tabs">
-                <div class="tab active" data-tab="pendientes">Solicitudes Pendientes</div>
-                <div class="tab" data-tab="aprobadas">Solicitudes Aprobadas</div>
-                <div class="tab" data-tab="rechazadas">Solicitudes Rechazadas</div>
+        <div id="overlap-error" class="error-message" style="display: none; margin-bottom: 1.5rem;"></div>
+        
+        <button id="assign-btn" class="btn btn-block">Asignar Turno</button>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2 class="month-title" id="current-month"></h2>
+                <div class="calendar-nav">
+                    <button id="prev-month" class="btn">‹</button>
+                    <button id="next-month" class="btn">›</button>
+                </div>
             </div>
             
-            <div id="pendientes" class="tab-content active">
-                <table class="requests-table">
-                    <thead>
-                        <tr>
-                            <th>Empleado</th>
-                            <th>Tipo</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Días Solicitados</th>
-                            <th>Motivo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pending-requests">
-                        <!-- Solicitudes pendientes se llenarán con JS -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="aprobadas" class="tab-content">
-                <table class="requests-table">
-                    <thead>
-                        <tr>
-                            <th>Empleado</th>
-                            <th>Tipo</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Días Aprobados</th>
-                            <th>Motivo</th>
-                            <th>Comentario</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="approved-requests">
-                        <!-- Solicitudes aprobadas se llenarán con JS -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div id="rechazadas" class="tab-content">
-                <table class="requests-table">
-                    <thead>
-                        <tr>
-                            <th>Empleado</th>
-                            <th>Tipo</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Días Solicitados</th>
-                            <th>Motivo</th>
-                            <th>Razón Rechazo</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rejected-requests">
-                        <!-- Solicitudes rechazadas se llenarán con JS -->
-                    </tbody>
-                </table>
+            <div class="calendar-grid" id="calendar">
+                <!-- Encabezados de días -->
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mié</div>
+                <div class="day-header">Jue</div>
+                <div class="day-header">Vie</div>
+                <div class="day-header">Sáb</div>
+                <div class="day-header">Dom</div>
+                
+                <!-- Días se llenarán con JS -->
             </div>
         </div>
     </div>
 
-    <!-- Modal para aprobar/rechazar solicitud -->
-    <div class="modal" id="requestModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Procesar Solicitud</h3>
-                <button class="close-modal" id="closeModal">&times;</button>
-            </div>
-            <form id="processRequestForm">
-                <input type="hidden" id="requestId">
-                <div class="form-group">
-                    <label for="employeeName">Empleado:</label>
-                    <input type="text" id="employeeName" class="form-control" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="requestType">Tipo de Solicitud:</label>
-                    <input type="text" id="requestType" class="form-control" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="requestDates">Fechas:</label>
-                    <input type="text" id="requestDates" class="form-control" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="requestReason">Motivo:</label>
-                    <textarea id="requestReason" class="form-control" readonly></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="remainingDays">Días disponibles:</label>
-                    <input type="text" id="remainingDays" class="form-control" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="coordinatorComment">Comentario (requerido):</label>
-                    <textarea id="coordinatorComment" class="form-control" required></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-reject" id="rejectBtn">Rechazar</button>
-                    <button type="button" class="btn btn-approve" id="approveBtn">Aprobar</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <div class="notification" id="notification"></div>
 
     <script>
         // Datos de ejemplo
         const employees = [
-            { id: 1, name: "María González", area: "Urgencias", vacationDays: 15, permissionDays: 5 },
-            { id: 2, name: "Carlos López", area: "Pediatría", vacationDays: 12, permissionDays: 3 },
-            { id: 3, name: "Ana Rodríguez", area: "Cirugía", vacationDays: 20, permissionDays: 7 },
-            { id: 4, name: "Pedro Sánchez", area: "Cardiología", vacationDays: 10, permissionDays: 2 },
-            { id: 5, name: "Lucía Fernández", area: "Neurología", vacationDays: 18, permissionDays: 6 }
+            { id: 1, name: "María González", area: "Urgencias" },
+            { id: 2, name: "Carlos López", area: "Pediatría" },
+            { id: 3, name: "Ana Rodríguez", area: "Cirugía" },
+            { id: 4, name: "Pedro Sánchez", area: "Cardiología" },
+            { id: 5, name: "Lucía Fernández", area: "Neurología" }
         ];
         
         let shifts = [
@@ -684,66 +446,9 @@
             }
         ];
         
-        // Datos de solicitudes de permisos y vacaciones (HU-10)
-        let requests = [
-            {
-                id: 1,
-                employeeId: 1,
-                employeeName: "María González",
-                type: "Vacaciones",
-                startDate: getFormattedDate(addDays(new Date(), 7)),
-                endDate: getFormattedDate(addDays(new Date(), 14)),
-                reason: "Descanso anual programado",
-                status: "Pendiente",
-                daysRequested: 7,
-                remainingDays: 15,
-                coordinatorComment: ""
-            },
-            {
-                id: 2,
-                employeeId: 2,
-                employeeName: "Carlos López",
-                type: "Permiso Médico",
-                startDate: getFormattedDate(new Date()),
-                endDate: getFormattedDate(addDays(new Date(), 2)),
-                reason: "Consulta médica y recuperación",
-                status: "Pendiente",
-                daysRequested: 3,
-                remainingDays: 3,
-                coordinatorComment: ""
-            },
-            {
-                id: 3,
-                employeeId: 3,
-                employeeName: "Ana Rodríguez",
-                type: "Vacaciones",
-                startDate: getFormattedDate(addDays(new Date(), 30)),
-                endDate: getFormattedDate(addDays(new Date(), 37)),
-                reason: "Viaje familiar",
-                status: "Aprobado",
-                daysRequested: 7,
-                remainingDays: 20,
-                coordinatorComment: "Aprobado según disponibilidad de personal"
-            },
-            {
-                id: 4,
-                employeeId: 4,
-                employeeName: "Pedro Sánchez",
-                type: "Permiso Personal",
-                startDate: getFormattedDate(addDays(new Date(), 5)),
-                endDate: getFormattedDate(addDays(new Date(), 5)),
-                reason: "Trámite personal",
-                status: "Rechazado",
-                daysRequested: 1,
-                remainingDays: 2,
-                coordinatorComment: "No hay personal suficiente para cubrir el turno"
-            }
-        ];
-        
         // Variables de estado del calendario
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
-        let currentRequestId = null;
         
         // Elementos del DOM
         const employeeSelect = document.getElementById('employee');
@@ -759,16 +464,6 @@
         const currentMonthEl = document.getElementById('current-month');
         const prevMonthBtn = document.getElementById('prev-month');
         const nextMonthBtn = document.getElementById('next-month');
-        const permisosLink = document.getElementById('permisosLink');
-        
-        // Elementos para gestión de permisos (HU-10)
-        const pendingRequestsTable = document.getElementById('pending-requests');
-        const approvedRequestsTable = document.getElementById('approved-requests');
-        const rejectedRequestsTable = document.getElementById('rejected-requests');
-        const requestModal = document.getElementById('requestModal');
-        const processRequestForm = document.getElementById('processRequestForm');
-        const approveBtn = document.getElementById('approveBtn');
-        const rejectBtn = document.getElementById('rejectBtn');
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -776,10 +471,6 @@
             setupDateRestrictions();
             setupEventListeners();
             renderCalendar();
-            renderRequestsTables();
-            
-            // Mostrar sección de asignación de turnos por defecto
-            showSection('asignacion-turnos');
         });
         
         // Funciones principales
@@ -804,9 +495,14 @@
         }
         
         function setupEventListeners() {
-            // Asignación de turnos
             assignBtn.addEventListener('click', assignShift);
-            dateInput.addEventListener('change', validateDate);
+            
+            // Validar fecha al cambiar
+            dateInput.addEventListener('change', function() {
+                validateDate();
+            });
+            
+            // Validar horas al cambiar
             startTimeInput.addEventListener('change', validateTimes);
             endTimeInput.addEventListener('change', validateTimes);
             
@@ -828,41 +524,6 @@
                 }
                 renderCalendar();
             });
-            
-            // Gestión de permisos (HU-10)
-            permisosLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                showSection('gestion-permisos');
-            });
-            
-            // Tabs de solicitudes
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Cambiar pestaña activa
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Mostrar contenido correspondiente
-                    const tabId = this.getAttribute('data-tab');
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(tabId).classList.add('active');
-                });
-            });
-            
-            // Botones de acción en solicitudes
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('process-btn')) {
-                    const requestId = parseInt(e.target.getAttribute('data-id'));
-                    openRequestModal(requestId);
-                }
-            });
-            
-            // Botones del modal
-            approveBtn.addEventListener('click', approveRequest);
-            rejectBtn.addEventListener('click', rejectRequest);
-            document.getElementById('closeModal').addEventListener('click', closeRequestModal);
         }
         
         function renderCalendar() {
@@ -922,81 +583,6 @@
                 });
                 
                 calendarEl.appendChild(dayEl);
-            }
-        }
-        
-        function renderRequestsTables() {
-            // Limpiar tablas
-            pendingRequestsTable.innerHTML = '';
-            approvedRequestsTable.innerHTML = '';
-            rejectedRequestsTable.innerHTML = '';
-            
-            // Llenar tabla de solicitudes pendientes
-            const pendingRequests = requests.filter(r => r.status === "Pendiente");
-            if (pendingRequests.length === 0) {
-                pendingRequestsTable.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay solicitudes pendientes</td></tr>';
-            } else {
-                pendingRequests.forEach(request => {
-                    const row = document.createElement('tr');
-                    row.className = 'request-pending';
-                    row.innerHTML = `
-                        <td>${request.employeeName}</td>
-                        <td>${request.type}</td>
-                        <td>${formatDate(request.startDate)}</td>
-                        <td>${formatDate(request.endDate)}</td>
-                        <td>${request.daysRequested}</td>
-                        <td>${request.reason}</td>
-                        <td><span class="status-badge badge-pending">Pendiente</span></td>
-                        <td>
-                            <button class="btn btn-small process-btn" data-id="${request.id}">Procesar</button>
-                        </td>
-                    `;
-                    pendingRequestsTable.appendChild(row);
-                });
-            }
-            
-            // Llenar tabla de solicitudes aprobadas
-            const approvedRequests = requests.filter(r => r.status === "Aprobado");
-            if (approvedRequests.length === 0) {
-                approvedRequestsTable.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay solicitudes aprobadas</td></tr>';
-            } else {
-                approvedRequests.forEach(request => {
-                    const row = document.createElement('tr');
-                    row.className = 'request-approved';
-                    row.innerHTML = `
-                        <td>${request.employeeName}</td>
-                        <td>${request.type}</td>
-                        <td>${formatDate(request.startDate)}</td>
-                        <td>${formatDate(request.endDate)}</td>
-                        <td>${request.daysRequested}</td>
-                        <td>${request.reason}</td>
-                        <td>${request.coordinatorComment}</td>
-                        <td><span class="status-badge badge-approved">Aprobado</span></td>
-                    `;
-                    approvedRequestsTable.appendChild(row);
-                });
-            }
-            
-            // Llenar tabla de solicitudes rechazadas
-            const rejectedRequests = requests.filter(r => r.status === "Rechazado");
-            if (rejectedRequests.length === 0) {
-                rejectedRequestsTable.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay solicitudes rechazadas</td></tr>';
-            } else {
-                rejectedRequests.forEach(request => {
-                    const row = document.createElement('tr');
-                    row.className = 'request-rejected';
-                    row.innerHTML = `
-                        <td>${request.employeeName}</td>
-                        <td>${request.type}</td>
-                        <td>${formatDate(request.startDate)}</td>
-                        <td>${formatDate(request.endDate)}</td>
-                        <td>${request.daysRequested}</td>
-                        <td>${request.reason}</td>
-                        <td>${request.coordinatorComment}</td>
-                        <td><span class="status-badge badge-rejected">Rechazado</span></td>
-                    `;
-                    rejectedRequestsTable.appendChild(row);
-                });
             }
         }
         
@@ -1123,91 +709,6 @@
             endTimeInput.value = '';
         }
         
-        // Funciones para gestión de permisos (HU-10)
-        function openRequestModal(requestId) {
-            const request = requests.find(r => r.id === requestId);
-            if (!request) return;
-            
-            currentRequestId = requestId;
-            
-            // Llenar datos del modal
-            document.getElementById('employeeName').value = request.employeeName;
-            document.getElementById('requestType').value = request.type;
-            document.getElementById('requestDates').value = `${formatDate(request.startDate)} - ${formatDate(request.endDate)}`;
-            document.getElementById('requestReason').value = request.reason;
-            document.getElementById('remainingDays').value = `${request.remainingDays} días disponibles`;
-            document.getElementById('coordinatorComment').value = '';
-            
-            // Mostrar modal
-            requestModal.style.display = 'flex';
-        }
-        
-        function closeRequestModal() {
-            requestModal.style.display = 'none';
-            currentRequestId = null;
-        }
-        
-        function approveRequest() {
-            const comment = document.getElementById('coordinatorComment').value.trim();
-            if (!comment) {
-                showNotification('Por favor ingrese un comentario', true);
-                return;
-            }
-            
-            const requestIndex = requests.findIndex(r => r.id === currentRequestId);
-            if (requestIndex === -1) return;
-            
-            // Verificar días disponibles (CA-10-3)
-            const request = requests[requestIndex];
-            const employee = employees.find(e => e.id === request.employeeId);
-            
-            if (request.type === "Vacaciones" && request.daysRequested > employee.vacationDays) {
-                showNotification('El empleado no tiene suficientes días de vacaciones disponibles', true);
-                return;
-            }
-            
-            if (request.type.includes("Permiso") && request.daysRequested > employee.permissionDays) {
-                showNotification('El empleado no tiene suficientes días de permiso disponibles', true);
-                return;
-            }
-            
-            // Actualizar solicitud
-            requests[requestIndex].status = "Aprobado";
-            requests[requestIndex].coordinatorComment = comment;
-            
-            // Actualizar días disponibles del empleado
-            if (request.type === "Vacaciones") {
-                employee.vacationDays -= request.daysRequested;
-            } else {
-                employee.permissionDays -= request.daysRequested;
-            }
-            
-            // Cerrar modal y actualizar tablas
-            closeRequestModal();
-            renderRequestsTables();
-            showNotification('Solicitud aprobada correctamente');
-        }
-        
-        function rejectRequest() {
-            const comment = document.getElementById('coordinatorComment').value.trim();
-            if (!comment) {
-                showNotification('Por favor ingrese un comentario', true);
-                return;
-            }
-            
-            const requestIndex = requests.findIndex(r => r.id === currentRequestId);
-            if (requestIndex === -1) return;
-            
-            // Actualizar solicitud
-            requests[requestIndex].status = "Rechazado";
-            requests[requestIndex].coordinatorComment = comment;
-            
-            // Cerrar modal y actualizar tablas
-            closeRequestModal();
-            renderRequestsTables();
-            showNotification('Solicitud rechazada correctamente');
-        }
-        
         function showConfirmationNotification(shift) {
             const notification = document.createElement('div');
             notification.className = 'notification show';
@@ -1282,27 +783,6 @@
             }, 5000);
         }
         
-        function showSection(sectionId) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.tab-content').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Mostrar la sección seleccionada
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Actualizar menú activo
-            document.querySelectorAll('.main-menu a').forEach(link => {
-                link.style.backgroundColor = '';
-            });
-            
-            if (sectionId === 'gestion-permisos') {
-                document.getElementById('permisosLink').style.backgroundColor = 'var(--color-primary)';
-            } else {
-                document.querySelector('.main-menu a[style]').style.backgroundColor = 'var(--color-primary)';
-            }
-        }
-        
         // Funciones utilitarias de fecha
         function getFormattedDate(date) {
             const year = date.getFullYear();
@@ -1318,12 +798,6 @@
         function formatDate(dateStr) {
             const [year, month, day] = dateStr.split('-');
             return `${day}/${month}/${year}`;
-        }
-        
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
         }
     </script>
 </body>
