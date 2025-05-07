@@ -249,6 +249,130 @@
             font-size: 0.8rem;
         }
         
+        /* Botón de cambio de turno */
+        .shift-change-btn {
+            background-color: var(--color-secondary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .shift-change-btn:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
+        /* Modal para cambio de turno */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--color-white);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            color: var(--color-primary-dark);
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--color-primary-light);
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        /* Notificación */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
         /* Días sin turnos */
         .calendar-day.empty {
             background-color: var(--color-background);
@@ -285,6 +409,11 @@
             
             .app-title {
                 font-size: 2rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
             }
         }
     </style>
@@ -357,6 +486,40 @@
         <div class="calendar-grid" id="calendarBody"></div>
     </div>
 
+    <!-- Modal para cambio de turno -->
+    <div class="modal" id="changeShiftModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Solicitar Cambio de Turno</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <form id="changeShiftForm">
+                <div class="form-group">
+                    <label for="currentShift">Turno Actual:</label>
+                    <input type="text" id="currentShift" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="newShift">Nuevo Turno Disponible:</label>
+                    <select id="newShift" class="form-control" required>
+                        <option value="">Seleccione un nuevo turno</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Motivo del cambio (máximo 200 caracteres):</label>
+                    <textarea id="reason" class="form-control" maxlength="200" required></textarea>
+                    <small id="charCount">0/200 caracteres</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelChange">Cancelar</button>
+                    <button type="submit" class="btn">Enviar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification"></div>
+
     <script>
         // Datos del funcionario actual
         const funcionarioActual = {
@@ -367,16 +530,25 @@
         
         // Datos de ejemplo de turnos
         const misTurnos = [
-            { fecha: "2024-04-04", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
-            { fecha: "2024-04-12", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
-            { fecha: "2024-04-15", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" },
-            { fecha: "2024-04-20", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
-            { fecha: "2024-05-03", area: "Cardiología", nombre: "Turno Noche", horario: "00:00 - 08:00" }
+            { id: 1, fecha: "2024-04-04", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
+            { id: 2, fecha: "2024-04-12", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
+            { id: 3, fecha: "2024-04-15", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" },
+            { id: 4, fecha: "2024-04-20", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
+            { id: 5, fecha: "2024-05-03", area: "Cardiología", nombre: "Turno Noche", horario: "00:00 - 08:00" }
+        ];
+
+        // Turnos disponibles para cambio (simulados)
+        const turnosDisponibles = [
+            { id: 101, fecha: "2024-04-05", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
+            { id: 102, fecha: "2024-04-06", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
+            { id: 103, fecha: "2024-04-07", area: "Urgencias", nombre: "Turno Noche", horario: "00:00 - 08:00" },
+            { id: 104, fecha: "2024-04-13", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" }
         ];
         
         // Variables globales
         let currentMonth = new Date().getMonth() + 1;
         let currentYear = new Date().getFullYear();
+        let selectedShift = null;
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -389,6 +561,12 @@
             
             // Configurar event listeners
             setupEventListeners();
+            
+            // Configurar contador de caracteres
+            document.getElementById('reason').addEventListener('input', function() {
+                const charCount = this.value.length;
+                document.getElementById('charCount').textContent = `${charCount}/200 caracteres`;
+            });
         });
         
         // Función para actualizar el calendario
@@ -455,12 +633,85 @@
                             <p class="shift-title">${turno.nombre}</p>
                             <p class="shift-time">${turno.horario} - ${turno.area}</p>
                         `;
+                        
+                        // Verificar si el turno está dentro de los próximos 5 días
+                        const turnoDate = new Date(turno.fecha);
+                        const diffDays = Math.floor((turnoDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays >= 0 && diffDays <= 5) {
+                            const changeBtn = document.createElement('button');
+                            changeBtn.className = 'shift-change-btn';
+                            changeBtn.textContent = 'Solicitar Cambio';
+                            changeBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                openChangeShiftModal(turno);
+                            });
+                            turnoDiv.appendChild(changeBtn);
+                        }
+                        
                         cell.appendChild(turnoDiv);
                     });
                 }
                 
                 calendarBody.appendChild(cell);
             }
+        }
+        
+        // Función para abrir el modal de cambio de turno
+        function openChangeShiftModal(turno) {
+            selectedShift = turno;
+            const modal = document.getElementById('changeShiftModal');
+            const currentShiftInput = document.getElementById('currentShift');
+            
+            // Mostrar información del turno actual
+            currentShiftInput.value = `${turno.nombre} (${turno.fecha}) - ${turno.horario}`;
+            
+            // Limpiar y cargar turnos disponibles
+            const newShiftSelect = document.getElementById('newShift');
+            newShiftSelect.innerHTML = '<option value="">Seleccione un nuevo turno</option>';
+            
+            // Filtrar turnos disponibles que no se solapen con otros turnos del usuario
+            const turnosDisponiblesFiltrados = turnosDisponibles.filter(disponible => {
+                // Verificar que no sea el mismo día
+                if (disponible.fecha === turno.fecha) return false;
+                
+                // Verificar que no se solape con otros turnos del usuario
+                const usuarioTieneTurnoEseDia = misTurnos.some(t => t.fecha === disponible.fecha);
+                return !usuarioTieneTurnoEseDia;
+            });
+            
+            // Agregar opciones de turnos disponibles
+            turnosDisponiblesFiltrados.forEach(disponible => {
+                const option = document.createElement('option');
+                option.value = disponible.id;
+                option.textContent = `${disponible.nombre} (${disponible.fecha}) - ${disponible.horario}`;
+                newShiftSelect.appendChild(option);
+            });
+            
+            // Limpiar formulario
+            document.getElementById('reason').value = '';
+            document.getElementById('charCount').textContent = '0/200 caracteres';
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+        }
+        
+        // Función para cerrar el modal
+        function closeChangeShiftModal() {
+            document.getElementById('changeShiftModal').style.display = 'none';
+            selectedShift = null;
+        }
+        
+        // Función para mostrar notificación
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isSuccess ? 'var(--color-primary)' : '#ff6b6b';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
         }
         
         // Función para configurar event listeners
@@ -494,6 +745,43 @@
                 document.getElementById('areaFilter').value = '';
                 document.getElementById('monthSelector').value = currentMonth;
                 updateCalendar(currentMonth, currentYear);
+            });
+            
+            // Cerrar modal
+            document.getElementById('closeModal').addEventListener('click', closeChangeShiftModal);
+            document.getElementById('cancelChange').addEventListener('click', closeChangeShiftModal);
+            
+            // Enviar formulario de cambio de turno
+            document.getElementById('changeShiftForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newShiftId = document.getElementById('newShift').value;
+                const reason = document.getElementById('reason').value;
+                
+                if (!newShiftId || !reason) {
+                    showNotification('Por favor complete todos los campos', false);
+                    return;
+                }
+                
+                // Simular envío de solicitud
+                setTimeout(() => {
+                    closeChangeShiftModal();
+                    showNotification('Solicitud de cambio enviada al coordinador');
+                    
+                    // Simular respuesta del coordinador después de 24 horas
+                    setTimeout(() => {
+                        const respuestas = ['aprobada', 'rechazada'];
+                        const respuesta = respuestas[Math.floor(Math.random() * respuestas.length)];
+                        showNotification(`El coordinador ha ${respuesta} su solicitud de cambio de turno`, respuesta === 'aprobada');
+                    }, 1000 * 60 * 60 * 24); // 24 horas en milisegundos (simulado)
+                }, 1000);
+            });
+            
+            // Cerrar modal haciendo clic fuera del contenido
+            document.getElementById('changeShiftModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeChangeShiftModal();
+                }
             });
         }
         
