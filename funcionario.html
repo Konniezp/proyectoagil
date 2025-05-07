@@ -528,22 +528,81 @@
             area: "Urgencias"
         };
         
-        // Datos de ejemplo de turnos
-        const misTurnos = [
-            { id: 1, fecha: "2024-04-04", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
-            { id: 2, fecha: "2024-04-12", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
-            { id: 3, fecha: "2024-04-15", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" },
-            { id: 4, fecha: "2024-04-20", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
-            { id: 5, fecha: "2024-05-03", area: "Cardiología", nombre: "Turno Noche", horario: "00:00 - 08:00" }
-        ];
-
-        // Turnos disponibles para cambio (simulados)
-        const turnosDisponibles = [
-            { id: 101, fecha: "2024-04-05", area: "Urgencias", nombre: "Turno Tarde", horario: "16:00 - 00:00" },
-            { id: 102, fecha: "2024-04-06", area: "Urgencias", nombre: "Turno Mañana", horario: "08:00 - 16:00" },
-            { id: 103, fecha: "2024-04-07", area: "Urgencias", nombre: "Turno Noche", horario: "00:00 - 08:00" },
-            { id: 104, fecha: "2024-04-13", area: "Pediatría", nombre: "Turno Especial", horario: "12:00 - 20:00" }
-        ];
+        // Obtener fechas de la próxima semana
+        const getNextWeekDates = () => {
+            const today = new Date();
+            const nextWeek = [];
+            
+            for (let i = 1; i <= 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                nextWeek.push(formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+            }
+            
+            return nextWeek;
+        };
+        
+        // Generar turnos para la próxima semana
+        const generateShiftsForNextWeek = () => {
+            const nextWeekDates = getNextWeekDates();
+            const shifts = [];
+            const shiftTypes = [
+                { name: "Turno Mañana", time: "08:00 - 16:00" },
+                { name: "Turno Tarde", time: "16:00 - 00:00" },
+                { name: "Turno Noche", time: "00:00 - 08:00" }
+            ];
+            
+            // Crear 3 turnos aleatorios para el usuario en la próxima semana
+            for (let i = 0; i < 3; i++) {
+                const randomDateIndex = Math.floor(Math.random() * nextWeekDates.length);
+                const randomShiftType = Math.floor(Math.random() * shiftTypes.length);
+                
+                shifts.push({
+                    id: i + 1,
+                    fecha: nextWeekDates[randomDateIndex],
+                    area: ["Urgencias", "Pediatría", "Cirugía"][Math.floor(Math.random() * 3)],
+                    nombre: shiftTypes[randomShiftType].name,
+                    horario: shiftTypes[randomShiftType].time
+                });
+            }
+            
+            return shifts;
+        };
+        
+        // Generar turnos disponibles para la próxima semana (sin solapamiento con los turnos del usuario)
+        const generateAvailableShifts = (userShifts) => {
+            const nextWeekDates = getNextWeekDates();
+            const availableShifts = [];
+            const shiftTypes = [
+                { name: "Turno Mañana", time: "08:00 - 16:00" },
+                { name: "Turno Tarde", time: "16:00 - 00:00" },
+                { name: "Turno Noche", time: "00:00 - 08:00" }
+            ];
+            
+            // Crear turnos disponibles que no coincidan con los turnos del usuario
+            nextWeekDates.forEach(date => {
+                // Verificar si el usuario ya tiene un turno ese día
+                const userHasShift = userShifts.some(shift => shift.fecha === date);
+                
+                if (!userHasShift) {
+                    shiftTypes.forEach((type, index) => {
+                        availableShifts.push({
+                            id: 100 + availableShifts.length + 1,
+                            fecha: date,
+                            area: ["Urgencias", "Pediatría", "Cirugía"][index % 3],
+                            nombre: type.name,
+                            horario: type.time
+                        });
+                    });
+                }
+            });
+            
+            return availableShifts;
+        };
+        
+        // Datos de ejemplo de turnos (próxima semana)
+        const misTurnos = generateShiftsForNextWeek();
+        const turnosDisponibles = generateAvailableShifts(misTurnos);
         
         // Variables globales
         let currentMonth = new Date().getMonth() + 1;
@@ -567,6 +626,10 @@
                 const charCount = this.value.length;
                 document.getElementById('charCount').textContent = `${charCount}/200 caracteres`;
             });
+            
+            // Mostrar en consola los turnos generados para referencia
+            console.log("Turnos del usuario:", misTurnos);
+            console.log("Turnos disponibles:", turnosDisponibles);
         });
         
         // Función para actualizar el calendario
@@ -634,11 +697,11 @@
                             <p class="shift-time">${turno.horario} - ${turno.area}</p>
                         `;
                         
-                        // Verificar si el turno está dentro de los próximos 5 días
+                        // Verificar si el turno está dentro de los próximos 7 días (próxima semana)
                         const turnoDate = new Date(turno.fecha);
                         const diffDays = Math.floor((turnoDate - today) / (1000 * 60 * 60 * 24));
                         
-                        if (diffDays >= 0 && diffDays <= 5) {
+                        if (diffDays >= 0 && diffDays <= 7) {
                             const changeBtn = document.createElement('button');
                             changeBtn.className = 'shift-change-btn';
                             changeBtn.textContent = 'Solicitar Cambio';
