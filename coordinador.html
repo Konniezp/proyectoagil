@@ -58,6 +58,9 @@
         .main-menu {
             background-color: var(--color-primary-dark);
             padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .main-menu ul {
@@ -207,43 +210,94 @@
             font-size: 20px;
         }
         
-        /* Lista de turnos */
-        .shifts-list {
+        /* Calendario */
+        .calendar-container {
             margin-top: 2rem;
-            border: 1px solid var(--color-gray);
-            border-radius: 8px;
-            overflow: hidden;
         }
         
-        .shift-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--color-gray);
+        .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
         }
         
-        .shift-item:last-child {
-            border-bottom: none;
-        }
-        
-        .shift-info {
-            flex: 1;
-        }
-        
-        .shift-info h3 {
+        .month-title {
+            font-size: 1.5rem;
             color: var(--color-primary-dark);
-            margin-bottom: 0.5rem;
         }
         
-        .shift-info p {
-            color: var(--color-text);
-            font-size: 0.9rem;
-        }
-        
-        .shift-actions {
+        .calendar-nav {
             display: flex;
             gap: 0.5rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: var(--color-primary-light);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .day-header {
+            background-color: var(--color-primary-dark);
+            color: var(--color-white);
+            text-align: center;
+            font-weight: bold;
+            padding: 0.8rem;
+        }
+        
+        .calendar-day {
+            min-height: 100px;
+            background: var(--color-white);
+            padding: 0.5rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background-color: var(--color-background);
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-dark);
+        }
+        
+        /* Día actual */
+        .calendar-day.current-day {
+            background-color: var(--color-secondary-light);
+            border: 2px solid var(--color-secondary);
+        }
+        
+        /* Turnos en el calendario */
+        .calendar-shift {
+            background-color: var(--color-background);
+            border-left: 3px solid var(--color-primary);
+            padding: 0.4rem;
+            margin: 0.2rem 0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .calendar-shift p {
+            margin: 0.1rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .shift-employee {
+            font-weight: bold;
+            color: var(--color-primary-dark);
+        }
+        
+        .shift-time {
+            color: var(--color-text);
         }
         
         /* Responsive */
@@ -255,6 +309,20 @@
             .main-menu ul {
                 flex-direction: column;
                 gap: 0.5rem;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .day-header {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -320,9 +388,27 @@
         
         <button id="assign-btn" class="btn btn-block">Asignar Turno</button>
         
-        <h2 style="margin-top: 3rem;">Turnos Asignados Recientemente</h2>
-        <div class="shifts-list" id="shifts-list">
-            <!-- Turnos se cargarán aquí con JS -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2 class="month-title" id="current-month"></h2>
+                <div class="calendar-nav">
+                    <button id="prev-month" class="btn">‹</button>
+                    <button id="next-month" class="btn">›</button>
+                </div>
+            </div>
+            
+            <div class="calendar-grid" id="calendar">
+                <!-- Encabezados de días -->
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mié</div>
+                <div class="day-header">Jue</div>
+                <div class="day-header">Vie</div>
+                <div class="day-header">Sáb</div>
+                <div class="day-header">Dom</div>
+                
+                <!-- Días se llenarán con JS -->
+            </div>
         </div>
     </div>
 
@@ -342,7 +428,7 @@
                 employeeId: 1,
                 employeeName: "María González",
                 area: "Urgencias",
-                date: "2024-04-15",
+                date: getFormattedDate(new Date()),
                 startTime: "08:00",
                 endTime: "16:00"
             },
@@ -351,11 +437,15 @@
                 employeeId: 2,
                 employeeName: "Carlos López",
                 area: "Pediatría",
-                date: "2024-04-15",
+                date: getFormattedDate(new Date()),
                 startTime: "14:00",
                 endTime: "22:00"
             }
         ];
+        
+        // Variables de estado del calendario
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
         
         // Elementos del DOM
         const employeeSelect = document.getElementById('employee');
@@ -364,20 +454,23 @@
         const startTimeInput = document.getElementById('start-time');
         const endTimeInput = document.getElementById('end-time');
         const assignBtn = document.getElementById('assign-btn');
-        const shiftsList = document.getElementById('shifts-list');
         const dateError = document.getElementById('date-error');
         const timeError = document.getElementById('time-error');
         const overlapError = document.getElementById('overlap-error');
+        const calendarEl = document.getElementById('calendar');
+        const currentMonthEl = document.getElementById('current-month');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             loadEmployees();
-            loadRecentShifts();
             setupDateRestrictions();
             setupEventListeners();
+            renderCalendar();
         });
         
-        // Funciones
+        // Funciones principales
         function loadEmployees() {
             employeeSelect.innerHTML = '<option value="">Seleccione un empleado</option>';
             employees.forEach(employee => {
@@ -388,55 +481,14 @@
             });
         }
         
-        function loadRecentShifts() {
-            shiftsList.innerHTML = '';
-            
-            if (shifts.length === 0) {
-                shiftsList.innerHTML = '<div class="shift-item"><p>No hay turnos asignados recientemente</p></div>';
-                return;
-            }
-            
-            // Ordenar por fecha más reciente primero
-            const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            sortedShifts.forEach(shift => {
-                const shiftItem = document.createElement('div');
-                shiftItem.className = 'shift-item';
-                
-                const formattedDate = formatDate(shift.date);
-                
-                shiftItem.innerHTML = `
-                    <div class="shift-info">
-                        <h3>${shift.employeeName}</h3>
-                        <p><strong>Área:</strong> ${shift.area}</p>
-                        <p><strong>Fecha:</strong> ${formattedDate}</p>
-                        <p><strong>Horario:</strong> ${shift.startTime} - ${shift.endTime}</p>
-                    </div>
-                    <div class="shift-actions">
-                        <button class="btn btn-undo" data-id="${shift.id}">Deshacer</button>
-                    </div>
-                `;
-                
-                shiftsList.appendChild(shiftItem);
-            });
-            
-            // Agregar event listeners a los botones de deshacer
-            document.querySelectorAll('.btn-undo').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const shiftId = parseInt(this.getAttribute('data-id'));
-                    undoShiftAssignment(shiftId);
-                });
-            });
-        }
-        
         function setupDateRestrictions() {
             // Establecer fecha mínima (hoy) y máxima (14 días después)
             const today = new Date();
             const maxDate = new Date();
             maxDate.setDate(today.getDate() + 14);
             
-            dateInput.min = formatDateForInput(today);
-            dateInput.max = formatDateForInput(maxDate);
+            dateInput.min = getFormattedDate(today);
+            dateInput.max = getFormattedDate(maxDate);
         }
         
         function setupEventListeners() {
@@ -450,6 +502,85 @@
             // Validar horas al cambiar
             startTimeInput.addEventListener('change', validateTimes);
             endTimeInput.addEventListener('change', validateTimes);
+            
+            // Navegación del calendario
+            prevMonthBtn.addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+            
+            nextMonthBtn.addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
+        }
+        
+        function renderCalendar() {
+            // Configurar título del mes
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                              "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            currentMonthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Limpiar calendario (excepto los encabezados)
+            while (calendarEl.children.length > 7) {
+                calendarEl.removeChild(calendarEl.lastChild);
+            }
+            
+            // Obtener primer día del mes y cantidad de días
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+            
+            // Ajustar primer día (Lunes=1, Domingo=0 -> ajustamos para que Domingo=6)
+            let adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+            
+            // Añadir días vacíos al inicio si es necesario
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendarEl.appendChild(emptyDay);
+            }
+            
+            // Añadir días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                
+                // Verificar si es el día actual
+                const currentDate = new Date();
+                if (day === currentDate.getDate() && 
+                    currentMonth === currentDate.getMonth() && 
+                    currentYear === currentDate.getFullYear()) {
+                    dayEl.classList.add('current-day');
+                }
+                
+                dayEl.innerHTML = `<div class="day-number">${day}</div>`;
+                
+                // Añadir turnos para este día
+                const dateStr = formatDateForCalendar(currentYear, currentMonth + 1, day);
+                const dayShifts = shifts.filter(shift => shift.date === dateStr);
+                
+                dayShifts.forEach(shift => {
+                    const shiftEl = document.createElement('div');
+                    shiftEl.className = 'calendar-shift';
+                    shiftEl.innerHTML = `
+                        <p class="shift-employee">${shift.employeeName}</p>
+                        <p class="shift-time">${shift.startTime} - ${shift.endTime}</p>
+                        <p>${shift.area}</p>
+                    `;
+                    dayEl.appendChild(shiftEl);
+                });
+                
+                calendarEl.appendChild(dayEl);
+            }
         }
         
         function validateDate() {
@@ -481,7 +612,10 @@
         }
         
         function checkForOverlaps(employeeId, date, startTime, endTime) {
-            const employeeShifts = shifts.filter(shift => shift.employeeId === employeeId && shift.date === date);
+            const employeeShifts = shifts.filter(shift => 
+                shift.employeeId === employeeId && 
+                shift.date === date
+            );
             
             if (employeeShifts.length === 0) {
                 return null; // No hay turnos para este empleado en esta fecha
@@ -556,13 +690,13 @@
             };
             
             // Agregar a la lista de turnos
-            shifts.unshift(newShift);
+            shifts.push(newShift);
             
             // Mostrar notificación de confirmación
             showConfirmationNotification(newShift);
             
-            // Actualizar lista de turnos
-            loadRecentShifts();
+            // Actualizar calendario
+            renderCalendar();
             
             // Limpiar formulario
             employeeSelect.value = '';
@@ -570,12 +704,6 @@
             dateInput.value = '';
             startTimeInput.value = '';
             endTimeInput.value = '';
-        }
-        
-        function undoShiftAssignment(shiftId) {
-            shifts = shifts.filter(shift => shift.id !== shiftId);
-            loadRecentShifts();
-            showNotification('Turno eliminado correctamente');
         }
         
         function showConfirmationNotification(shift) {
@@ -621,6 +749,12 @@
             }, 10000);
         }
         
+        function undoShiftAssignment(shiftId) {
+            shifts = shifts.filter(shift => shift.id !== shiftId);
+            renderCalendar();
+            showNotification('Turno eliminado correctamente');
+        }
+        
         function showNotification(message, isError = false) {
             const notification = document.createElement('div');
             notification.className = `notification ${isError ? 'notification-error' : ''} show`;
@@ -646,13 +780,21 @@
             }, 5000);
         }
         
+        // Funciones utilitarias de fecha
+        function getFormattedDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        function formatDateForCalendar(year, month, day) {
+            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+        
         function formatDate(dateStr) {
             const [year, month, day] = dateStr.split('-');
             return `${day}/${month}/${year}`;
-        }
-        
-        function formatDateForInput(date) {
-            return date.toISOString().split('T')[0];
         }
     </script>
 </body>
