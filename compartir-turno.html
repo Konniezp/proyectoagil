@@ -20,7 +20,6 @@
             background-color: var(--color-fondo);
         }
         
-        /* Nuevos estilos para el header y menú */
         .app-header {
             background: linear-gradient(135deg, var(--color-lila), var(--color-celeste));
             color: white;
@@ -71,12 +70,10 @@
             background-color: var(--color-lila);
         }
         
-        /* Ajustar el contenido principal para el nuevo layout */
         .main-content {
             padding: 2rem;
         }
         
-        /* Mantener los estilos existentes */
         .card-header {
             background-color: var(--color-lila-claro);
             color: var(--color-lila-oscuro);
@@ -136,10 +133,19 @@
             background-color: var(--color-lila-oscuro);
             color: white;
         }
+        
+        .share-counter {
+            background-color: var(--color-lila-claro);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
-    <!-- Nuevo Header con Menú -->
+    <!-- Header con Menú -->
     <div class="app-header">
         <h1 class="app-title">TurnoMed</h1>
         <p class="app-subtitle">Compartir Turnos</p>
@@ -159,6 +165,11 @@
     <div class="container-fluid main-content">
         <h2 class="mb-4" style="color: var(--color-lila-oscuro);">Compartir Mis Turnos</h2>
         
+        <!-- Contador de compartidos -->
+        <div class="share-counter">
+            Veces compartido este enlace: <span id="contadorCompartidos">0</span>/3
+        </div>
+        
         <!-- Tarjeta con turnos próximos -->
         <div class="card mb-4">
             <div class="card-header">
@@ -177,17 +188,6 @@
                 Generar Enlace para Compartir
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Destinatarios (máximo 3):</label>
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" id="emailDestinatario" placeholder="Ingrese email">
-                        <button class="btn btn-success" type="button" id="agregarDestinatario">Agregar</button>
-                    </div>
-                    <div id="listaDestinatarios" class="d-flex flex-wrap gap-2 mb-3">
-                        <!-- Destinatarios agregados aparecerán aquí -->
-                    </div>
-                </div>
-                
                 <button class="btn btn-primary" id="generarEnlace">Generar Enlace para Compartir</button>
                 
                 <div class="mt-4" id="seccionEnlace" style="display: none;">
@@ -197,6 +197,9 @@
                     <button class="btn btn-primary" id="enviarEmail">Enviar por Email</button>
                     <div class="mt-2 text-muted">
                         <small>Este enlace expirará en <span id="tiempoExpiracion">48</span> horas</small>
+                    </div>
+                    <div class="mt-2 text-warning">
+                        <small>Nota: Este enlace solo puede compartirse con 3 personas como máximo</small>
                     </div>
                 </div>
             </div>
@@ -213,10 +216,10 @@
                         <thead>
                             <tr>
                                 <th>Fecha Generación</th>
-                                <th>Destinatarios</th>
                                 <th>Turnos Incluidos</th>
                                 <th>Expiración</th>
                                 <th>Estado</th>
+                                <th>Usos</th>
                             </tr>
                         </thead>
                         <tbody id="historialEnlaces">
@@ -239,7 +242,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Destinatarios:</label>
-                        <div id="destinatariosEmail"></div>
+                        <input type="email" class="form-control" id="emailDestinatario" placeholder="Ingrese email del destinatario">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Mensaje opcional:</label>
@@ -282,9 +285,9 @@
         ];
 
         // Variables globales
-        let destinatarios = [];
         let enlacesCompartidos = [];
         let emailModal = null;
+        let enlaceActivo = null;
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
@@ -298,18 +301,10 @@
             cargarHistorialEnlaces();
             
             // Event listeners
-            document.getElementById('agregarDestinatario').addEventListener('click', agregarDestinatario);
             document.getElementById('generarEnlace').addEventListener('click', generarEnlace);
             document.getElementById('copiarEnlace').addEventListener('click', copiarEnlace);
             document.getElementById('enviarEmail').addEventListener('click', mostrarModalEmail);
             document.getElementById('confirmarEnvio').addEventListener('click', enviarEmail);
-            
-            // Permitir agregar destinatario con Enter
-            document.getElementById('emailDestinatario').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    agregarDestinatario();
-                }
-            });
         });
 
         // Función para cargar los turnos próximos
@@ -344,65 +339,8 @@
             });
         }
 
-        // Función para agregar destinatario (CA-15-2)
-        function agregarDestinatario() {
-            const emailInput = document.getElementById('emailDestinatario');
-            const email = emailInput.value.trim();
-            
-            if (!email) {
-                alert('Por favor ingrese un email válido');
-                return;
-            }
-            
-            // Validar formato de email simple
-            if (!email.includes('@') || !email.includes('.')) {
-                alert('Por favor ingrese un email válido');
-                return;
-            }
-            
-            // Validar máximo 3 destinatarios (CA-15-2)
-            if (destinatarios.length >= 3) {
-                alert('Solo puedes compartir con un máximo de 3 personas');
-                return;
-            }
-            
-            // Validar que no esté ya agregado
-            if (destinatarios.includes(email)) {
-                alert('Este email ya ha sido agregado');
-                return;
-            }
-            
-            destinatarios.push(email);
-            actualizarListaDestinatarios();
-            emailInput.value = '';
-        }
-
-        // Función para actualizar la lista visual de destinatarios
-        function actualizarListaDestinatarios() {
-            const lista = document.getElementById('listaDestinatarios');
-            lista.innerHTML = '';
-            
-            destinatarios.forEach(email => {
-                const badge = document.createElement('span');
-                badge.className = 'badge recipient-badge rounded-pill';
-                badge.innerHTML = `${email} <span class="ms-2" style="cursor:pointer;" onclick="eliminarDestinatario('${email}')">×</span>`;
-                lista.appendChild(badge);
-            });
-        }
-
-        // Función para eliminar destinatario
-        function eliminarDestinatario(email) {
-            destinatarios = destinatarios.filter(e => e !== email);
-            actualizarListaDestinatarios();
-        }
-
         // Función para generar enlace (CA-15-1)
         function generarEnlace() {
-            if (destinatarios.length === 0) {
-                alert('Por favor agregue al menos un destinatario');
-                return;
-            }
-            
             // Generar un ID único para el enlace
             const linkId = 'turnos-' + Date.now().toString(36);
             
@@ -410,14 +348,15 @@
             const enlace = {
                 id: linkId,
                 fechaGeneracion: new Date().toISOString(),
-                destinatarios: [...destinatarios],
                 turnos: misTurnos.map(t => ({
                     fecha: t.fecha,
                     horario: t.horario,
                     area: t.area
                 })),
                 expiracion: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 horas (CA-15-3)
-                estado: 'activo'
+                estado: 'activo',
+                usos: 0,
+                maxUsos: 3
             };
             
             // Guardar en localStorage (simulando base de datos)
@@ -428,6 +367,10 @@
             const enlaceUrl = `${window.location.origin}/ver-turnos.html?id=${linkId}`;
             document.getElementById('enlaceGenerado').textContent = enlaceUrl;
             document.getElementById('seccionEnlace').style.display = 'block';
+            document.getElementById('contadorCompartidos').textContent = '0';
+            
+            // Guardar referencia al enlace activo
+            enlaceActivo = enlace;
             
             // Actualizar historial
             cargarHistorialEnlaces();
@@ -440,34 +383,61 @@
         function copiarEnlace() {
             const enlace = document.getElementById('enlaceGenerado').textContent;
             navigator.clipboard.writeText(enlace)
-                .then(() => alert('Enlace copiado al portapapeles'))
+                .then(() => {
+                    alert('Enlace copiado al portapapeles');
+                    // Incrementar contador de usos
+                    if (enlaceActivo) {
+                        enlaceActivo.usos++;
+                        if (enlaceActivo.usos >= enlaceActivo.maxUsos) {
+                            enlaceActivo.estado = 'expirado';
+                        }
+                        actualizarEnlaceEnHistorial(enlaceActivo);
+                        document.getElementById('contadorCompartidos').textContent = enlaceActivo.usos;
+                    }
+                })
                 .catch(err => console.error('Error al copiar: ', err));
         }
 
         // Función para mostrar modal de envío por email
         function mostrarModalEmail() {
-            const destinatariosDiv = document.getElementById('destinatariosEmail');
-            destinatariosDiv.innerHTML = '';
-            
-            destinatarios.forEach(email => {
-                const p = document.createElement('p');
-                p.textContent = email;
-                destinatariosDiv.appendChild(p);
-            });
-            
+            document.getElementById('emailDestinatario').value = '';
+            document.getElementById('mensajeEmail').value = '';
             emailModal.show();
         }
 
         // Función para enviar email (simulado)
         function enviarEmail() {
-            // En un sistema real, aquí se haría una llamada al servidor para enviar el email
-            const mensaje = document.getElementById('mensajeEmail').value;
+            const email = document.getElementById('emailDestinatario').value.trim();
+            
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                alert('Por favor ingrese un email válido');
+                return;
+            }
             
             // Simular envío
             setTimeout(() => {
                 emailModal.hide();
-                alert('Los emails han sido enviados correctamente');
+                alert('El email ha sido enviado correctamente');
+                
+                // Incrementar contador de usos
+                if (enlaceActivo) {
+                    enlaceActivo.usos++;
+                    if (enlaceActivo.usos >= enlaceActivo.maxUsos) {
+                        enlaceActivo.estado = 'expirado';
+                    }
+                    actualizarEnlaceEnHistorial(enlaceActivo);
+                    document.getElementById('contadorCompartidos').textContent = enlaceActivo.usos;
+                }
             }, 1000);
+        }
+
+        // Función para actualizar un enlace en el historial
+        function actualizarEnlaceEnHistorial(enlaceActualizado) {
+            enlacesCompartidos = enlacesCompartidos.map(enlace => 
+                enlace.id === enlaceActualizado.id ? enlaceActualizado : enlace
+            );
+            localStorage.setItem('enlacesCompartidos', JSON.stringify(enlacesCompartidos));
+            cargarHistorialEnlaces();
         }
 
         // Función para cargar historial de enlaces compartidos
@@ -490,14 +460,13 @@
                 const tr = document.createElement('tr');
                 
                 // Validar si el enlace ha expirado
-                const expirado = new Date(enlace.expiracion) < new Date();
+                const expirado = new Date(enlace.expiracion) < new Date() || enlace.usos >= enlace.maxUsos;
                 if (expirado) {
                     enlace.estado = 'expirado';
                 }
                 
                 tr.innerHTML = `
                     <td>${formatearFechaHora(enlace.fechaGeneracion)}</td>
-                    <td>${enlace.destinatarios.join(', ')}</td>
                     <td>${enlace.turnos.length} turnos</td>
                     <td>${formatearFechaHora(enlace.expiracion)}</td>
                     <td>
@@ -505,6 +474,7 @@
                             ${enlace.estado === 'activo' ? 'Activo' : 'Expirado'}
                         </span>
                     </td>
+                    <td>${enlace.usos}/${enlace.maxUsos}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -550,4 +520,3 @@
     </script>
 </body>
 </html>
-    
