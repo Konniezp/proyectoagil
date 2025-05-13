@@ -163,6 +163,22 @@
             transform: translateY(-2px);
         }
         
+        /* Botón de login */
+        .login-btn-container {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .btn-login {
+            background-color: var(--color-secondary);
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn-login:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
         /* Footer */
         footer {
             text-align: center;
@@ -230,6 +246,11 @@
         <h2>Bienvenido a TurnoMed</h2>
         <p>El sistema integral para la gestión y visualización de turnos del personal hospitalario.</p>
         
+        <!-- Botón de Login añadido -->
+        <div class="login-btn-container">
+            <button class="btn btn-login" id="loginButton">Iniciar Sesión</button>
+        </div>
+        
         <div class="role-cards">
             <div class="role-card">
                 <h3>Coordinador</h3>
@@ -276,6 +297,11 @@
             
             // Simular carga del calendario.js (que estaría vinculado desde funcionario.html)
             console.log('Calendario.js se cargará desde la página de funcionario');
+            
+            // Evento para el botón de login
+            document.getElementById('loginButton').addEventListener('click', function() {
+                window.location.href = 'login.html'; // Asegúrate de que este archivo exista
+            });
         });
     </script>
 </body>
