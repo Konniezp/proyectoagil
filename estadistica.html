@@ -24,17 +24,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .sidebar {
-            background-color: var(--color-lila-oscuro);
-            min-height: 100vh;
-        }
-
+        /* Nuevos estilos para el header y menú */
         .app-header {
             background: linear-gradient(135deg, var(--color-lila), var(--color-celeste));
             color: white;
             padding: 1.5rem;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .app-title {
@@ -48,15 +45,60 @@
             opacity: 0.9;
         }
 
-        .nav-link {
-            color: white !important;
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-menu {
+            background-color: var(--color-lila-oscuro);
+            padding: 1rem 0;
+        }
+
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+            margin: 0;
+        }
+
+        .main-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             transition: all 0.3s;
         }
 
-        .nav-link:hover, .nav-link.active {
-            background-color: var(--color-lila) !important;
+        .main-menu a:hover {
+            background-color: var(--color-lila);
         }
 
+        .main-menu a.active {
+            background-color: var(--color-lila);
+        }
+
+        /* Contenido principal */
         .main-content {
             padding: 2rem;
         }
@@ -162,6 +204,11 @@
             .app-title {
                 font-size: 2rem;
             }
+            
+            .main-menu ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -176,147 +223,137 @@
     </style>
 </head>
 <body>
+    <!-- Nuevo Header con Menú -->
+    <div class="app-header">
+        <button class="back-button" onclick="window.history.back()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Atrás
+        </button>
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Estadísticas de Turnos</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="funcionario.html">Mis Turnos</a></li>
+            <li><a href="compartir-turnos.html">Compartir Turnos</a></li>
+            <li><a href="historial-cambios.html">Historial de Cambios</a></li>
+            <li><a href="estadisticas.html" class="active">Estadísticas</a></li>
+            <li><a href="sueldo.html" class="active">Sueldo</a></li>
+            
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar p-0">
-                <div class="d-flex flex-column p-3">
-                    <h4 class="text-white mb-4">Funcionario</h4>
-                    <ul class="nav nav-pills flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="funcionario.html">Mis Turnos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="compartir-turnos.html">Compartir Turnos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="historial-cambios.html">Historial de Cambios</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="estadisticas.html">Estadísticas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Mi Perfil</a>
-                        </li>
-                    </ul>
+        <div class="main-content">
+            <!-- Filtros (CA-12-1) -->
+            <div class="filters-container">
+                <h4 class="mb-4" style="color: var(--color-lila-oscuro);">Filtrar Estadísticas</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="filter-group">
+                            <label for="periodo">Periodo:</label>
+                            <select id="periodo" class="form-select">
+                                <option value="mensual">Mensual</option>
+                                <option value="semestral">Semestral</option>
+                                <option value="anual">Anual</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-group">
+                            <label for="mes">Mes:</label>
+                            <select id="mes" class="form-select">
+                                <option value="0">Todos los meses</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="filter-group">
+                            <label for="anio">Año:</label>
+                            <select id="anio" class="form-select">
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3" id="aplicarFiltros">Aplicar Filtros</button>
+            </div>
+            
+            <!-- Resumen estadístico -->
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <h3>Turnos Asistidos</h3>
+                    <p id="total-asistidos">24</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Turnos Cambiados</h3>
+                    <p id="total-cambiados">8</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Cambios Autorizados</h3>
+                    <p id="autorizados">6</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Cambios No Autorizados</h3>
+                    <p id="no-autorizados">2</p>
                 </div>
             </div>
             
-            <!-- Main Content -->
-            <div class="col-md-10 p-0">
-                <div class="app-header">
-                    <h1 class="app-title">TurnoMed</h1>
-                    <p class="app-subtitle">Estadísticas de Turnos</p>
+            <!-- Gráficos (CA-12-2) -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            Turnos Asistidos vs Cambiados
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="asistenciaChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="main-content">
-                    <!-- Filtros (CA-12-1) -->
-                    <div class="filters-container">
-                        <h4 class="mb-4" style="color: var(--color-lila-oscuro);">Filtrar Estadísticas</h4>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="filter-group">
-                                    <label for="periodo">Periodo:</label>
-                                    <select id="periodo" class="form-select">
-                                        <option value="mensual">Mensual</option>
-                                        <option value="semestral">Semestral</option>
-                                        <option value="anual">Anual</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="filter-group">
-                                    <label for="mes">Mes:</label>
-                                    <select id="mes" class="form-select">
-                                        <option value="0">Todos los meses</option>
-                                        <option value="1">Enero</option>
-                                        <option value="2">Febrero</option>
-                                        <option value="3">Marzo</option>
-                                        <option value="4">Abril</option>
-                                        <option value="5">Mayo</option>
-                                        <option value="6">Junio</option>
-                                        <option value="7">Julio</option>
-                                        <option value="8">Agosto</option>
-                                        <option value="9">Septiembre</option>
-                                        <option value="10">Octubre</option>
-                                        <option value="11">Noviembre</option>
-                                        <option value="12">Diciembre</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="filter-group">
-                                    <label for="anio">Año:</label>
-                                    <select id="anio" class="form-select">
-                                        <option value="2023">2023</option>
-                                        <option value="2022">2022</option>
-                                        <option value="2021">2021</option>
-                                    </select>
-                                </div>
-                            </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            Distribución de Cambios de Turno (CA-12-3)
                         </div>
-                        <button class="btn btn-primary mt-3" id="aplicarFiltros">Aplicar Filtros</button>
-                    </div>
-                    
-                    <!-- Resumen estadístico -->
-                    <div class="stats-summary">
-                        <div class="stat-card">
-                            <h3>Turnos Asistidos</h3>
-                            <p id="total-asistidos">24</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Turnos Cambiados</h3>
-                            <p id="total-cambiados">8</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Cambios Autorizados</h3>
-                            <p id="autorizados">6</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Cambios No Autorizados</h3>
-                            <p id="no-autorizados">2</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Gráficos (CA-12-2) -->
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    Turnos Asistidos vs Cambiados
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="asistenciaChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    Distribución de Cambios de Turno (CA-12-3)
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="cambiosChart"></canvas>
-                                    </div>
-                                </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="cambiosChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    Evolución Mensual de Turnos
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container" style="height: 400px;">
-                                        <canvas id="evolucionChart"></canvas>
-                                    </div>
-                                </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            Evolución Mensual de Turnos
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" style="height: 400px;">
+                                <canvas id="evolucionChart"></canvas>
                             </div>
                         </div>
                     </div>
