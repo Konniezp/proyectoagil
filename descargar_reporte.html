@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnoMed - Descargar Reporte</title>
+    <style>
+        /* Estilos generales con paleta lila/celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-gray: #e1e5eb;
+            --color-success: #4caf50;
+            --color-warning: #ff9800;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+        
+        /* Encabezado */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Contenedor principal */
+        .main-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            color: var(--color-primary-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--color-primary-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Formulario de fechas */
+        .date-range-form {
+            background-color: var(--color-primary-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        /* Vista previa */
+        .report-preview {
+            border: 1px solid var(--color-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: var(--color-white);
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-gray);
+        }
+        
+        .report-title {
+            color: var(--color-primary-dark);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            color: var(--color-text);
+            font-size: 1rem;
+        }
+        
+        .report-details {
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-details p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-table th, 
+        .report-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray);
+        }
+        
+        .report-table th {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+        }
+        
+        .report-footer {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--color-text);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray);
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-generate {
+            background-color: var(--color-secondary);
+        }
+        
+        .btn-generate:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
+        .btn-download {
+            background-color: var(--color-success);
+        }
+        
+        .btn-download:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Mensajes */
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-info {
+            background-color: var(--color-secondary-light);
+            color: var(--color-primary-dark);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1.5rem;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+    </div>
+
+    <div class="main-container">
+        <h2 class="section-title">Descargar Reporte de Turnos</h2>
+        
+        <div class="alert alert-info">
+            <strong>Información:</strong> Seleccione un rango de fechas para generar un reporte en PDF con sus turnos asignados.
+        </div>
+        
+        <!-- CA-16-1: Selección de rango de fechas -->
+        <form id="reportForm" class="date-range-form">
+            <div class="form-group">
+                <label for="startDate">Fecha de Inicio</label>
+                <input type="date" id="startDate" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="endDate">Fecha de Fin</label>
+                <input type="date" id="endDate" class="form-control" required>
+            </div>
+            
+            <div class="btn-container">
+                <button type="button" id="generateBtn" class="btn btn-generate">Generar Vista Previa</button>
+            </div>
+        </form>
+        
+        <!-- Vista previa del reporte -->
+        <div id="reportPreview" class="report-preview" style="display: none;">
+            <div class="report-header">
+                <h3 class="report-title">Reporte de Turnos Asignados</h3>
+                <p class="report-subtitle">Período: <span id="previewDateRange"></span></p>
+            </div>
+            
+            <div class="report-details">
+                <p><strong>Funcionario:</strong> <span id="previewEmployeeName">María González</span></p>
+                <p><strong>Unidad:</strong> <span id="previewUnit">Enfermería</span></p>
+                <p><strong>Fecha de generación:</strong> <span id="previewGenerationDate"></span></p>
+            </div>
+            
+            <!-- CA-16-2: Información del turno -->
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Servicio</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody id="previewShifts">
+                    <!-- Datos de turnos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+            
+            <div class="report-footer">
+                <p>Este documento es confidencial y para uso exclusivo del funcionario.</p>
+                <!-- CA-16-3: Indicación de protección contra edición -->
+                <p><strong>Documento protegido contra edición</strong></p>
+            </div>
+            
+            <!-- CA-16-4: Botón de descarga solo para el usuario actual -->
+            <div class="btn-container">
+                <button id="downloadBtn" class="btn btn-download">Descargar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const reportPreview = document.getElementById('reportPreview');
+            const previewDateRange = document.getElementById('previewDateRange');
+            const previewGenerationDate = document.getElementById('previewGenerationDate');
+            const previewShifts = document.getElementById('previewShifts');
+            
+            // Configurar fecha actual
+            const today = new Date();
+            document.getElementById('startDate').valueAsDate = today;
+            document.getElementById('endDate').valueAsDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días después
+            
+            // CA-16-1: Generar vista previa al hacer clic en el botón
+            generateBtn.addEventListener('click', function() {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Por favor seleccione ambas fechas');
+                    return;
+                }
+                
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('La fecha de inicio no puede ser mayor a la fecha de fin');
+                    return;
+                }
+                
+                // Formatear fechas para mostrar
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                const startFormatted = new Date(startDate).toLocaleDateString('es-CL', options);
+                const endFormatted = new Date(endDate).toLocaleDateString('es-CL', options);
+                
+                previewDateRange.textContent = `${startFormatted} al ${endFormatted}`;
+                previewGenerationDate.textContent = today.toLocaleDateString('es-CL', options);
+                
+                // Simular datos de turnos (en un sistema real esto vendría de una API)
+                generateSampleShifts(startDate, endDate);
+                
+                // Mostrar la vista previa
+                reportPreview.style.display = 'block';
+            });
+            
+            // CA-16-4: Descargar PDF
+            downloadBtn.addEventListener('click', function() {
+                // En un sistema real, esto llamaría a un servicio backend que genera el PDF
+                alert('En un sistema real, se generaría y descargaría un PDF protegido contra edición con los turnos mostrados.');
+                
+                // Simular descarga (esto es solo para demostración)
+                simulatePDFDownload();
+            });
+            
+            // Función para generar datos de ejemplo
+            function generateSampleShifts(startDate, endDate) {
+                previewShifts.innerHTML = '';
+                
+                // Generar 5 turnos de ejemplo entre las fechas seleccionadas
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+                
+                const sampleShifts = [
+                    { service: 'Guardia Diurna', location: 'Pabellón Central', hours: '08:00 - 16:00' },
+                    { service: 'Guardia Nocturna', location: 'Urgencias', hours: '20:00 - 08:00' },
+                    { service: 'Turno Administrativo', location: 'Consultorios', hours: '09:00 - 14:00' },
+                    { service: 'Guardia de Fin de Semana', location: 'Pediatría', hours: '12:00 - 20:00' }
+                ];
+                
+                // Generar entre 3 y 6 turnos aleatorios
+                const numShifts = Math.floor(Math.random() * 4) + 3;
+                
+                for (let i = 0; i < numShifts; i++) {
+                    // Seleccionar fecha aleatoria en el rango
+                    const randomDay = Math.floor(Math.random() * diffDays);
+                    const shiftDate = new Date(start);
+                    shiftDate.setDate(start.getDate() + randomDay);
+                    
+                    const formattedDate = shiftDate.toLocaleDateString('es-CL', { 
+                        weekday: 'short', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                    });
+                    
+                    // Seleccionar turno aleatorio
+                    const shift = sampleShifts[Math.floor(Math.random() * sampleShifts.length)];
+                    const [startHour, endHour] = shift.hours.split(' - ');
+                    
+                    // Crear fila de tabla
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${startHour}</td>
+                        <td>${endHour}</td>
+                        <td>${shift.service}</td>
+                        <td>${shift.location}</td>
+                    `;
+                    
+                    previewShifts.appendChild(row);
+                }
+            }
+            
+            // Simular descarga de PDF (demo)
+            function simulatePDFDownload() {
+                // En un sistema real, esto sería una llamada a un servicio que genera el PDF
+                console.log('PDF generado con protección contra edición');
+                
+                // Crear un enlace temporal para simular la descarga
+                const link = document.createElement('a');
+                link.href = '#';
+                link.download = `Turnos_${document.getElementById('previewEmployeeName').textContent}_${today.toISOString().split('T')[0]}.pdf`;
+                link.click();
+            }
+        });
+    </script>
+</body>
+</html>
