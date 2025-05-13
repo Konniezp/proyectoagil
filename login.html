@@ -258,11 +258,32 @@
         // Variables globales
         let recoveryModal = null;
         
-        // Simulación de base de datos de usuarios (en un sistema real esto vendría de un backend)
+        // Simulación de base de datos de usuarios con perfiles
         const usuarios = [
-            { rut: '12345678-9', password: 'TurnoMed2023', email: 'funcionario@hospital.com', nombre: 'María González' },
-            { rut: '98765432-1', password: 'Coordinador2023', email: 'coordinador@hospital.com', nombre: 'Carlos Ruiz' },
-            { rut: '11222333-4', password: 'Admin2023', email: 'admin@hospital.com', nombre: 'Ana López' }
+            { 
+                rut: '12345678-9', 
+                password: 'TurnoMed2023', 
+                email: 'funcionario@hospital.com', 
+                nombre: 'María González',
+                perfil: 'funcionario',
+                pagina: 'dashboard-funcionario.html'
+            },
+            { 
+                rut: '98765432-1', 
+                password: 'Coordinador2023', 
+                email: 'coordinador@hospital.com', 
+                nombre: 'Carlos Ruiz',
+                perfil: 'coordinador',
+                pagina: 'dashboard-coordinador.html'
+            },
+            { 
+                rut: '11222333-4', 
+                password: 'Admin2023', 
+                email: 'admin@hospital.com', 
+                nombre: 'Ana López',
+                perfil: 'administrador',
+                pagina: 'dashboard-admin.html'
+            }
         ];
 
         // Inicialización
@@ -289,10 +310,14 @@
             );
             
             if (usuarioValido) {
-                // Login exitoso (en un sistema real redirigiríamos al dashboard)
+                // Login exitoso - redirigir según perfil
                 errorElement.style.display = 'none';
-                alert(`Bienvenido/a ${usuarioValido.nombre}. En un sistema real, serías redirigido al dashboard.`);
-                // window.location.href = 'dashboard.html';
+                
+                // Mostrar mensaje temporal antes de redirigir
+                alert(`Bienvenido/a ${usuarioValido.nombre} (${usuarioValido.perfil}). Redirigiendo...`);
+                
+                // Redirigir a la página correspondiente según el perfil
+                window.location.href = usuarioValido.pagina;
             } else {
                 // Mostrar error
                 errorElement.style.display = 'block';
