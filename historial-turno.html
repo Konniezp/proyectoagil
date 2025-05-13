@@ -1,1 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnoMed - Historial de Cambios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Paleta de colores lila/celeste */
+        :root {
+            --color-lila: #9a7bff;
+            --color-lila-claro: #e6e6fa;
+            --color-lila-oscuro: #6a5acd;
+            --color-celeste: #87cefa;
+            --color-celeste-claro: #e6f7ff;
+            --color-fondo: #f8f9ff;
+            --color-texto: #3a3a68;
+        }
+        
+        body {
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        .sidebar {
+            background-color: var(--color-lila-oscuro);
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--color-lila), var(--color-celeste));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-link {
+            color: white !important;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--color-lila) !important;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background-color: var(--color-lila-claro);
+            color: var(--color-lila-oscuro);
+            font-weight: bold;
+            border-bottom: 1px solid var(--color-lila-claro);
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        th {
+            background-color: var(--color-lila-oscuro) !important;
+            color: white !important;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--color-lila-claro);
+        }
+
+        tr:hover {
+            background-color: var(--color-celeste-claro);
+        }
+
+        .btn-primary {
+            background-color: var(--color-lila);
+            border-color: var(--color-lila);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-lila-oscuro);
+            border-color: var(--color-lila-oscuro);
+        }
+
+        .badge {
+            padding: 0.5em 0.75em;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+
+        /* Modal */
+        .modal-header {
+            background-color: var(--color-lila-claro);
+            color: var(--color-lila-oscuro);
+        }
+
+        .modal-body dt {
+            color: var(--color-lila-oscuro);
+            font-weight: 600;
+        }
+
+        /* Filtros */
+        .filters {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--color-lila-oscuro);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--color-lila-claro);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--color-lila);
+            box-shadow: 0 0 0 0.25rem rgba(154, 123, 255, 0.25);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-title {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-0">
+                <div class="d-flex flex-column p-3">
+                    <h4 class="text-white mb-4">Funcionario</h4>
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="funcionario.html">Mis Turnos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="compartir-turnos.html">Compartir Turnos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="historial-cambios.html">Historial de Cambios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Mi Perfil</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-0">
+                <div class="app-header">
+                    <h1 class="app-title">TurnoMed</h1>
+                    <p class="app-subtitle">Historial de Cambios de Turnos</p>
+                </div>
+                
+                <div class="main-content">
+                    <div class="filters">
+                        <h4 class="mb-4" style="color: var(--color-lila-oscuro);">Filtrar Historial</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <label for="fechaDesde">Desde:</label>
+                                    <input type="date" id="fechaDesde" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <label for="fechaHasta">Hasta:</label>
+                                    <input type="date" id="fechaHasta" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="filter-group">
+                                    <label for="estado">Estado:</label>
+                                    <select id="estado" class="form-select">
+                                        <option value="todos">Todos</option>
+                                        <option value="aprobado">Aprobados</option>
+                                        <option value="pendiente">Pendientes</option>
+                                        <option value="rechazado">Rechazados</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-3" id="aplicarFiltros">Aplicar Filtros</button>
+                        <button class="btn btn-outline-secondary mt-3 ms-2" id="limpiarFiltros">Limpiar Filtros</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Historial de Cambios</h5>
+                            <span class="badge bg-primary">Últimos 6 meses</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha Cambio</th>
+                                            <th>Turno Original</th>
+                                            <th>Turno Nuevo</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historialTableBody">
+                                        <!-- Los datos se cargarán dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Siguiente</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles del cambio -->
+    <div class="modal fade" id="detalleCambioModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Cambio de Turno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="color: var(--color-lila-oscuro);">Turno Original</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Fecha:</dt>
+                                <dd class="col-sm-8" id="detalle-fecha-original">15/11/2023</dd>
+                                
+                                <dt class="col-sm-4">Horario:</dt>
+                                <dd class="col-sm-8" id="detalle-horario-original">08:00 - 16:00</dd>
+                                
+                                <dt class="col-sm-4">Área:</dt>
+                                <dd class="col-sm-8" id="detalle-area-original">Urgencias</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="color: var(--color-lila-oscuro);">Turno Nuevo</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Fecha:</dt>
+                                <dd class="col-sm-8" id="detalle-fecha-nuevo">17/11/2023</dd>
+                                
+                                <dt class="col-sm-4">Horario:</dt>
+                                <dd class="col-sm-8" id="detalle-horario-nuevo">16:00 - 00:00</dd>
+                                
+                                <dt class="col-sm-4">Área:</dt>
+                                <dd class="col-sm-8" id="detalle-area-nuevo">Pediatría</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="color: var(--color-lila-oscuro);">Información del Cambio</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Fecha Solicitud:</dt>
+                                <dd class="col-sm-8" id="detalle-fecha-solicitud">14/11/2023 10:30</dd>
+                                
+                                <dt class="col-sm-4">Fecha Aprobación:</dt>
+                                <dd class="col-sm-8" id="detalle-fecha-aprobacion">14/11/2023 14:15</dd>
+                                
+                                <dt class="col-sm-4">Estado:</dt>
+                                <dd class="col-sm-8"><span class="badge badge-success" id="detalle-estado">Aprobado</span></dd>
+                                
+                                <dt class="col-sm-4">Motivo:</dt>
+                                <dd class="col-sm-8" id="detalle-motivo">Necesidad de atender un asunto personal importante</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3" style="color: var(--color-lila-oscuro);">Participantes</h6>
+                            <dl class="row">
+                                <dt class="col-sm-4">Solicitado por:</dt>
+                                <dd class="col-sm-8" id="detalle-solicitante">María González</dd>
+                                
+                                <dt class="col-sm-4">Aprobado por:</dt>
+                                <dd class="col-sm-8" id="detalle-aprobador">Carlos Ruiz (Coordinador)</dd>
+                                
+                                <dt class="col-sm-4">Funcionario que cubre:</dt>
+                                <dd class="col-sm-8" id="detalle-funcionario-cubre">Ana López</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Datos simulados del historial de cambios (CA-05-3)
+        const historialCambios = [
+            {
+                id: 1,
+                fechaCambio: "2023-11-14T14:15:00",
+                turnoOriginal: {
+                    fecha: "2023-11-15",
+                    horario: "08:00 - 16:00",
+                    area: "Urgencias"
+                },
+                turnoNuevo: {
+                    fecha: "2023-11-17",
+                    horario: "16:00 - 00:00",
+                    area: "Pediatría"
+                },
+                estado: "aprobado",
+                fechaSolicitud: "2023-11-14T10:30:00",
+                motivo: "Necesidad de atender un asunto personal importante",
+                solicitante: "María González",
+                aprobador: "Carlos Ruiz (Coordinador)",
+                funcionarioCubre: "Ana López"
+            },
+            {
+                id: 2,
+                fechaCambio: "2023-10-28T11:20:00",
+                turnoOriginal: {
+                    fecha: "2023-11-02",
+                    horario: "16:00 - 00:00",
+                    area: "Pediatría"
+                },
+                turnoNuevo: {
+                    fecha: "2023-11-05",
+                    horario: "00:00 - 08:00",
+                    area: "Cirugía"
+                },
+                estado: "aprobado",
+                fechaSolicitud: "2023-10-28T09:45:00",
+                motivo: "Cambio solicitado por capacitación médica",
+                solicitante: "María González",
+                aprobador: "Carlos Ruiz (Coordinador)",
+                funcionarioCubre: "Juan Pérez"
+            },
+            {
+                id: 3,
+                fechaCambio: "2023-10-15T16:40:00",
+                turnoOriginal: {
+                    fecha: "2023-10-20",
+                    horario: "00:00 - 08:00",
+                    area: "Cirugía"
+                },
+                turnoNuevo: {
+                    fecha: "2023-10-22",
+                    horario: "08:00 - 16:00",
+                    area: "Cardiología"
+                },
+                estado: "rechazado",
+                fechaSolicitud: "2023-10-15T14:10:00",
+                motivo: "Preferencia personal de horario",
+                solicitante: "María González",
+                aprobador: "Carlos Ruiz (Coordinador)",
+                funcionarioCubre: "Pedro Sánchez"
+            },
+            {
+                id: 4,
+                fechaCambio: "2023-09-30T12:00:00",
+                turnoOriginal: {
+                    fecha: "2023-10-05",
+                    horario: "08:00 - 16:00",
+                    area: "Cardiología"
+                },
+                turnoNuevo: {
+                    fecha: "2023-10-07",
+                    horario: "16:00 - 00:00",
+                    area: "Neurología"
+                },
+                estado: "aprobado",
+                fechaSolicitud: "2023-09-30T10:15:00",
+                motivo: "Intercambio de turno acordado con colega",
+                solicitante: "María González",
+                aprobador: "Ana López (Coordinador)",
+                funcionarioCubre: "Luis Martínez"
+            },
+            {
+                id: 5,
+                fechaCambio: "2023-09-18T09:30:00",
+                turnoOriginal: {
+                    fecha: "2023-09-25",
+                    horario: "16:00 - 00:00",
+                    area: "Neurología"
+                },
+                turnoNuevo: {
+                    fecha: "2023-09-27",
+                    horario: "08:00 - 16:00",
+                    area: "Urgencias"
+                },
+                estado: "pendiente",
+                fechaSolicitud: "2023-09-18T08:45:00",
+                motivo: "Consulta médica programada",
+                solicitante: "María González",
+                aprobador: "",
+                funcionarioCubre: "Sofía Ramírez"
+            }
+        ];
+
+        // Variables globales
+        let detalleModal = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar modal
+            detalleModal = new bootstrap.Modal(document.getElementById('detalleCambioModal'));
+            
+            // Configurar fechas por defecto (últimos 6 meses)
+            const fechaHasta = new Date();
+            const fechaDesde = new Date();
+            fechaDesde.setMonth(fechaDesde.getMonth() - 6);
+            
+            document.getElementById('fechaDesde').valueAsDate = fechaDesde;
+            document.getElementById('fechaHasta').valueAsDate = fechaHasta;
+            
+            // Cargar historial (CA-05-2)
+            setTimeout(() => {
+                cargarHistorial();
+            }, 1500); // Simulamos carga en menos de 3 segundos
+            
+            // Event listeners
+            document.getElementById('aplicarFiltros').addEventListener('click', aplicarFiltros);
+            document.getElementById('limpiarFiltros').addEventListener('click', limpiarFiltros);
+        });
+
+        // Función para cargar el historial en la tabla
+        function cargarHistorial(filtros = {}) {
+            const tbody = document.getElementById('historialTableBody');
+            tbody.innerHTML = '';
+            
+            // Aplicar filtros si existen
+            let historialFiltrado = [...historialCambios];
+            
+            if (filtros.fechaDesde) {
+                const fechaDesde = new Date(filtros.fechaDesde);
+                historialFiltrado = historialFiltrado.filter(cambio => 
+                    new Date(cambio.fechaCambio) >= fechaDesde
+                );
+            }
+            
+            if (filtros.fechaHasta) {
+                const fechaHasta = new Date(filtros.fechaHasta);
+                fechaHasta.setDate(fechaHasta.getDate() + 1); // Incluir el día completo
+                historialFiltrado = historialFiltrado.filter(cambio => 
+                    new Date(cambio.fechaCambio) <= fechaHasta
+                );
+            }
+            
+            if (filtros.estado && filtros.estado !== 'todos') {
+                historialFiltrado = historialFiltrado.filter(cambio => 
+                    cambio.estado === filtros.estado
+                );
+            }
+            
+            // Ordenar por fecha más reciente primero
+            historialFiltrado.sort((a, b) => 
+                new Date(b.fechaCambio) - new Date(a.fechaCambio)
+            );
+            
+            // Mostrar resultados
+            if (historialFiltrado.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4">No se encontraron cambios de turno con los filtros aplicados</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            historialFiltrado.forEach(cambio => {
+                const fila = document.createElement('tr');
+                fila.style.cursor = 'pointer';
+                fila.addEventListener('click', () => mostrarDetalleCambio(cambio.id));
+                
+                // Formatear fecha
+                const fechaCambio = new Date(cambio.fechaCambio);
+                const fechaFormateada = fechaCambio.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Determinar clase del badge según estado
+                let badgeClass, estadoTexto;
+                switch(cambio.estado) {
+                    case 'aprobado':
+                        badgeClass = 'badge-success';
+                        estadoTexto = 'Aprobado';
+                        break;
+                    case 'rechazado':
+                        badgeClass = 'badge-danger';
+                        estadoTexto = 'Rechazado';
+                        break;
+                    case 'pendiente':
+                        badgeClass = 'badge-warning';
+                        estadoTexto = 'Pendiente';
+                        break;
+                }
+                
+                fila.innerHTML = `
+                    <td>${fechaFormateada}</td>
+                    <td>${formatearTurno(cambio.turnoOriginal)}</td>
+                    <td>${formatearTurno(cambio.turnoNuevo)}</td>
+                    <td><span class="badge ${badgeClass}">${estadoTexto}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="mostrarDetalleCambio(${cambio.id}); event.stopPropagation();">
+                            Ver Detalles
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        // Función para formatear la información del turno
+        function formatearTurno(turno) {
+            const fecha = new Date(turno.fecha);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            return `${fechaFormateada} - ${turno.horario}<br><small>${turno.area}</small>`;
+        }
+
+        // Función para mostrar el detalle de un cambio (CA-05-1)
+        function mostrarDetalleCambio(id) {
+            const cambio = historialCambios.find(c => c.id === id);
+            if (!cambio) return;
+            
+            // Formatear fechas
+            const fechaOriginal = new Date(cambio.turnoOriginal.fecha);
+            const fechaNuevo = new Date(cambio.turnoNuevo.fecha);
+            const fechaSolicitud = new Date(cambio.fechaSolicitud);
+            const fechaAprobacion = cambio.fechaCambio ? new Date(cambio.fechaCambio) : null;
+            
+            // Llenar datos en el modal
+            document.getElementById('detalle-fecha-original').textContent = 
+                fechaOriginal.toLocaleDateString('es-ES', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById('detalle-horario-original').textContent = cambio.turnoOriginal.horario;
+            document.getElementById('detalle-area-original').textContent = cambio.turnoOriginal.area;
+            
+            document.getElementById('detalle-fecha-nuevo').textContent = 
+                fechaNuevo.toLocaleDateString('es-ES', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById('detalle-horario-nuevo').textContent = cambio.turnoNuevo.horario;
+            document.getElementById('detalle-area-nuevo').textContent = cambio.turnoNuevo.area;
+            
+            document.getElementById('detalle-fecha-solicitud').textContent = 
+                fechaSolicitud.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('detalle-fecha-aprobacion').textContent = fechaAprobacion ? 
+                fechaAprobacion.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 
+                'Pendiente';
+            
+            document.getElementById('detalle-motivo').textContent = cambio.motivo;
+            document.getElementById('detalle-solicitante').textContent = cambio.solicitante;
+            document.getElementById('detalle-aprobador').textContent = cambio.aprobador || 'Pendiente de aprobación';
+            document.getElementById('detalle-funcionario-cubre').textContent = cambio.funcionarioCubre;
+            
+            // Actualizar estado
+            const detalleEstado = document.getElementById('detalle-estado');
+            detalleEstado.className = 'badge ';
+            
+            switch(cambio.estado) {
+                case 'aprobado':
+                    detalleEstado.classList.add('badge-success');
+                    detalleEstado.textContent = 'Aprobado';
+                    break;
+                case 'rechazado':
+                    detalleEstado.classList.add('badge-danger');
+                    detalleEstado.textContent = 'Rechazado';
+                    break;
+                case 'pendiente':
+                    detalleEstado.classList.add('badge-warning');
+                    detalleEstado.textContent = 'Pendiente';
+                    break;
+            }
+            
+            // Mostrar modal
+            detalleModal.show();
+        }
+
+        // Función para aplicar filtros
+        function aplicarFiltros() {
+            const filtros = {
+                fechaDesde: document.getElementById('fechaDesde').value,
+                fechaHasta: document.getElementById('fechaHasta').value,
+                estado: document.getElementById('estado').value
+            };
+            
+            cargarHistorial(filtros);
+        }
+
+        // Función para limpiar filtros
+        function limpiarFiltros() {
+            const fechaHasta = new Date();
+            const fechaDesde = new Date();
+            fechaDesde.setMonth(fechaDesde.getMonth() - 6);
+            
+            document.getElementById('fechaDesde').valueAsDate = fechaDesde;
+            document.getElementById('fechaHasta').valueAsDate = fechaHasta;
+            document.getElementById('estado').value = 'todos';
+            
+            cargarHistorial();
+        }
+    </script>
+</body>
+</html>
