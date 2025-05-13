@@ -20,10 +20,63 @@
             background-color: var(--color-fondo);
         }
         
-        .sidebar {
-            background-color: var(--color-lila-oscuro);
+        /* Nuevos estilos para el header y menú */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-lila), var(--color-celeste));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            background-color: var(--color-lila-oscuro);
+            padding: 1rem 0;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+            margin: 0;
+        }
+        
+        .main-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-lila);
+        }
+        
+        .main-menu a.active {
+            background-color: var(--color-lila);
+        }
+        
+        /* Ajustar el contenido principal para el nuevo layout */
+        .main-content {
+            padding: 2rem;
+        }
+        
+        /* Mantener los estilos existentes */
         .card-header {
             background-color: var(--color-lila-claro);
             color: var(--color-lila-oscuro);
@@ -86,91 +139,90 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar text-white p-3">
-                <h4>Funcionario</h4>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="funcionario.html">Mis Turnos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white active" href="compartir-turnos.html">Compartir Turnos</a>
-                    </li>
-                </ul>
+    <!-- Nuevo Header con Menú -->
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Compartir Turnos</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="funcionario.html">Mis Turnos</a></li>
+            <li><a href="compartir-turnos.html" class="active">Compartir Turnos</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html">Sueldo</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        <h2 class="mb-4" style="color: var(--color-lila-oscuro);">Compartir Mis Turnos</h2>
+        
+        <!-- Tarjeta con turnos próximos -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Mis Turnos Próximos (7 días)
             </div>
-            
-            <!-- Main Content -->
-            <div class="col-md-10 p-4">
-                <h2 class="mb-4" style="color: var(--color-lila-oscuro);">Compartir Mis Turnos</h2>
-                
-                <!-- Tarjeta con turnos próximos -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        Mis Turnos Próximos (7 días)
+            <div class="card-body">
+                <div class="row" id="turnos-proximos">
+                    <!-- Turnos se cargarán aquí -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección para generar enlace -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Generar Enlace para Compartir
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Destinatarios (máximo 3):</label>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" id="emailDestinatario" placeholder="Ingrese email">
+                        <button class="btn btn-success" type="button" id="agregarDestinatario">Agregar</button>
                     </div>
-                    <div class="card-body">
-                        <div class="row" id="turnos-proximos">
-                            <!-- Turnos se cargarán aquí -->
-                        </div>
+                    <div id="listaDestinatarios" class="d-flex flex-wrap gap-2 mb-3">
+                        <!-- Destinatarios agregados aparecerán aquí -->
                     </div>
                 </div>
                 
-                <!-- Sección para generar enlace -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        Generar Enlace para Compartir
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Destinatarios (máximo 3):</label>
-                            <div class="input-group mb-3">
-                                <input type="email" class="form-control" id="emailDestinatario" placeholder="Ingrese email">
-                                <button class="btn btn-success" type="button" id="agregarDestinatario">Agregar</button>
-                            </div>
-                            <div id="listaDestinatarios" class="d-flex flex-wrap gap-2 mb-3">
-                                <!-- Destinatarios agregados aparecerán aquí -->
-                            </div>
-                        </div>
-                        
-                        <button class="btn btn-primary" id="generarEnlace">Generar Enlace para Compartir</button>
-                        
-                        <div class="mt-4" id="seccionEnlace" style="display: none;">
-                            <h5>Enlace generado:</h5>
-                            <div class="link-generado mb-3" id="enlaceGenerado"></div>
-                            <button class="btn btn-success me-2" id="copiarEnlace">Copiar Enlace</button>
-                            <button class="btn btn-primary" id="enviarEmail">Enviar por Email</button>
-                            <div class="mt-2 text-muted">
-                                <small>Este enlace expirará en <span id="tiempoExpiracion">48</span> horas</small>
-                            </div>
-                        </div>
+                <button class="btn btn-primary" id="generarEnlace">Generar Enlace para Compartir</button>
+                
+                <div class="mt-4" id="seccionEnlace" style="display: none;">
+                    <h5>Enlace generado:</h5>
+                    <div class="link-generado mb-3" id="enlaceGenerado"></div>
+                    <button class="btn btn-success me-2" id="copiarEnlace">Copiar Enlace</button>
+                    <button class="btn btn-primary" id="enviarEmail">Enviar por Email</button>
+                    <div class="mt-2 text-muted">
+                        <small>Este enlace expirará en <span id="tiempoExpiracion">48</span> horas</small>
                     </div>
                 </div>
-                
-                <!-- Historial de enlaces compartidos -->
-                <div class="card">
-                    <div class="card-header">
-                        Historial de Enlaces Compartidos
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table tabla-turnos">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha Generación</th>
-                                        <th>Destinatarios</th>
-                                        <th>Turnos Incluidos</th>
-                                        <th>Expiración</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="historialEnlaces">
-                                    <!-- Historial se cargará aquí -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- Historial de enlaces compartidos -->
+        <div class="card">
+            <div class="card-header">
+                Historial de Enlaces Compartidos
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table tabla-turnos">
+                        <thead>
+                            <tr>
+                                <th>Fecha Generación</th>
+                                <th>Destinatarios</th>
+                                <th>Turnos Incluidos</th>
+                                <th>Expiración</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialEnlaces">
+                            <!-- Historial se cargará aquí -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -498,3 +550,4 @@
     </script>
 </body>
 </html>
+    
