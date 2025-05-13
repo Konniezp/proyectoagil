@@ -1,1 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Permisos y Vacaciones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Paleta de colores original lila/celeste */
+        .sidebar {
+            background-color: #6a5acd; /* Lila oscuro */
+        }
+        
+        .solicitud-pendiente {
+            background-color: #e6f7ff; /* Celeste muy claro */
+        }
+        .solicitud-aprobada {
+            background-color: #e6ffe6; /* Verde muy claro */
+        }
+        .solicitud-rechazada {
+            background-color: #ffe6e6; /* Rojo muy claro */
+        }
+        .tab-content {
+            padding: 20px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            background-color: #f9f9ff; /* Lila muy claro casi blanco */
+        }
+        
+        .nav-tabs .nav-link.active {
+            background-color: #f0f0ff; /* Lila claro */
+            border-color: #dee2e6 #dee2e6 #f9f9ff;
+            color: #6a5acd;
+        }
+        
+        .btn-primary {
+            background-color: #9370db; /* Lila medio */
+            border-color: #9370db;
+        }
+        
+        .btn-primary:hover {
+            background-color: #8360cb;
+            border-color: #8360cb;
+        }
+        
+        .btn-success {
+            background-color: #87cefa; /* Celeste */
+            border-color: #87cefa;
+            color: #333;
+        }
+        
+        .btn-success:hover {
+            background-color: #77beea;
+            border-color: #77beea;
+        }
+        
+        .modal-header {
+            background-color: #f0f0ff; /* Lila claro */
+        }
+        
+        h2, .modal-title {
+            color: #6a5acd; /* Lila oscuro */
+        }
+        
+        /* Estilo para el sidebar activo */
+        .nav-link.active {
+            background-color: #7b68ee !important; /* Lila más brillante */
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar text-white p-3">
+                <h4>Coordinación</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="calendario.html">Calendario y Turnos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white active" href="gestion.html">Gestión de Permisos</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-10 p-4">
+                <h2>Gestión de Permisos y Vacaciones</h2>
+                
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab">Pendientes</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">Historial</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="myTabContent">
+                    <!-- Pestaña de Solicitudes Pendientes -->
+                    <div class="tab-pane fade show active" id="pendientes" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Funcionario</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Fin</th>
+                                        <th>Motivo</th>
+                                        <th>Días Solicitados</th>
+                                        <th>Días Disponibles</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="solicitudes-pendientes">
+                                    <!-- Las solicitudes pendientes se cargarán aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pestaña de Historial -->
+                    <div class="tab-pane fade" id="historial" role="tabpanel">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="buscar-historial" placeholder="Buscar por nombre o fecha...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Funcionario</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Fin</th>
+                                        <th>Estado</th>
+                                        <th>Motivo Solicitud</th>
+                                        <th>Comentario Coordinador</th>
+                                        <th>Fecha Resolución</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historial-solicitudes">
+                                    <!-- El historial de solicitudes se cargará aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal para Aprobar/Rechazar -->
+    <div class="modal fade" id="decisionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Resolver Solicitud</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="solicitudId">
+                    <div class="mb-3">
+                        <label class="form-label">Comentario</label>
+                        <textarea class="form-control" id="comentarioCoordinador" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" onclick="rechazarSolicitud()">Rechazar</button>
+                    <button type="button" class="btn btn-success" onclick="aprobarSolicitud()">Aprobar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // [El resto del código JavaScript permanece exactamente igual]
+        // Datos de ejemplo (en un sistema real, estos vendrían de una API)
+        let solicitudesPendientes = [
+            {
+                id: 1,
+                funcionario: "Juan Pérez",
+                tipo: "Vacaciones",
+                fechaInicio: "2023-11-01",
+                fechaFin: "2023-11-07",
+                motivo: "Descanso anual",
+                diasSolicitados: 5,
+                diasDisponibles: 12
+            },
+            {
+                id: 2,
+                funcionario: "María Gómez",
+                tipo: "Permiso Médico",
+                fechaInicio: "2023-11-03",
+                fechaFin: "2023-11-04",
+                motivo: "Consulta médica",
+                diasSolicitados: 2,
+                diasDisponibles: 8
+            }
+        ];
+
+        let historialSolicitudes = [
+            {
+                id: 3,
+                funcionario: "Carlos Ruiz",
+                tipo: "Vacaciones",
+                fechaInicio: "2023-10-10",
+                fechaFin: "2023-10-15",
+                estado: "Aprobado",
+                motivoSolicitud: "Viaje familiar",
+                comentarioCoordinador: "Aprobado según disponibilidad",
+                fechaResolucion: "2023-10-05"
+            },
+            {
+                id: 4,
+                funcionario: "Ana López",
+                tipo: "Permiso Personal",
+                fechaInicio: "2023-10-20",
+                fechaFin: "2023-10-20",
+                estado: "Rechazado",
+                motivoSolicitud: "Asuntos personales",
+                comentarioCoordinador: "Rechazado por alta demanda en el servicio",
+                fechaResolucion: "2023-10-18"
+            }
+        ];
+
+        // Cargar solicitudes pendientes al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarSolicitudesPendientes();
+            cargarHistorialSolicitudes();
+        });
+
+        function cargarSolicitudesPendientes() {
+            const tbody = document.getElementById('solicitudes-pendientes');
+            tbody.innerHTML = '';
+
+            solicitudesPendientes.forEach(solicitud => {
+                const tr = document.createElement('tr');
+                tr.className = 'solicitud-pendiente';
+                tr.innerHTML = `
+                    <td>${solicitud.funcionario}</td>
+                    <td>${solicitud.tipo}</td>
+                    <td>${solicitud.fechaInicio}</td>
+                    <td>${solicitud.fechaFin}</td>
+                    <td>${solicitud.motivo}</td>
+                    <td>${solicitud.diasSolicitados}</td>
+                    <td>${solicitud.diasDisponibles}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="mostrarModalDecision(${solicitud.id})">Resolver</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function cargarHistorialSolicitudes() {
+            const tbody = document.getElementById('historial-solicitudes');
+            tbody.innerHTML = '';
+
+            historialSolicitudes.forEach(solicitud => {
+                const tr = document.createElement('tr');
+                tr.className = solicitud.estado === 'Aprobado' ? 'solicitud-aprobada' : 'solicitud-rechazada';
+                tr.innerHTML = `
+                    <td>${solicitud.funcionario}</td>
+                    <td>${solicitud.tipo}</td>
+                    <td>${solicitud.fechaInicio}</td>
+                    <td>${solicitud.fechaFin}</td>
+                    <td>${solicitud.estado}</td>
+                    <td>${solicitud.motivoSolicitud}</td>
+                    <td>${solicitud.comentarioCoordinador}</td>
+                    <td>${solicitud.fechaResolucion}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function mostrarModalDecision(id) {
+            const solicitud = solicitudesPendientes.find(s => s.id === id);
+            if (solicitud) {
+                document.getElementById('solicitudId').value = id;
+                document.getElementById('modalTitle').textContent = `Resolver solicitud de ${solicitud.funcionario}`;
+                const modal = new bootstrap.Modal(document.getElementById('decisionModal'));
+                modal.show();
+            }
+        }
+
+        function aprobarSolicitud() {
+            const id = parseInt(document.getElementById('solicitudId').value);
+            const comentario = document.getElementById('comentarioCoordinador').value;
+            
+            if (!comentario) {
+                alert('Por favor ingrese un comentario');
+                return;
+            }
+
+            const solicitudIndex = solicitudesPendientes.findIndex(s => s.id === id);
+            if (solicitudIndex !== -1) {
+                const solicitud = solicitudesPendientes[solicitudIndex];
+                
+                // Validar días disponibles (CA-10-3)
+                if (solicitud.tipo === 'Vacaciones' && solicitud.diasSolicitados > solicitud.diasDisponibles) {
+                    alert('No se puede aprobar: El funcionario no tiene suficientes días disponibles');
+                    return;
+                }
+                
+                // Mover a historial
+                historialSolicitudes.unshift({
+                    ...solicitud,
+                    estado: "Aprobado",
+                    motivoSolicitud: solicitud.motivo,
+                    comentarioCoordinador: comentario,
+                    fechaResolucion: new Date().toISOString().split('T')[0]
+                });
+                
+                // Eliminar de pendientes
+                solicitudesPendientes.splice(solicitudIndex, 1);
+                
+                // Actualizar vistas
+                cargarSolicitudesPendientes();
+                cargarHistorialSolicitudes();
+                
+                // Cerrar modal y limpiar
+                bootstrap.Modal.getInstance(document.getElementById('decisionModal')).hide();
+                document.getElementById('comentarioCoordinador').value = '';
+                
+                // Aquí iría el código para el respaldo automático (CA-10-2)
+                console.log('Respaldo automático realizado para solicitud aprobada');
+            }
+        }
+
+        function rechazarSolicitud() {
+            const id = parseInt(document.getElementById('solicitudId').value);
+            const comentario = document.getElementById('comentarioCoordinador').value;
+            
+            if (!comentario) {
+                alert('Por favor ingrese un comentario');
+                return;
+            }
+
+            const solicitudIndex = solicitudesPendientes.findIndex(s => s.id === id);
+            if (solicitudIndex !== -1) {
+                const solicitud = solicitudesPendientes[solicitudIndex];
+                
+                // Mover a historial
+                historialSolicitudes.unshift({
+                    ...solicitud,
+                    estado: "Rechazado",
+                    motivoSolicitud: solicitud.motivo,
+                    comentarioCoordinador: comentario,
+                    fechaResolucion: new Date().toISOString().split('T')[0]
+                });
+                
+                // Eliminar de pendientes
+                solicitudesPendientes.splice(solicitudIndex, 1);
+                
+                // Actualizar vistas
+                cargarSolicitudesPendientes();
+                cargarHistorialSolicitudes();
+                
+                // Cerrar modal y limpiar
+                bootstrap.Modal.getInstance(document.getElementById('decisionModal')).hide();
+                document.getElementById('comentarioCoordinador').value = '';
+                
+                // Aquí iría el código para el respaldo automático (CA-10-2)
+                console.log('Respaldo automático realizado para solicitud rechazada');
+            }
+        }
+
+        // Función de búsqueda para el historial
+        document.getElementById('buscar-historial').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const filas = document.querySelectorAll('#historial-solicitudes tr');
+            
+            filas.forEach(fila => {
+                const textoFila = fila.textContent.toLowerCase();
+                fila.style.display = textoFila.includes(term) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
