@@ -6,7 +6,6 @@
     <title>Compartir Turnos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Paleta de colores lila/celeste */
         :root {
             --color-lila: #9a7bff;
             --color-lila-claro: #e6e6fa;
@@ -32,11 +31,6 @@
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        
-        .app-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
         }
         
         .main-menu {
@@ -68,10 +62,6 @@
         
         .main-menu a.active {
             background-color: var(--color-lila);
-        }
-        
-        .main-content {
-            padding: 2rem;
         }
         
         .card-header {
@@ -124,16 +114,6 @@
             word-break: break-all;
         }
         
-        .recipient-badge {
-            background-color: var(--color-lila);
-            color: white;
-        }
-        
-        .tabla-turnos th {
-            background-color: var(--color-lila-oscuro);
-            color: white;
-        }
-        
         .share-counter {
             background-color: var(--color-lila-claro);
             padding: 8px 12px;
@@ -145,32 +125,25 @@
     </style>
 </head>
 <body>
-    <!-- Header con Menú -->
     <div class="app-header">
         <h1 class="app-title">TurnoMed</h1>
-        <p class="app-subtitle">Compartir Turnos</p>
+        <p class="text-white">Compartir Turnos</p>
     </div>
 
     <nav class="main-menu">
         <ul>
-            <li><a href="funcionario.html">Mis Turnos</a></li>
-            <li><a href="compartir-turnos.html" class="active">Compartir Turnos</a></li>
-            <li><a href="historial-turno.html">Historial de Turnos</a></li>
-            <li><a href="estadistica.html">Estadísticas</a></li>
-            <li><a href="sueldo.html">Sueldo</a></li>
+            <li><a href="#" class="active">Compartir Turnos</a></li>
+            <li><a href="#">Mis Turnos</a></li>
         </ul>
     </nav>
     
-    <!-- Main Content -->
-    <div class="container-fluid main-content">
+    <div class="container py-4">
         <h2 class="mb-4" style="color: var(--color-lila-oscuro);">Compartir Mis Turnos</h2>
         
-        <!-- Contador de compartidos -->
         <div class="share-counter">
             Veces compartido este enlace: <span id="contadorCompartidos">0</span>/3
         </div>
         
-        <!-- Tarjeta con turnos próximos -->
         <div class="card mb-4">
             <div class="card-header">
                 Mis Turnos Próximos (7 días)
@@ -182,7 +155,6 @@
             </div>
         </div>
         
-        <!-- Sección para generar enlace -->
         <div class="card mb-4">
             <div class="card-header">
                 Generar Enlace para Compartir
@@ -198,60 +170,6 @@
                     <div class="mt-2 text-muted">
                         <small>Este enlace expirará en <span id="tiempoExpiracion">48</span> horas</small>
                     </div>
-                    <div class="mt-2 text-warning">
-                        <small>Nota: Este enlace solo puede compartirse con 3 personas como máximo</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Historial de enlaces compartidos -->
-        <div class="card">
-            <div class="card-header">
-                Historial de Enlaces Compartidos
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table tabla-turnos">
-                        <thead>
-                            <tr>
-                                <th>Fecha Generación</th>
-                                <th>Turnos Incluidos</th>
-                                <th>Expiración</th>
-                                <th>Estado</th>
-                                <th>Usos</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historialEnlaces">
-                            <!-- Historial se cargará aquí -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para enviar email -->
-    <div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Enviar Enlace por Email</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Destinatarios:</label>
-                        <input type="email" class="form-control" id="emailDestinatario" placeholder="Ingrese email del destinatario">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mensaje opcional:</label>
-                        <textarea class="form-control" id="mensajeEmail" rows="4" placeholder="Ej: Hola, te comparto mis turnos para coordinar cambios..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmarEnvio">Enviar</button>
                 </div>
             </div>
         </div>
@@ -259,24 +177,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Datos de ejemplo - turnos del funcionario para los próximos 7 días
+        // Datos de ejemplo - turnos del funcionario
         const misTurnos = [
             {
-                id: 1,
                 fecha: "2023-11-15",
                 horario: "08:00 - 16:00",
                 area: "Urgencias",
                 tipo: "Turno Mañana"
             },
             {
-                id: 2,
                 fecha: "2023-11-17",
                 horario: "16:00 - 00:00",
                 area: "Pediatría",
                 tipo: "Turno Tarde"
             },
             {
-                id: 3,
                 fecha: "2023-11-19",
                 horario: "00:00 - 08:00",
                 area: "Cirugía",
@@ -284,44 +199,26 @@
             }
         ];
 
-        // Variables globales
-        let enlacesCompartidos = [];
-        let emailModal = null;
-        let enlaceActivo = null;
-
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar modal
-            emailModal = new bootstrap.Modal(document.getElementById('emailModal'));
-            
-            // Cargar turnos próximos
             cargarTurnosProximos();
             
-            // Cargar historial de enlaces (si existe en localStorage)
-            cargarHistorialEnlaces();
-            
-            // Event listeners
             document.getElementById('generarEnlace').addEventListener('click', generarEnlace);
             document.getElementById('copiarEnlace').addEventListener('click', copiarEnlace);
-            document.getElementById('enviarEmail').addEventListener('click', mostrarModalEmail);
-            document.getElementById('confirmarEnvio').addEventListener('click', enviarEmail);
         });
 
-        // Función para cargar los turnos próximos
         function cargarTurnosProximos() {
             const contenedor = document.getElementById('turnos-proximos');
-            contenedor.innerHTML = '';
-            
-            if (misTurnos.length === 0) {
-                contenedor.innerHTML = '<p>No tienes turnos programados para los próximos 7 días.</p>';
-                return;
-            }
             
             misTurnos.forEach(turno => {
-                const fechaFormateada = formatearFecha(turno.fecha);
+                const fechaFormateada = new Date(turno.fecha).toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long' 
+                });
                 
                 const col = document.createElement('div');
-                col.className = 'col-md-4';
+                col.className = 'col-md-4 mb-3';
                 col.innerHTML = `
                     <div class="card turno-card">
                         <div class="card-body">
@@ -339,148 +236,39 @@
             });
         }
 
-        // Función para generar enlace (CA-15-1)
         function generarEnlace() {
-            // Generar un ID único para el enlace
-            const linkId = 'turnos-' + Date.now().toString(36);
-            
-            // Crear objeto con datos del enlace
             const enlace = {
-                id: linkId,
                 fechaGeneracion: new Date().toISOString(),
-                turnos: misTurnos.map(t => ({
-                    fecha: t.fecha,
-                    horario: t.horario,
-                    area: t.area
-                })),
-                expiracion: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(), // 48 horas (CA-15-3)
-                estado: 'activo',
+                turnos: misTurnos,
+                expiracion: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
                 usos: 0,
                 maxUsos: 3
             };
             
-            // Guardar en localStorage (simulando base de datos)
-            enlacesCompartidos.unshift(enlace);
-            localStorage.setItem('enlacesCompartidos', JSON.stringify(enlacesCompartidos));
+            localStorage.setItem('turnosCompartidos', JSON.stringify(enlace));
             
-            // Mostrar enlace generado
-            const enlaceUrl = `${window.location.origin}/ver-turnos.html?id=${linkId}`;
+            const enlaceUrl = window.location.href.replace('compartir-turnos.html', 'ver-turnos.html');
             document.getElementById('enlaceGenerado').textContent = enlaceUrl;
             document.getElementById('seccionEnlace').style.display = 'block';
-            document.getElementById('contadorCompartidos').textContent = '0';
             
-            // Guardar referencia al enlace activo
-            enlaceActivo = enlace;
-            
-            // Actualizar historial
-            cargarHistorialEnlaces();
-            
-            // Iniciar cuenta regresiva para expiración
             iniciarCuentaRegresiva(enlace.expiracion);
         }
 
-        // Función para copiar enlace al portapapeles
         function copiarEnlace() {
             const enlace = document.getElementById('enlaceGenerado').textContent;
             navigator.clipboard.writeText(enlace)
                 .then(() => {
                     alert('Enlace copiado al portapapeles');
-                    // Incrementar contador de usos
-                    if (enlaceActivo) {
-                        enlaceActivo.usos++;
-                        if (enlaceActivo.usos >= enlaceActivo.maxUsos) {
-                            enlaceActivo.estado = 'expirado';
-                        }
-                        actualizarEnlaceEnHistorial(enlaceActivo);
-                        document.getElementById('contadorCompartidos').textContent = enlaceActivo.usos;
+                    const enlaceGuardado = JSON.parse(localStorage.getItem('turnosCompartidos'));
+                    if (enlaceGuardado) {
+                        enlaceGuardado.usos++;
+                        localStorage.setItem('turnosCompartidos', JSON.stringify(enlaceGuardado));
+                        document.getElementById('contadorCompartidos').textContent = enlaceGuardado.usos;
                     }
                 })
                 .catch(err => console.error('Error al copiar: ', err));
         }
 
-        // Función para mostrar modal de envío por email
-        function mostrarModalEmail() {
-            document.getElementById('emailDestinatario').value = '';
-            document.getElementById('mensajeEmail').value = '';
-            emailModal.show();
-        }
-
-        // Función para enviar email (simulado)
-        function enviarEmail() {
-            const email = document.getElementById('emailDestinatario').value.trim();
-            
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                alert('Por favor ingrese un email válido');
-                return;
-            }
-            
-            // Simular envío
-            setTimeout(() => {
-                emailModal.hide();
-                alert('El email ha sido enviado correctamente');
-                
-                // Incrementar contador de usos
-                if (enlaceActivo) {
-                    enlaceActivo.usos++;
-                    if (enlaceActivo.usos >= enlaceActivo.maxUsos) {
-                        enlaceActivo.estado = 'expirado';
-                    }
-                    actualizarEnlaceEnHistorial(enlaceActivo);
-                    document.getElementById('contadorCompartidos').textContent = enlaceActivo.usos;
-                }
-            }, 1000);
-        }
-
-        // Función para actualizar un enlace en el historial
-        function actualizarEnlaceEnHistorial(enlaceActualizado) {
-            enlacesCompartidos = enlacesCompartidos.map(enlace => 
-                enlace.id === enlaceActualizado.id ? enlaceActualizado : enlace
-            );
-            localStorage.setItem('enlacesCompartidos', JSON.stringify(enlacesCompartidos));
-            cargarHistorialEnlaces();
-        }
-
-        // Función para cargar historial de enlaces compartidos
-        function cargarHistorialEnlaces() {
-            // Obtener de localStorage (simulación)
-            const guardados = localStorage.getItem('enlacesCompartidos');
-            if (guardados) {
-                enlacesCompartidos = JSON.parse(guardados);
-            }
-            
-            const tbody = document.getElementById('historialEnlaces');
-            tbody.innerHTML = '';
-            
-            if (enlacesCompartidos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No has compartido ningún enlace aún</td></tr>';
-                return;
-            }
-            
-            enlacesCompartidos.forEach(enlace => {
-                const tr = document.createElement('tr');
-                
-                // Validar si el enlace ha expirado
-                const expirado = new Date(enlace.expiracion) < new Date() || enlace.usos >= enlace.maxUsos;
-                if (expirado) {
-                    enlace.estado = 'expirado';
-                }
-                
-                tr.innerHTML = `
-                    <td>${formatearFechaHora(enlace.fechaGeneracion)}</td>
-                    <td>${enlace.turnos.length} turnos</td>
-                    <td>${formatearFechaHora(enlace.expiracion)}</td>
-                    <td>
-                        <span class="badge ${enlace.estado === 'activo' ? 'bg-success' : 'bg-secondary'}">
-                            ${enlace.estado === 'activo' ? 'Activo' : 'Expirado'}
-                        </span>
-                    </td>
-                    <td>${enlace.usos}/${enlace.maxUsos}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Función para iniciar cuenta regresiva de expiración
         function iniciarCuentaRegresiva(fechaExpiracion) {
             const expiracion = new Date(fechaExpiracion).getTime();
             
@@ -498,26 +286,8 @@
             };
             
             actualizarTiempo();
-            setInterval(actualizarTiempo, 60 * 60 * 1000); // Actualizar cada hora
-        }
-
-        // Funciones auxiliares de formato
-        function formatearFecha(fechaStr) {
-            const opciones = { weekday: 'long', day: 'numeric', month: 'long' };
-            return new Date(fechaStr).toLocaleDateString('es-ES', opciones);
-        }
-        
-        function formatearFechaHora(fechaStr) {
-            const opciones = { 
-                day: 'numeric', 
-                month: 'numeric', 
-                year: 'numeric',
-                hour: '2-digit', 
-                minute: '2-digit'
-            };
-            return new Date(fechaStr).toLocaleDateString('es-ES', opciones);
+            setInterval(actualizarTiempo, 60 * 60 * 1000);
         }
     </script>
 </body>
 </html>
-  
