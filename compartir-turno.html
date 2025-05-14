@@ -17,6 +17,7 @@
         
         body {
             background-color: var(--color-fondo);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .app-header {
@@ -45,6 +46,7 @@
             gap: 2rem;
             padding: 0 1rem;
             margin: 0;
+            flex-wrap: wrap;
         }
         
         .main-menu a {
@@ -56,11 +58,7 @@
             transition: all 0.3s;
         }
         
-        .main-menu a:hover {
-            background-color: var(--color-lila);
-        }
-        
-        .main-menu a.active {
+        .main-menu a:hover, .main-menu a.active {
             background-color: var(--color-lila);
         }
         
@@ -122,6 +120,13 @@
             display: inline-block;
             margin-bottom: 1rem;
         }
+        
+        #formularioEmail {
+            background-color: var(--color-celeste-claro);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +176,22 @@
                     <div class="link-generado mb-3" id="enlaceGenerado"></div>
                     <button class="btn btn-success me-2" id="copiarEnlace">Copiar Enlace</button>
                     <button class="btn btn-primary" id="enviarEmail">Enviar por Email</button>
+                    
+                    <div id="formularioEmail" style="display: none;">
+                        <h5 class="mt-3">Enviar por Email</h5>
+                        <form id="emailForm">
+                            <div class="mb-3">
+                                <label for="emailDestinatario" class="form-label">Email del destinatario:</label>
+                                <input type="email" class="form-control" id="emailDestinatario" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="mensajeEmail" class="form-label">Mensaje (opcional):</label>
+                                <textarea class="form-control" id="mensajeEmail" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar Email</button>
+                        </form>
+                    </div>
+                    
                     <div class="mt-2 text-muted">
                         <small>Este enlace expirará en <span id="tiempoExpiracion">48</span> horas</small>
                     </div>
@@ -184,19 +205,19 @@
         // Datos de ejemplo - turnos del funcionario
         const misTurnos = [
             {
-                fecha: "2023-11-15",
+                fecha: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Mañana
                 horario: "08:00 - 16:00",
                 area: "Urgencias",
                 tipo: "Turno Mañana"
             },
             {
-                fecha: "2023-11-17",
+                fecha: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0], // En 3 días
                 horario: "16:00 - 00:00",
                 area: "Pediatría",
                 tipo: "Turno Tarde"
             },
             {
-                fecha: "2023-11-19",
+                fecha: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0], // En 5 días
                 horario: "00:00 - 08:00",
                 area: "Cirugía",
                 tipo: "Turno Noche"
@@ -209,18 +230,13 @@
             
             document.getElementById('generarEnlace').addEventListener('click', generarEnlace);
             document.getElementById('copiarEnlace').addEventListener('click', copiarEnlace);
-            
-            // Marcar como activo el enlace actual
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            document.querySelectorAll('.main-menu a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.classList.add('active');
-                }
-            });
+            document.getElementById('enviarEmail').addEventListener('click', mostrarFormularioEmail);
+            document.getElementById('emailForm').addEventListener('submit', enviarEmail);
         });
 
         function cargarTurnosProximos() {
             const contenedor = document.getElementById('turnos-proximos');
+            contenedor.innerHTML = '';
             
             misTurnos.forEach(turno => {
                 const fechaFormateada = new Date(turno.fecha).toLocaleDateString('es-ES', { 
@@ -259,7 +275,6 @@
             
             localStorage.setItem('turnosCompartidos', JSON.stringify(enlace));
             
-            // Cambiado a ver-turnos.html como solicitaste
             const enlaceUrl = window.location.href.replace('compartir-turno.html', 'ver-turnos.html');
             document.getElementById('enlaceGenerado').textContent = enlaceUrl;
             document.getElementById('seccionEnlace').style.display = 'block';
@@ -280,6 +295,23 @@
                     }
                 })
                 .catch(err => console.error('Error al copiar: ', err));
+        }
+
+        function mostrarFormularioEmail() {
+            const formulario = document.getElementById('formularioEmail');
+            formulario.style.display = formulario.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function enviarEmail(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailDestinatario').value;
+            const mensaje = document.getElementById('mensajeEmail').value;
+            const enlace = document.getElementById('enlaceGenerado').textContent;
+            
+            // Simulación de envío
+            alert(`Email enviado a: ${email}\n\nMensaje: ${mensaje || '(Sin mensaje)'}\n\nEnlace: ${enlace}`);
+            document.getElementById('formularioEmail').style.display = 'none';
+            document.getElementById('emailForm').reset();
         }
 
         function iniciarCuentaRegresiva(fechaExpiracion) {
