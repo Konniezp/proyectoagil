@@ -50,6 +50,47 @@
             margin-bottom: 0.5rem;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
+
+        /* Menú de navegación */
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 0.8rem 0;
+        }
+
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .main-menu li {
+            margin: 0;
+        }
+
+        .main-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .main-menu a.active {
+            background-color: var(--color-primary);
+            font-weight: 600;
+        }
         
         /* Contenedor principal */
         .main-container {
@@ -256,6 +297,18 @@
                 padding: 1.5rem;
             }
             
+            .main-menu ul {
+                gap: 0.5rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .main-menu li {
+                flex: 0 0 auto;
+            }
+            
             .btn-container {
                 flex-direction: column;
             }
@@ -292,6 +345,18 @@
         <h1 class="app-title">TurnoMed</h1>
         <p>Sistema de Gestión de Turnos Médicos</p>
     </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="funcionario.html">Calendario</a></li>
+            <li><a href="compartir-turno.html">Compartir Turno</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html">Sueldo</a></li>
+            <li><a href="descargar_reporte.html" class="active">Descargar reporte</a></li>
+        </ul>
+    </nav>
 
     <div class="main-container">
         <h2 class="section-title">Descargar Reporte de Turnos</h2>
