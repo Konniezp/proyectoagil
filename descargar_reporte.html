@@ -7,65 +7,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --color-primary: #6a4cff; /* Lila más intenso */
-            --color-primary-light: #9a7bff;
-            --color-primary-dark: #4a2cf1;
-            --color-secondary: #00b4d8; /* Celeste más oscuro */
-            --color-secondary-light: #48cae4;
-            --color-secondary-dark: #0096c7;
-            --color-background: #ffffff; /* Fondo blanco puro */
-            --color-text: #2a2a2a; /* Texto más oscuro */
+            --color-primary: #7a5bff;
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #5a3ff7;
+            --color-secondary: #3ac2ff;
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #00a9e6;
+            --color-background: #f8f9ff;
+            --color-text: #2a2a68;
             --color-white: #ffffff;
-            --color-gray: #e0e0e0;
-            --color-success: #28a745; /* Verde más oscuro */
-            --color-warning: #fd7e14;
+            --color-gray: #e1e5eb;
+            --color-success: #28a745;
         }
-        
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background-color: #f5f7fa;
+            background-color: var(--color-background);
             color: var(--color-text);
             line-height: 1.6;
         }
-        
+
         .app-header {
             background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             color: var(--color-white);
             padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .app-title {
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            font-weight: 700;
+            font-weight: 600;
         }
-        
+
         .main-container {
             max-width: 1000px;
             margin: 2rem auto;
             padding: 2rem;
             background: var(--color-white);
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
         }
-        
+
         .section-title {
             color: var(--color-primary-dark);
             margin-bottom: 1.5rem;
             font-size: 1.8rem;
-            font-weight: 600;
             border-bottom: 2px solid var(--color-primary-light);
             padding-bottom: 0.5rem;
+            font-weight: 600;
         }
-        
+
         .date-range-form {
             background-color: rgba(154, 123, 255, 0.1);
             padding: 1.5rem;
@@ -73,106 +72,93 @@
             margin-bottom: 2rem;
             border: 1px solid var(--color-primary-light);
         }
-        
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--color-primary-dark);
         }
-        
+
         .form-control {
             width: 100%;
             padding: 0.8rem 1rem;
             border: 1px solid #ced4da;
             border-radius: 6px;
             font-size: 1rem;
-            transition: all 0.3s;
         }
-        
-        .form-control:focus {
-            border-color: var(--color-primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(106, 76, 255, 0.25);
-        }
-        
-        /* Estilos mejorados para el reporte que se convertirá a PDF */
+
+        /* Estilos para el reporte PDF */
         .report-preview {
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--color-gray);
             border-radius: 8px;
             padding: 2rem;
             margin-bottom: 2rem;
             background-color: var(--color-white);
+            width: 100%;
         }
-        
+
         .report-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--color-primary-light);
         }
-        
+
         .report-title {
             color: var(--color-primary-dark);
             font-size: 1.8rem;
-            font-weight: 700;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
-        
+
         .report-subtitle {
             color: var(--color-text);
             font-size: 1.1rem;
             font-weight: 500;
         }
-        
+
         .report-details {
             margin-bottom: 2rem;
-            background-color: #f8f9fa;
             padding: 1.5rem;
+            background-color: #f8f9fa;
             border-radius: 6px;
             border-left: 4px solid var(--color-primary);
         }
-        
+
         .report-details p {
             margin-bottom: 0.75rem;
             font-size: 1.05rem;
         }
-        
-        .report-details strong {
-            color: var(--color-primary-dark);
-        }
-        
+
         .report-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 2rem;
             font-size: 0.95rem;
         }
-        
+
         .report-table th {
             background-color: var(--color-primary-dark);
             color: white;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
             padding: 1rem;
             text-align: left;
         }
-        
+
         .report-table td {
             padding: 0.85rem 1rem;
             border-bottom: 1px solid #e9ecef;
         }
-        
+
         .report-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
-        
-        .report-table tr:hover {
-            background-color: #e9f7fe;
-        }
-        
+
         .report-footer {
             text-align: center;
             font-size: 0.9rem;
@@ -181,63 +167,44 @@
             padding-top: 1.5rem;
             border-top: 2px solid #e9ecef;
         }
-        
-        /* Botones mejorados */
+
         .btn {
             display: inline-block;
             padding: 0.8rem 1.75rem;
             font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            border: none;
             border-radius: 6px;
-            transition: all 0.3s;
             cursor: pointer;
             font-size: 1rem;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: all 0.3s;
         }
-        
+
         .btn-generate {
             background-color: var(--color-secondary);
             color: white;
         }
-        
-        .btn-generate:hover {
-            background-color: var(--color-secondary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-        
+
         .btn-download {
             background-color: var(--color-success);
             color: white;
         }
-        
-        .btn-download:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-        
+
         .btn-container {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
-        
-        /* Estilos para el estado en la tabla */
+
         .status-badge {
             display: inline-block;
             padding: 0.35rem 0.75rem;
             border-radius: 50px;
             font-size: 0.8rem;
             font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
+            color: white;
         }
-        
+
         /* Estilos específicos para impresión/PDF */
         @media print {
             body * {
@@ -260,34 +227,23 @@
                 display: none;
             }
             
-            /* Asegurar que los colores se impriman correctamente */
+            /* Forzar colores en impresión */
             .report-table th {
-                background-color: var(--color-primary-dark) !important;
-                color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                background-color: var(--color-primary-dark) !important;
+                color: white !important;
             }
             
             .report-table tr:nth-child(even) {
-                background-color: #f8f9fa !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                background-color: #f8f9fa !important;
             }
-        }
-        
-        /* Animaciones */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .report-preview {
-            animation: fadeIn 0.4s ease-out;
         }
     </style>
 </head>
 <body>
-    <!-- Contenido HTML se mantiene igual -->
     <div class="app-header">
         <h1 class="app-title">TurnoMed</h1>
         <p>Sistema de Gestión de Turnos Médicos</p>
@@ -357,7 +313,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configuración inicial de fechas
+            // Configurar fechas iniciales
             const today = new Date();
             document.getElementById('startDate').valueAsDate = today;
             
@@ -365,17 +321,17 @@
             nextWeek.setDate(today.getDate() + 7);
             document.getElementById('endDate').valueAsDate = nextWeek;
             
-            // Generar reporte de ejemplo
+            // Generar vista previa
             document.getElementById('generateBtn').addEventListener('click', function() {
-                generateSampleReport();
+                generateReportPreview();
             });
             
             // Descargar PDF
             document.getElementById('downloadBtn').addEventListener('click', function() {
-                downloadPDF();
+                downloadAsPDF();
             });
             
-            function generateSampleReport() {
+            function generateReportPreview() {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 
@@ -390,73 +346,57 @@
                 }
                 
                 // Formatear fechas para mostrar
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                const startFormatted = new Date(startDate).toLocaleDateString('es-ES', options);
-                const endFormatted = new Date(endDate).toLocaleDateString('es-ES', options);
+                const startFormatted = formatDateDisplay(new Date(startDate));
+                const endFormatted = formatDateDisplay(new Date(endDate));
+                const todayFormatted = formatDateDisplay(today);
                 
                 document.getElementById('previewDateRange').textContent = `${startFormatted} al ${endFormatted}`;
-                document.getElementById('previewGenerationDate').textContent = today.toLocaleDateString('es-ES', options);
+                document.getElementById('previewGenerationDate').textContent = todayFormatted;
                 
                 // Generar datos de ejemplo
-                generateSampleData();
+                generateSampleData(startDate, endDate);
                 
                 // Mostrar vista previa
                 document.getElementById('reportPreview').style.display = 'block';
             }
             
-            function generateSampleData() {
+            function generateSampleData(startDate, endDate) {
                 const shiftsTable = document.getElementById('previewShifts');
                 shiftsTable.innerHTML = '';
                 
                 const sampleShifts = [
-                    { date: '2023-06-15', start: '08:00', end: '16:00', service: 'Guardia Diurna', location: 'Pabellón Central', status: 'Asignado' },
-                    { date: '2023-06-16', start: '20:00', end: '08:00', service: 'Guardia Nocturna', location: 'Urgencias', status: 'Confirmado' },
-                    { date: '2023-06-17', start: '09:00', end: '14:00', service: 'Turno Administrativo', location: 'Consultorios', status: 'Completado' },
-                    { date: '2023-06-18', start: '12:00', end: '20:00', service: 'Guardia de Fin de Semana', location: 'Pediatría', status: 'Asignado' },
-                    { date: '2023-06-20', start: '07:00', end: '15:00', service: 'Turno de Reemplazo', location: 'UCI', status: 'Confirmado' }
+                    { date: addDays(new Date(startDate), start: '08:00', end: '16:00', service: 'Guardia Diurna', location: 'Pabellón Central', status: 'Asignado' },
+                    { date: addDays(new Date(startDate), 1), start: '20:00', end: '08:00', service: 'Guardia Nocturna', location: 'Urgencias', status: 'Asignado' },
+                    { date: addDays(new Date(startDate), 2), start: '09:00', end: '14:00', service: 'Turno Administrativo', location: 'Consultorios', status: 'Confirmado' },
+                    { date: addDays(new Date(startDate), 3), start: '12:00', end: '20:00', service: 'Guardia de Fin de Semana', location: 'Pediatría', status: 'Pendiente' },
+                    { date: addDays(new Date(startDate), 5), start: '07:00', end: '15:00', service: 'Turno de Reemplazo', location: 'UCI', status: 'Asignado' }
                 ];
                 
                 sampleShifts.forEach(shift => {
-                    const row = document.createElement('tr');
-                    
-                    const date = new Date(shift.date);
-                    const formattedDate = date.toLocaleDateString('es-ES', { 
-                        weekday: 'short', 
-                        day: '2-digit', 
-                        month: 'short', 
-                        year: 'numeric' 
-                    });
-                    
-                    const statusColor = getStatusColor(shift.status);
-                    
-                    row.innerHTML = `
-                        <td>${formattedDate}</td>
-                        <td>${shift.start}</td>
-                        <td>${shift.end}</td>
-                        <td>${shift.service}</td>
-                        <td>${shift.location}</td>
-                        <td><span class="status-badge" style="background-color: ${statusColor}">${shift.status}</span></td>
-                    `;
-                    
-                    shiftsTable.appendChild(row);
+                    if (shift.date <= new Date(endDate)) {
+                        const row = document.createElement('tr');
+                        const formattedDate = formatDateDisplay(shift.date, true);
+                        const statusColor = getStatusColor(shift.status);
+                        
+                        row.innerHTML = `
+                            <td>${formattedDate}</td>
+                            <td>${shift.start}</td>
+                            <td>${shift.end}</td>
+                            <td>${shift.service}</td>
+                            <td>${shift.location}</td>
+                            <td><span class="status-badge" style="background-color: ${statusColor}">${shift.status}</span></td>
+                        `;
+                        
+                        shiftsTable.appendChild(row);
+                    }
                 });
             }
             
-            function getStatusColor(status) {
-                switch(status.toLowerCase()) {
-                    case 'asignado': return '#17a2b8';
-                    case 'confirmado': return '#28a745';
-                    case 'completado': return '#6c757d';
-                    case 'cancelado': return '#dc3545';
-                    default: return '#6c757d';
-                }
-            }
-            
-            function downloadPDF() {
+            function downloadAsPDF() {
                 const element = document.getElementById('reportPreview');
                 const downloadBtn = document.getElementById('downloadBtn');
                 
-                // Ocultar botón de descarga en el PDF
+                // Ocultar botón temporalmente
                 downloadBtn.style.visibility = 'hidden';
                 
                 // Mostrar mensaje de carga
@@ -466,30 +406,26 @@
                 loadingDiv.style.left = '0';
                 loadingDiv.style.width = '100%';
                 loadingDiv.style.height = '100%';
-                loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
                 loadingDiv.style.display = 'flex';
                 loadingDiv.style.justifyContent = 'center';
                 loadingDiv.style.alignItems = 'center';
                 loadingDiv.style.zIndex = '1000';
-                
-                const loadingText = document.createElement('div');
-                loadingText.style.color = 'white';
-                loadingText.style.fontSize = '1.5rem';
-                loadingText.textContent = 'Generando PDF, por favor espere...';
-                loadingDiv.appendChild(loadingText);
-                
+                loadingDiv.style.color = 'white';
+                loadingDiv.style.fontSize = '1.5rem';
+                loadingDiv.textContent = 'Generando PDF, por favor espere...';
                 document.body.appendChild(loadingDiv);
                 
-                // Configuración del PDF
+                // Configuración optimizada para PDF
                 const opt = {
-                    margin: [15, 15, 15, 15],
-                    filename: `Reporte_Turnos_${new Date().toISOString().split('T')[0]}.pdf`,
+                    margin: [10, 15, 10, 15],
+                    filename: `Reporte_Turnos_${document.getElementById('previewEmployeeName').textContent.replace(' ', '_')}_${formatDateForFilename(today)}.pdf`,
                     image: { 
                         type: 'jpeg', 
-                        quality: 0.98 
+                        quality: 1 
                     },
                     html2canvas: { 
-                        scale: 2,
+                        scale: 3, // Aumentar escala para mejor calidad
                         logging: false,
                         useCORS: true,
                         allowTaint: true,
@@ -504,13 +440,11 @@
                     },
                     pagebreak: { 
                         mode: ['avoid-all', 'css', 'legacy'] 
-                    },
-                    enableLinks: true
+                    }
                 };
                 
-                // Generar PDF
+                // Generar PDF con numeración de páginas
                 html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
-                    // Agregar número de página
                     const totalPages = pdf.internal.getNumberOfPages();
                     
                     for (let i = 1; i <= totalPages; i++) {
@@ -522,10 +456,46 @@
                             pdf.internal.pageSize.getHeight() - 10);
                     }
                 }).save().then(function() {
-                    // Eliminar mensaje de carga y restaurar botón
-                    document.body.removeChild(loadingDiv);
+                    // Restaurar visibilidad del botón y eliminar mensaje
                     downloadBtn.style.visibility = 'visible';
+                    document.body.removeChild(loadingDiv);
                 });
+            }
+            
+            // Funciones auxiliares
+            function addDays(date, days = 0) {
+                const result = new Date(date);
+                result.setDate(date.getDate() + days);
+                return result;
+            }
+            
+            function formatDateDisplay(date, withWeekday = false) {
+                const options = { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                };
+                
+                if (withWeekday) {
+                    options.weekday = 'short';
+                }
+                
+                return date.toLocaleDateString('es-CL', options);
+            }
+            
+            function formatDateForFilename(date) {
+                const d = new Date(date);
+                return `${d.getFullYear()}${(d.getMonth()+1).toString().padStart(2, '0')}${d.getDate().toString().padStart(2, '0')}`;
+            }
+            
+            function getStatusColor(status) {
+                switch(status.toLowerCase()) {
+                    case 'asignado': return '#2196F3';
+                    case 'confirmado': return '#4CAF50';
+                    case 'pendiente': return '#FF9800';
+                    case 'cancelado': return '#F44336';
+                    default: return '#9E9E9E';
+                }
             }
         });
     </script>
