@@ -87,6 +87,10 @@
             background-color: var(--color-primary);
         }
         
+        .main-menu a.active {
+            background-color: var(--color-primary);
+        }
+        
         /* Contenedor principal */
         .main-container {
             max-width: 1200px;
@@ -183,15 +187,12 @@
         <p class="app-subtitle">Gestión de Permisos y Vacaciones</p>
     </div>
 
-        <nav class="main-menu">
+    <nav class="main-menu">
         <ul>
             <li><a href="index.html" id="inicioLink">Inicio</a></li>
-            <li><a href="funcionario.html" id="calendarioLink" style="background-color: var(--color-primary);">Calendario</a></li>
-            <li><a href="compartir-turno.html" >Compartir Turno </a></li>
-            <li><a href="historial-turno.html" >Historial de Turnos </a></li>
-            <li><a href="estadistica.html" > Estadísticas </a></li>
-            <li><a href="sueldo.html" > Sueldo </a></li>
-            <li><a href="descargar_reporte.html" > Descargar reporte de turnos </a></li>
+            <li><a href="coordinador.html" id="asignarTurnosLink">Asignar Turnos</a></li>
+            <li><a href="gestion-permisos.html" id="gestionPermisosLink">Gestión de Permisos</a></li>
+            <li><a href="reportes.html" id="reportesLink">Reportes</a></li>
         </ul>
     </nav>
 
@@ -337,17 +338,46 @@
         document.addEventListener('DOMContentLoaded', function() {
             cargarSolicitudesPendientes();
             cargarHistorialSolicitudes();
+            resaltarMenuActivo();
             
-            // Resaltar enlace activo en el menú
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            const menuLinks = document.querySelectorAll('.main-menu a');
-            
-            menuLinks.forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.classList.add('active');
-                }
+            // Configurar eventos para los enlaces del menú
+            document.querySelectorAll('.main-menu a').forEach(enlace => {
+                enlace.addEventListener('click', function(e) {
+                    // Guardar en localStorage cuál es la página activa
+                    localStorage.setItem('paginaActiva', this.id);
+                });
             });
         });
+
+        function resaltarMenuActivo() {
+            // Obtener la página activa de localStorage o determinar según la URL actual
+            let paginaActiva = localStorage.getItem('paginaActiva');
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            
+            // Si no hay en localStorage, determinar según la página actual
+            if (!paginaActiva) {
+                if (currentPage === 'coordinador.html') {
+                    paginaActiva = 'asignarTurnosLink';
+                } else if (currentPage === 'gestion-permisos.html') {
+                    paginaActiva = 'gestionPermisosLink';
+                } else if (currentPage === 'reportes.html') {
+                    paginaActiva = 'reportesLink';
+                } else {
+                    paginaActiva = 'inicioLink';
+                }
+            }
+            
+            // Quitar clase active de todos los enlaces
+            document.querySelectorAll('.main-menu a').forEach(enlace => {
+                enlace.classList.remove('active');
+            });
+            
+            // Agregar clase active al enlace correspondiente
+            const enlaceActivo = document.getElementById(paginaActiva);
+            if (enlaceActivo) {
+                enlaceActivo.classList.add('active');
+            }
+        }
 
         function cargarSolicitudesPendientes() {
             const tbody = document.getElementById('solicitudes-pendientes');
