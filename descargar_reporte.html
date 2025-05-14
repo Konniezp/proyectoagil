@@ -3,558 +3,588 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurnoMed - Mis Ingresos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" rel="stylesheet">
+    <title>TurnoMed - Descargar Reporte</title>
+    <!-- Incluir la librería html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        /* Estilos generales con paleta lila/celeste */
         :root {
-            --color-lila: #9a7bff;
-            --color-lila-claro: #e6e6fa;
-            --color-lila-oscuro: #6a5acd;
-            --color-celeste: #87cefa;
-            --color-celeste-claro: #e6f7ff;
-            --color-fondo: #f8f9ff;
-            --color-texto: #3a3a68;
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-gray: #e1e5eb;
+            --color-success: #4caf50;
+            --color-warning: #ff9800;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            background-color: var(--color-fondo);
-            color: var(--color-texto);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
         }
-
+        
+        /* Encabezado */
         .app-header {
-            background: linear-gradient(135deg, var(--color-lila), var(--color-celeste));
-            color: white;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
             padding: 1.5rem;
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
+        
         .app-title {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
-
-        .app-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        /* Menú mejorado */
-        .main-menu {
-            background-color: var(--color-lila-oscuro);
-            padding: 1rem 0;
-        }
-
-        .main-menu-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 1rem;
-        }
-
-        .main-menu ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            padding: 0;
-            margin: 0;
-            flex-wrap: wrap;
-        }
-
-        .main-menu li {
-            margin: 0;
-        }
-
-        .main-menu a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.6rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .main-menu a:hover {
-            background-color: var(--color-lila);
-            transform: translateY(-2px);
-        }
-
-        .main-menu a.active {
-            background-color: var(--color-lila);
-            font-weight: 600;
-        }
-
+        
+        /* Contenedor principal */
         .main-container {
-            flex: 1;
-            padding: 2rem 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .salary-section {
-            background-color: white;
-            border-radius: 8px;
+            max-width: 1000px;
+            margin: 2rem auto;
             padding: 2rem;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            color: var(--color-primary-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--color-primary-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Formulario de fechas */
+        .date-range-form {
+            background-color: var(--color-primary-light);
+            padding: 1.5rem;
+            border-radius: 8px;
             margin-bottom: 2rem;
         }
-
-        .salary-card {
-            background: linear-gradient(135deg, var(--color-lila-claro), var(--color-celeste-claro));
-            border-radius: 8px;
-            padding: 1.5rem;
+        
+        .form-group {
             margin-bottom: 1.5rem;
-            border-left: 4px solid var(--color-lila);
         }
-
-        .salary-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--color-lila-oscuro);
-            margin: 0.5rem 0;
-        }
-
-        .salary-detail {
-            display: flex;
-            justify-content: space-between;
+        
+        .form-group label {
+            display: block;
             margin-bottom: 0.5rem;
-        }
-
-        .salary-label {
             font-weight: 600;
-            color: var(--color-lila-oscuro);
+            color: var(--color-primary-dark);
         }
-
-        .salary-number {
-            font-weight: 600;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-top: 2rem;
-        }
-
-        .table-responsive {
-            margin-top: 1.5rem;
-            overflow-x: auto;
-        }
-
-        table {
+        
+        .form-control {
             width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--color-lila-claro);
-        }
-
-        th {
-            background-color: var(--color-lila-claro);
-            color: var(--color-lila-oscuro);
-            font-weight: 600;
-        }
-
-        tr:hover {
-            background-color: var(--color-celeste-claro);
-        }
-
-        .month-selector {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .month-title {
-            color: var(--color-lila-oscuro);
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-
-        .btn-month {
-            background-color: var(--color-lila);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 8px;
+            font-size: 1rem;
             transition: all 0.3s;
         }
-
-        .btn-month:hover {
-            background-color: var(--color-lila-oscuro);
-            transform: translateY(-2px);
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
         }
-
-        .btn-month:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        
+        /* Vista previa */
+        .report-preview {
+            border: 1px solid var(--color-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: var(--color-white);
         }
-
-        footer {
-            background-color: var(--color-lila-oscuro);
-            color: white;
+        
+        .report-header {
             text-align: center;
-            padding: 1rem;
-            margin-top: auto;
-        }
-
-        h2, h3 {
-            color: var(--color-lila-oscuro);
-        }
-
-        .info-message {
-            background-color: var(--color-celeste-claro);
-            padding: 1rem;
-            border-radius: 6px;
             margin-bottom: 1.5rem;
-            border-left: 4px solid var(--color-celeste);
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-gray);
         }
-
+        
+        .report-title {
+            color: var(--color-primary-dark);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            color: var(--color-text);
+            font-size: 1rem;
+        }
+        
+        .report-details {
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-details p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        .report-table th, 
+        .report-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray);
+        }
+        
+        .report-table th {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+        }
+        
+        .report-table tr:nth-child(even) {
+            background-color: var(--color-background);
+        }
+        
+        .report-footer {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--color-text);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray);
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-generate {
+            background-color: var(--color-secondary);
+        }
+        
+        .btn-generate:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
+        .btn-download {
+            background-color: var(--color-success);
+        }
+        
+        .btn-download:hover {
+            background-color: #3d8b40;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Mensajes */
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-info {
+            background-color: var(--color-secondary-light);
+            color: var(--color-primary-dark);
+            border-left: 4px solid var(--color-secondary-dark);
+        }
+        
+        /* Estilos específicos para el PDF */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .report-preview, .report-preview * {
+                visibility: visible;
+            }
+            .report-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+                border: none;
+            }
+            .btn-container {
+                display: none;
+            }
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .salary-details {
+            .main-container {
+                padding: 1.5rem;
+            }
+            
+            .btn-container {
                 flex-direction: column;
             }
             
-            .salary-card {
-                padding: 1rem;
+            .btn {
+                width: 100%;
             }
-            
-            .salary-value {
-                font-size: 2rem;
-            }
-            
-            .main-menu ul {
-                gap: 0.5rem;
-                justify-content: flex-start;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .main-menu li {
-                flex: 0 0 auto;
-            }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-preview {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Mejoras en la tabla */
+        .report-table {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-table th {
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
 <body>
     <div class="app-header">
         <h1 class="app-title">TurnoMed</h1>
-        <p class="app-subtitle">Mis Ingresos Mensuales</p>
+        <p>Sistema de Gestión de Turnos Médicos</p>
     </div>
-    
-    <nav class="main-menu">
-        <div class="main-menu-container">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="funcionario.html">Calendario</a></li>
-                <li><a href="compartir-turno.html">Compartir Turno</a></li>
-                <li><a href="historial-turno.html">Historial de Turnos</a></li>
-                <li><a href="estadistica.html">Estadísticas</a></li>
-                <li><a href="sueldo.html" class="active">Sueldo</a></li>
-                <li><a href="descargar_reporte.html">Descargar reporte</a></li>
-            </ul>
-        </div>
-    </nav>
 
     <div class="main-container">
-        <h2>Resumen de Sueldo</h2>
-        <p class="text-muted">Visualiza tu sueldo calculado según las horas trabajadas y el valor hora de tu función.</p>
-
-        <div class="month-selector">
-            <button class="btn-month" id="prevMonth" disabled>
-                ←
-            </button>
-            <span class="month-title" id="currentMonth">Junio 2023</span>
-            <button class="btn-month" id="nextMonth">
-                →
-            </button>
+        <h2 class="section-title">Descargar Reporte de Turnos</h2>
+        
+        <div class="alert alert-info">
+            <strong>Información:</strong> Seleccione un rango de fechas para generar un reporte en PDF con sus turnos asignados.
         </div>
-
-        <div class="info-message">
-            Los datos mostrados corresponden a las horas registradas en el sistema. No es posible modificar esta información.
-        </div>
-
-        <div class="salary-section">
-            <h3>Sueldo del Mes</h3>
-            
-            <div class="salary-card">
-                <div class="salary-value" id="netSalary">$1,250,000</div>
-                <small class="text-muted">Líquido a pagar</small>
-                
-                <div class="salary-details mt-4">
-                    <div class="salary-detail">
-                        <span class="salary-label">Horas trabajadas:</span>
-                        <span class="salary-number" id="hoursWorked">150</span>
-                    </div>
-                    <div class="salary-detail">
-                        <span class="salary-label">Valor hora:</span>
-                        <span class="salary-number" id="hourValue">$10,000</span>
-                    </div>
-                    <div class="salary-detail">
-                        <span class="salary-label">Sueldo bruto:</span>
-                        <span class="salary-number" id="grossSalary">$1,500,000</span>
-                    </div>
-                    <div class="salary-detail">
-                        <span class="salary-label">Descuentos:</span>
-                        <span class="salary-number text-danger" id="discounts">$250,000</span>
-                    </div>
-                </div>
+        
+        <!-- CA-16-1: Selección de rango de fechas -->
+        <form id="reportForm" class="date-range-form">
+            <div class="form-group">
+                <label for="startDate">Fecha de Inicio</label>
+                <input type="date" id="startDate" class="form-control" required>
             </div>
             
-            <div class="chart-container">
-                <canvas id="salaryChart"></canvas>
+            <div class="form-group">
+                <label for="endDate">Fecha de Fin</label>
+                <input type="date" id="endDate" class="form-control" required>
             </div>
-        </div>
-
-        <div class="salary-section">
-            <h3>Histórico de Ingresos</h3>
             
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Mes/Año</th>
-                            <th>Horas</th>
-                            <th>Valor Hora</th>
-                            <th>Bruto</th>
-                            <th>Descuentos</th>
-                            <th>Líquido</th>
-                        </tr>
-                    </thead>
-                    <tbody id="salaryHistory">
-                        <!-- Datos se llenarán dinámicamente -->
-                    </tbody>
-                </table>
+            <div class="btn-container">
+                <button type="button" id="generateBtn" class="btn btn-generate">Generar Vista Previa</button>
+            </div>
+        </form>
+        
+        <!-- Vista previa del reporte -->
+        <div id="reportPreview" class="report-preview" style="display: none;">
+            <div class="report-header">
+                <h3 class="report-title">Reporte de Turnos Asignados</h3>
+                <p class="report-subtitle">Período: <span id="previewDateRange"></span></p>
+            </div>
+            
+            <div class="report-details">
+                <p><strong>Funcionario:</strong> <span id="previewEmployeeName">María González</span></p>
+                <p><strong>Unidad:</strong> <span id="previewUnit">Enfermería</span></p>
+                <p><strong>Fecha de generación:</strong> <span id="previewGenerationDate"></span></p>
+            </div>
+            
+            <!-- CA-16-2: Información del turno -->
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora Inicio</th>
+                        <th>Hora Fin</th>
+                        <th>Servicio</th>
+                        <th>Ubicación</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="previewShifts">
+                    <!-- Datos de turnos se llenarán dinámicamente -->
+                </tbody>
+            </table>
+            
+            <div class="report-footer">
+                <p>Este documento es confidencial y para uso exclusivo del funcionario.</p>
+                <!-- CA-16-3: Indicación de protección contra edición -->
+                <p><strong>Documento protegido contra edición - Generado electrónicamente por TurnoMed</strong></p>
+            </div>
+            
+            <!-- CA-16-4: Botón de descarga solo para el usuario actual -->
+            <div class="btn-container">
+                <button id="downloadBtn" class="btn btn-download">Descargar PDF</button>
             </div>
         </div>
     </div>
 
-    <footer>
-        <p>© 2023 TurnoMed - Sistema de Gestión Hospitalaria</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // Datos de ejemplo
-        const salaryData = {
-            '2023-06': {
-                hours: 150,
-                hourValue: 10000,
-                gross: 1500000,
-                discounts: 250000,
-                net: 1250000
-            },
-            '2023-05': {
-                hours: 140,
-                hourValue: 9500,
-                gross: 1330000,
-                discounts: 213000,
-                net: 1117000
-            },
-            '2023-04': {
-                hours: 160,
-                hourValue: 9500,
-                gross: 1520000,
-                discounts: 243200,
-                net: 1276800
-            },
-            '2023-03': {
-                hours: 145,
-                hourValue: 9000,
-                gross: 1305000,
-                discounts: 208800,
-                net: 1096200
-            },
-            '2023-02': {
-                hours: 135,
-                hourValue: 9000,
-                gross: 1215000,
-                discounts: 194400,
-                net: 1020600
-            },
-            '2023-01': {
-                hours: 155,
-                hourValue: 8500,
-                gross: 1317500,
-                discounts: 210800,
-                net: 1106700
-            }
-        };
-
-        // Configurar gráfico
-        let salaryChart;
-        
-        function initChart(data) {
-            const ctx = document.getElementById('salaryChart').getContext('2d');
-            
-            if (salaryChart) {
-                salaryChart.destroy();
-            }
-            
-            salaryChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Sueldo Bruto',
-                            data: [1317500, 1215000, 1305000, 1520000, 1330000, 1500000],
-                            backgroundColor: 'rgba(154, 123, 255, 0.7)',
-                            borderColor: 'rgba(154, 123, 255, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Sueldo Líquido',
-                            data: [1106700, 1020600, 1096200, 1276800, 1117000, 1250000],
-                            backgroundColor: 'rgba(135, 206, 250, 0.7)',
-                            borderColor: 'rgba(135, 206, 250, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000) + 'k';
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' + context.raw.toLocaleString('es-CL');
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Formatear moneda
-        function formatCurrency(amount) {
-            return '$' + amount.toLocaleString('es-CL');
-        }
-
-        // Actualizar vista con datos del mes seleccionado
-        function updateView(monthKey) {
-            const data = salaryData[monthKey];
-            
-            document.getElementById('hoursWorked').textContent = data.hours;
-            document.getElementById('hourValue').textContent = formatCurrency(data.hourValue);
-            document.getElementById('grossSalary').textContent = formatCurrency(data.gross);
-            document.getElementById('discounts').textContent = formatCurrency(data.discounts);
-            document.getElementById('netSalary').textContent = formatCurrency(data.net);
-            
-            // Actualizar título del mes
-            const [year, month] = monthKey.split('-');
-            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            document.getElementById('currentMonth').textContent = `${monthNames[parseInt(month)-1]} ${year}`;
-            
-            // Actualizar histórico
-            updateHistoryTable();
-        }
-
-        // Actualizar tabla histórica
-        function updateHistoryTable() {
-            const tbody = document.getElementById('salaryHistory');
-            tbody.innerHTML = '';
-            
-            Object.entries(salaryData).forEach(([key, data]) => {
-                const [year, month] = key.split('-');
-                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
-                                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${monthNames[parseInt(month)-1]}/${year}</td>
-                    <td>${data.hours}</td>
-                    <td>${formatCurrency(data.hourValue)}</td>
-                    <td>${formatCurrency(data.gross)}</td>
-                    <td>${formatCurrency(data.discounts)}</td>
-                    <td><strong>${formatCurrency(data.net)}</strong></td>
-                `;
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        // Navegación entre meses
-        let currentMonth = '2023-06';
-        
-        document.getElementById('prevMonth').addEventListener('click', function() {
-            const [year, month] = currentMonth.split('-');
-            let prevYear = parseInt(year);
-            let prevMonth = parseInt(month) - 1;
-            
-            if (prevMonth < 1) {
-                prevMonth = 12;
-                prevYear--;
-            }
-            
-            currentMonth = `${prevYear}-${prevMonth.toString().padStart(2, '0')}`;
-            
-            if (salaryData[currentMonth]) {
-                updateView(currentMonth);
-                document.getElementById('nextMonth').disabled = false;
-            } else {
-                document.getElementById('prevMonth').disabled = true;
-            }
-        });
-        
-        document.getElementById('nextMonth').addEventListener('click', function() {
-            const [year, month] = currentMonth.split('-');
-            let nextYear = parseInt(year);
-            let nextMonth = parseInt(month) + 1;
-            
-            if (nextMonth > 12) {
-                nextMonth = 1;
-                nextYear++;
-            }
-            
-            currentMonth = `${nextYear}-${nextMonth.toString().padStart(2, '0')}`;
-            
-            if (salaryData[currentMonth]) {
-                updateView(currentMonth);
-                document.getElementById('prevMonth').disabled = false;
-            } else {
-                document.getElementById('nextMonth').disabled = true;
-            }
-        });
-
-        // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
-            updateView(currentMonth);
-            initChart();
+            // Elementos del DOM
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const reportPreview = document.getElementById('reportPreview');
+            const previewDateRange = document.getElementById('previewDateRange');
+            const previewGenerationDate = document.getElementById('previewGenerationDate');
+            const previewShifts = document.getElementById('previewShifts');
+            
+            // Configurar fecha actual
+            const today = new Date();
+            const formattedToday = formatDate(today);
+            document.getElementById('startDate').value = formattedToday;
+            
+            // Establecer fecha fin como 7 días después
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('endDate').value = formatDate(nextWeek);
+            
+            // CA-16-1: Generar vista previa al hacer clic en el botón
+            generateBtn.addEventListener('click', function() {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                
+                if (!startDate || !endDate) {
+                    alert('Por favor seleccione ambas fechas');
+                    return;
+                }
+                
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('La fecha de inicio no puede ser mayor a la fecha de fin');
+                    return;
+                }
+                
+                // Formatear fechas para mostrar
+                const startFormatted = formatDisplayDate(new Date(startDate));
+                const endFormatted = formatDisplayDate(new Date(endDate));
+                
+                previewDateRange.textContent = `${startFormatted} al ${endFormatted}`;
+                previewGenerationDate.textContent = formatDisplayDate(today);
+                
+                // Simular datos de turnos (en un sistema real esto vendría de una API)
+                generateSampleShifts(startDate, endDate);
+                
+                // Mostrar la vista previa con animación
+                reportPreview.style.display = 'block';
+                reportPreview.style.animation = 'fadeIn 0.3s ease-out';
+                
+                // Desplazarse suavemente hacia la vista previa
+                reportPreview.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // CA-16-4: Descargar PDF
+            downloadBtn.addEventListener('click', function() {
+                if (reportPreview.style.display === 'none') {
+                    alert('Por favor genere primero una vista previa del reporte');
+                    return;
+                }
+                
+                // Elemento que queremos convertir a PDF
+                const element = document.getElementById('reportPreview');
+                
+                // Ocultar el botón de descarga en el PDF
+                const downloadBtnOriginal = document.getElementById('downloadBtn');
+                downloadBtnOriginal.style.display = 'none';
+                
+                // Opciones para el PDF
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `Turnos_${document.getElementById('previewEmployeeName').textContent.replace(' ', '_')}_${today.toISOString().split('T')[0]}.pdf`,
+                    image: { 
+                        type: 'jpeg', 
+                        quality: 0.98 
+                    },
+                    html2canvas: { 
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        scrollX: 0,
+                        scrollY: 0
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    },
+                    pagebreak: { 
+                        mode: ['avoid-all', 'css', 'legacy'] 
+                    },
+                    enableLinks: true
+                };
+                
+                // Mostrar mensaje mientras se genera el PDF
+                const loadingMessage = document.createElement('div');
+                loadingMessage.style.position = 'fixed';
+                loadingMessage.style.top = '50%';
+                loadingMessage.style.left = '50%';
+                loadingMessage.style.transform = 'translate(-50%, -50%)';
+                loadingMessage.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                loadingMessage.style.color = 'white';
+                loadingMessage.style.padding = '20px';
+                loadingMessage.style.borderRadius = '5px';
+                loadingMessage.style.zIndex = '1000';
+                loadingMessage.textContent = 'Generando PDF, por favor espere...';
+                document.body.appendChild(loadingMessage);
+                
+                // Generar el PDF
+                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+                    // Agregar número de página
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        pdf.setFontSize(10);
+                        pdf.setTextColor(150);
+                        pdf.text(`Página ${i} de ${totalPages}`, 
+                            pdf.internal.pageSize.getWidth() - 30, 
+                            pdf.internal.pageSize.getHeight() - 10);
+                    }
+                }).save().then(function() {
+                    // Eliminar mensaje de carga
+                    document.body.removeChild(loadingMessage);
+                    // Restaurar el botón de descarga
+                    downloadBtnOriginal.style.display = 'inline-block';
+                });
+            });
+            
+            // Función para generar datos de ejemplo
+            function generateSampleShifts(startDate, endDate) {
+                previewShifts.innerHTML = '';
+                
+                // Generar turnos de ejemplo entre las fechas seleccionadas
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+                
+                const sampleShifts = [
+                    { service: 'Guardia Diurna', location: 'Pabellón Central', hours: '08:00 - 16:00', status: 'Asignado' },
+                    { service: 'Guardia Nocturna', location: 'Urgencias', hours: '20:00 - 08:00', status: 'Asignado' },
+                    { service: 'Turno Administrativo', location: 'Consultorios', hours: '09:00 - 14:00', status: 'Confirmado' },
+                    { service: 'Guardia de Fin de Semana', location: 'Pediatría', hours: '12:00 - 20:00', status: 'Pendiente' },
+                    { service: 'Turno de Reemplazo', location: 'UCI', hours: '07:00 - 15:00', status: 'Asignado' },
+                    { service: 'Turno Extra', location: 'Oncología', hours: '13:00 - 21:00', status: 'Confirmado' }
+                ];
+                
+                // Generar turnos aleatorios en el rango de fechas
+                const numShifts = Math.min(Math.floor(Math.random() * 8) + 3, sampleShifts.length * 2);
+                const usedDates = new Set();
+                
+                for (let i = 0; i < numShifts; i++) {
+                    // Seleccionar fecha aleatoria en el rango que no se haya usado
+                    let randomDay, shiftDate;
+                    do {
+                        randomDay = Math.floor(Math.random() * (diffDays + 1));
+                        shiftDate = new Date(start);
+                        shiftDate.setDate(start.getDate() + randomDay);
+                    } while (usedDates.has(shiftDate.toDateString()) && usedDates.size < diffDays + 1);
+                    
+                    usedDates.add(shiftDate.toDateString());
+                    
+                    const formattedDate = formatDisplayDate(shiftDate, true);
+                    
+                    // Seleccionar turno aleatorio
+                    const shift = sampleShifts[Math.floor(Math.random() * sampleShifts.length)];
+                    const [startHour, endHour] = shift.hours.split(' - ');
+                    
+                    // Crear fila de tabla
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${startHour}</td>
+                        <td>${endHour}</td>
+                        <td>${shift.service}</td>
+                        <td>${shift.location}</td>
+                        <td><span class="status-badge" style="background-color: ${getStatusColor(shift.status)}; 
+                            color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                            ${shift.status}
+                        </span></td>
+                    `;
+                    
+                    previewShifts.appendChild(row);
+                }
+            }
+            
+            // Función para formatear fecha para input date (YYYY-MM-DD)
+            function formatDate(date) {
+                const d = new Date(date);
+                let month = '' + (d.getMonth() + 1);
+                let day = '' + d.getDate();
+                const year = d.getFullYear();
+                
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                
+                return [year, month, day].join('-');
+            }
+            
+            // Función para formatear fecha para mostrar (DD/MM/YYYY)
+            function formatDisplayDate(date, withWeekday = false) {
+                const options = { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                };
+                
+                if (withWeekday) {
+                    options.weekday = 'short';
+                }
+                
+                return date.toLocaleDateString('es-CL', options);
+            }
+            
+            // Función para obtener color según estado
+            function getStatusColor(status) {
+                switch(status.toLowerCase()) {
+                    case 'asignado': return '#2196F3';
+                    case 'confirmado': return '#4CAF50';
+                    case 'pendiente': return '#FF9800';
+                    case 'cancelado': return '#F44336';
+                    default: return '#9E9E9E';
+                }
+            }
         });
     </script>
 </body>
