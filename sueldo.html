@@ -48,6 +48,42 @@
             opacity: 0.9;
         }
 
+        /* Menú mejorado */
+        .main-menu {
+            background-color: var(--color-lila-oscuro);
+            padding: 0.5rem 0;
+        }
+
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .main-menu li {
+            margin: 0.2rem 0;
+        }
+
+        .main-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .main-menu a:hover, .main-menu a.active {
+            background-color: var(--color-lila);
+            transform: translateY(-2px);
+        }
+
         .main-container {
             flex-grow: 1;
             padding: 2rem;
@@ -195,6 +231,15 @@
             .salary-value {
                 font-size: 2rem;
             }
+            
+            .main-menu ul {
+                gap: 0.5rem;
+            }
+            
+            .main-menu a {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -203,15 +248,16 @@
         <h1 class="app-title">TurnoMed</h1>
         <p class="app-subtitle">Mis Ingresos Mensuales</p>
     </div>
-        <nav class="main-menu">
+    
+    <nav class="main-menu">
         <ul>
-            <li><a href="index.html" id="inicioLink">Inicio</a></li>
-            <li><a href="funcionario.html" id="calendarioLink" style="background-color: var(--color-primary);">Calendario</a></li>
-            <li><a href="compartir-turno.html" >Compartir Turno </a></li>
-            <li><a href="historial-turno.html" >Historial de Turnos </a></li>
-            <li><a href="estadistica.html" > Estadísticas </a></li>
-            <li><a href="sueldo.html" > Sueldo </a></li>
-            <li><a href="descargar_reporte.html" > Descargar reporte de turnos </a></li>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="funcionario.html">Calendario</a></li>
+            <li><a href="compartir-turno.html">Compartir Turno</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html" class="active">Sueldo</a></li>
+            <li><a href="descargar_reporte.html">Descargar reporte</a></li>
         </ul>
     </nav>
 
@@ -498,6 +544,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateView(currentMonth);
             initChart();
+            
+            // Marcar el enlace activo en el menú
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('.main-menu a').forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
         });
     </script>
 </body>
