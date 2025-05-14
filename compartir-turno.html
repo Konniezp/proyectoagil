@@ -282,6 +282,12 @@
             
             iniciarCuentaRegresiva(enlace.expiracion);
         }
+
+        function mostrarFormularioEmail() {
+            const formulario = document.getElementById('formularioEmail');
+            formulario.style.display = formulario.style.display === 'none' ? 'block' : 'none';
+        }
+
         function copiarEnlace() {
             const enlace = document.getElementById('enlaceGenerado').textContent;
             navigator.clipboard.writeText(enlace)
