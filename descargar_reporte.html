@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurnoMed - Descargar Reporte</title>
+    <!-- Incluir la librería html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* Estilos generales con paleta lila/celeste */
         :root {
@@ -155,6 +157,10 @@
             font-weight: 600;
         }
         
+        .report-table tr:nth-child(even) {
+            background-color: var(--color-background);
+        }
+        
         .report-footer {
             text-align: right;
             font-size: 0.9rem;
@@ -182,6 +188,7 @@
         .btn:hover {
             background-color: var(--color-primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .btn-generate {
@@ -217,6 +224,30 @@
         .alert-info {
             background-color: var(--color-secondary-light);
             color: var(--color-primary-dark);
+            border-left: 4px solid var(--color-secondary-dark);
+        }
+        
+        /* Estilos específicos para el PDF */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .report-preview, .report-preview * {
+                visibility: visible;
+            }
+            .report-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+                border: none;
+            }
+            .btn-container {
+                display: none;
+            }
         }
         
         /* Responsive */
@@ -233,11 +264,33 @@
                 width: 100%;
             }
         }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-preview {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Mejoras en la tabla */
+        .report-table {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-table th {
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
     <div class="app-header">
         <h1 class="app-title">TurnoMed</h1>
+        <p>Sistema de Gestión de Turnos Médicos</p>
     </div>
 
     <div class="main-container">
@@ -286,6 +339,7 @@
                         <th>Hora Fin</th>
                         <th>Servicio</th>
                         <th>Ubicación</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody id="previewShifts">
@@ -296,7 +350,7 @@
             <div class="report-footer">
                 <p>Este documento es confidencial y para uso exclusivo del funcionario.</p>
                 <!-- CA-16-3: Indicación de protección contra edición -->
-                <p><strong>Documento protegido contra edición</strong></p>
+                <p><strong>Documento protegido contra edición - Generado electrónicamente por TurnoMed</strong></p>
             </div>
             
             <!-- CA-16-4: Botón de descarga solo para el usuario actual -->
@@ -318,8 +372,13 @@
             
             // Configurar fecha actual
             const today = new Date();
-            document.getElementById('startDate').valueAsDate = today;
-            document.getElementById('endDate').valueAsDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 días después
+            const formattedToday = formatDate(today);
+            document.getElementById('startDate').value = formattedToday;
+            
+            // Establecer fecha fin como 7 días después
+            const nextWeek = new Date(today);
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('endDate').value = formatDate(nextWeek);
             
             // CA-16-1: Generar vista previa al hacer clic en el botón
             generateBtn.addEventListener('click', function() {
@@ -337,60 +396,134 @@
                 }
                 
                 // Formatear fechas para mostrar
-                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                const startFormatted = new Date(startDate).toLocaleDateString('es-CL', options);
-                const endFormatted = new Date(endDate).toLocaleDateString('es-CL', options);
+                const startFormatted = formatDisplayDate(new Date(startDate));
+                const endFormatted = formatDisplayDate(new Date(endDate));
                 
                 previewDateRange.textContent = `${startFormatted} al ${endFormatted}`;
-                previewGenerationDate.textContent = today.toLocaleDateString('es-CL', options);
+                previewGenerationDate.textContent = formatDisplayDate(today);
                 
                 // Simular datos de turnos (en un sistema real esto vendría de una API)
                 generateSampleShifts(startDate, endDate);
                 
-                // Mostrar la vista previa
+                // Mostrar la vista previa con animación
                 reportPreview.style.display = 'block';
+                reportPreview.style.animation = 'fadeIn 0.3s ease-out';
+                
+                // Desplazarse suavemente hacia la vista previa
+                reportPreview.scrollIntoView({ behavior: 'smooth' });
             });
             
             // CA-16-4: Descargar PDF
             downloadBtn.addEventListener('click', function() {
-                // En un sistema real, esto llamaría a un servicio backend que genera el PDF
-                alert('En un sistema real, se generaría y descargaría un PDF protegido contra edición con los turnos mostrados.');
+                if (reportPreview.style.display === 'none') {
+                    alert('Por favor genere primero una vista previa del reporte');
+                    return;
+                }
                 
-                // Simular descarga (esto es solo para demostración)
-                simulatePDFDownload();
+                // Elemento que queremos convertir a PDF
+                const element = document.getElementById('reportPreview');
+                
+                // Ocultar el botón de descarga en el PDF
+                const downloadBtnOriginal = document.getElementById('downloadBtn');
+                downloadBtnOriginal.style.display = 'none';
+                
+                // Opciones para el PDF
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: `Turnos_${document.getElementById('previewEmployeeName').textContent.replace(' ', '_')}_${today.toISOString().split('T')[0]}.pdf`,
+                    image: { 
+                        type: 'jpeg', 
+                        quality: 0.98 
+                    },
+                    html2canvas: { 
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        scrollX: 0,
+                        scrollY: 0
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    },
+                    pagebreak: { 
+                        mode: ['avoid-all', 'css', 'legacy'] 
+                    },
+                    enableLinks: true
+                };
+                
+                // Mostrar mensaje mientras se genera el PDF
+                const loadingMessage = document.createElement('div');
+                loadingMessage.style.position = 'fixed';
+                loadingMessage.style.top = '50%';
+                loadingMessage.style.left = '50%';
+                loadingMessage.style.transform = 'translate(-50%, -50%)';
+                loadingMessage.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                loadingMessage.style.color = 'white';
+                loadingMessage.style.padding = '20px';
+                loadingMessage.style.borderRadius = '5px';
+                loadingMessage.style.zIndex = '1000';
+                loadingMessage.textContent = 'Generando PDF, por favor espere...';
+                document.body.appendChild(loadingMessage);
+                
+                // Generar el PDF
+                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+                    // Agregar número de página
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        pdf.setFontSize(10);
+                        pdf.setTextColor(150);
+                        pdf.text(`Página ${i} de ${totalPages}`, 
+                            pdf.internal.pageSize.getWidth() - 30, 
+                            pdf.internal.pageSize.getHeight() - 10);
+                    }
+                }).save().then(function() {
+                    // Eliminar mensaje de carga
+                    document.body.removeChild(loadingMessage);
+                    // Restaurar el botón de descarga
+                    downloadBtnOriginal.style.display = 'inline-block';
+                });
             });
             
             // Función para generar datos de ejemplo
             function generateSampleShifts(startDate, endDate) {
                 previewShifts.innerHTML = '';
                 
-                // Generar 5 turnos de ejemplo entre las fechas seleccionadas
+                // Generar turnos de ejemplo entre las fechas seleccionadas
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
                 
                 const sampleShifts = [
-                    { service: 'Guardia Diurna', location: 'Pabellón Central', hours: '08:00 - 16:00' },
-                    { service: 'Guardia Nocturna', location: 'Urgencias', hours: '20:00 - 08:00' },
-                    { service: 'Turno Administrativo', location: 'Consultorios', hours: '09:00 - 14:00' },
-                    { service: 'Guardia de Fin de Semana', location: 'Pediatría', hours: '12:00 - 20:00' }
+                    { service: 'Guardia Diurna', location: 'Pabellón Central', hours: '08:00 - 16:00', status: 'Asignado' },
+                    { service: 'Guardia Nocturna', location: 'Urgencias', hours: '20:00 - 08:00', status: 'Asignado' },
+                    { service: 'Turno Administrativo', location: 'Consultorios', hours: '09:00 - 14:00', status: 'Confirmado' },
+                    { service: 'Guardia de Fin de Semana', location: 'Pediatría', hours: '12:00 - 20:00', status: 'Pendiente' },
+                    { service: 'Turno de Reemplazo', location: 'UCI', hours: '07:00 - 15:00', status: 'Asignado' },
+                    { service: 'Turno Extra', location: 'Oncología', hours: '13:00 - 21:00', status: 'Confirmado' }
                 ];
                 
-                // Generar entre 3 y 6 turnos aleatorios
-                const numShifts = Math.floor(Math.random() * 4) + 3;
+                // Generar turnos aleatorios en el rango de fechas
+                const numShifts = Math.min(Math.floor(Math.random() * 8) + 3, sampleShifts.length * 2);
+                const usedDates = new Set();
                 
                 for (let i = 0; i < numShifts; i++) {
-                    // Seleccionar fecha aleatoria en el rango
-                    const randomDay = Math.floor(Math.random() * diffDays);
-                    const shiftDate = new Date(start);
-                    shiftDate.setDate(start.getDate() + randomDay);
+                    // Seleccionar fecha aleatoria en el rango que no se haya usado
+                    let randomDay, shiftDate;
+                    do {
+                        randomDay = Math.floor(Math.random() * (diffDays + 1));
+                        shiftDate = new Date(start);
+                        shiftDate.setDate(start.getDate() + randomDay);
+                    } while (usedDates.has(shiftDate.toDateString()) && usedDates.size < diffDays + 1);
                     
-                    const formattedDate = shiftDate.toLocaleDateString('es-CL', { 
-                        weekday: 'short', 
-                        day: '2-digit', 
-                        month: '2-digit', 
-                        year: 'numeric' 
-                    });
+                    usedDates.add(shiftDate.toDateString());
+                    
+                    const formattedDate = formatDisplayDate(shiftDate, true);
                     
                     // Seleccionar turno aleatorio
                     const shift = sampleShifts[Math.floor(Math.random() * sampleShifts.length)];
@@ -404,22 +537,53 @@
                         <td>${endHour}</td>
                         <td>${shift.service}</td>
                         <td>${shift.location}</td>
+                        <td><span class="status-badge" style="background-color: ${getStatusColor(shift.status)}; 
+                            color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                            ${shift.status}
+                        </span></td>
                     `;
                     
                     previewShifts.appendChild(row);
                 }
             }
             
-            // Simular descarga de PDF (demo)
-            function simulatePDFDownload() {
-                // En un sistema real, esto sería una llamada a un servicio que genera el PDF
-                console.log('PDF generado con protección contra edición');
+            // Función para formatear fecha para input date (YYYY-MM-DD)
+            function formatDate(date) {
+                const d = new Date(date);
+                let month = '' + (d.getMonth() + 1);
+                let day = '' + d.getDate();
+                const year = d.getFullYear();
                 
-                // Crear un enlace temporal para simular la descarga
-                const link = document.createElement('a');
-                link.href = '#';
-                link.download = `Turnos_${document.getElementById('previewEmployeeName').textContent}_${today.toISOString().split('T')[0]}.pdf`;
-                link.click();
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                
+                return [year, month, day].join('-');
+            }
+            
+            // Función para formatear fecha para mostrar (DD/MM/YYYY)
+            function formatDisplayDate(date, withWeekday = false) {
+                const options = { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                };
+                
+                if (withWeekday) {
+                    options.weekday = 'short';
+                }
+                
+                return date.toLocaleDateString('es-CL', options);
+            }
+            
+            // Función para obtener color según estado
+            function getStatusColor(status) {
+                switch(status.toLowerCase()) {
+                    case 'asignado': return '#2196F3';
+                    case 'confirmado': return '#4CAF50';
+                    case 'pendiente': return '#FF9800';
+                    case 'cancelado': return '#F44336';
+                    default: return '#9E9E9E';
+                }
             }
         });
     </script>
