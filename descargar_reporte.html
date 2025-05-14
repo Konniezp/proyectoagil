@@ -4,35 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurnoMed - Descargar Reporte</title>
+    <!-- Incluir la librería html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        /* Estilos generales con paleta lila/celeste */
         :root {
-            --color-primary: #7a5bff;
+            --color-primary: #9a7bff; /* Lila principal */
             --color-primary-light: #c5b3ff;
-            --color-primary-dark: #5a3ff7;
-            --color-secondary: #3ac2ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
             --color-secondary-light: #a5e7ff;
-            --color-secondary-dark: #00a9e6;
+            --color-secondary-dark: #3ac2ff;
             --color-background: #f8f9ff;
-            --color-text: #2a2a68;
+            --color-text: #3a3a68;
             --color-white: #ffffff;
             --color-gray: #e1e5eb;
-            --color-success: #28a745;
+            --color-success: #4caf50;
+            --color-warning: #ff9800;
         }
-
+        
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
             background-color: var(--color-background);
             color: var(--color-text);
             line-height: 1.6;
         }
-
+        
+        /* Encabezado */
         .app-header {
             background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             color: var(--color-white);
@@ -40,13 +44,14 @@
             text-align: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
+        
         .app-title {
             font-size: 2rem;
             margin-bottom: 0.5rem;
-            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
-
+        
+        /* Contenedor principal */
         .main-container {
             max-width: 1000px;
             margin: 2rem auto;
@@ -55,157 +60,174 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
         }
-
+        
         .section-title {
             color: var(--color-primary-dark);
             margin-bottom: 1.5rem;
             font-size: 1.8rem;
             border-bottom: 2px solid var(--color-primary-light);
             padding-bottom: 0.5rem;
-            font-weight: 600;
         }
-
+        
+        /* Formulario de fechas */
         .date-range-form {
-            background-color: rgba(154, 123, 255, 0.1);
+            background-color: var(--color-primary-light);
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
-            border: 1px solid var(--color-primary-light);
         }
-
+        
         .form-group {
             margin-bottom: 1.5rem;
         }
-
+        
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--color-primary-dark);
         }
-
+        
         .form-control {
             width: 100%;
             padding: 0.8rem 1rem;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 8px;
             font-size: 1rem;
+            transition: all 0.3s;
         }
-
-        /* Estilos para el reporte PDF */
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        /* Vista previa */
         .report-preview {
             border: 1px solid var(--color-gray);
             border-radius: 8px;
-            padding: 2rem;
+            padding: 1.5rem;
             margin-bottom: 2rem;
             background-color: var(--color-white);
-            width: 100%;
         }
-
+        
         .report-header {
             text-align: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid var(--color-primary-light);
+            border-bottom: 1px solid var(--color-gray);
         }
-
+        
         .report-title {
             color: var(--color-primary-dark);
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
-            font-weight: 600;
         }
-
+        
         .report-subtitle {
             color: var(--color-text);
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 1rem;
         }
-
+        
         .report-details {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border-left: 4px solid var(--color-primary);
+            margin-bottom: 1.5rem;
         }
-
+        
         .report-details p {
-            margin-bottom: 0.75rem;
-            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
         }
-
+        
         .report-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
         }
-
-        .report-table th {
-            background-color: var(--color-primary-dark);
-            color: white;
-            font-weight: 600;
-            padding: 1rem;
-            text-align: left;
-        }
-
+        
+        .report-table th, 
         .report-table td {
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid #e9ecef;
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray);
         }
-
+        
+        .report-table th {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+        }
+        
         .report-table tr:nth-child(even) {
-            background-color: #f8f9fa;
+            background-color: var(--color-background);
         }
-
+        
         .report-footer {
-            text-align: center;
+            text-align: right;
             font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #e9ecef;
+            color: var(--color-text);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray);
         }
-
+        
+        /* Botones */
         .btn {
             display: inline-block;
-            padding: 0.8rem 1.75rem;
-            font-weight: 600;
-            border-radius: 6px;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
             cursor: pointer;
             font-size: 1rem;
-            border: none;
-            transition: all 0.3s;
         }
-
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
         .btn-generate {
             background-color: var(--color-secondary);
-            color: white;
         }
-
+        
+        .btn-generate:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
         .btn-download {
             background-color: var(--color-success);
-            color: white;
         }
-
+        
+        .btn-download:hover {
+            background-color: #3d8b40;
+        }
+        
         .btn-container {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: white;
+        
+        /* Mensajes */
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
         }
-
-        /* Estilos específicos para impresión/PDF */
+        
+        .alert-info {
+            background-color: var(--color-secondary-light);
+            color: var(--color-primary-dark);
+            border-left: 4px solid var(--color-secondary-dark);
+        }
+        
+        /* Estilos específicos para el PDF */
         @media print {
             body * {
                 visibility: hidden;
@@ -226,20 +248,42 @@
             .btn-container {
                 display: none;
             }
-            
-            /* Forzar colores en impresión */
-            .report-table th {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                background-color: var(--color-primary-dark) !important;
-                color: white !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1.5rem;
             }
             
-            .report-table tr:nth-child(even) {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                background-color: #f8f9fa !important;
+            .btn-container {
+                flex-direction: column;
             }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-preview {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Mejoras en la tabla */
+        .report-table {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .report-table th {
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -256,6 +300,7 @@
             <strong>Información:</strong> Seleccione un rango de fechas para generar un reporte en PDF con sus turnos asignados.
         </div>
         
+        <!-- CA-16-1: Selección de rango de fechas -->
         <form id="reportForm" class="date-range-form">
             <div class="form-group">
                 <label for="startDate">Fecha de Inicio</label>
@@ -272,6 +317,7 @@
             </div>
         </form>
         
+        <!-- Vista previa del reporte -->
         <div id="reportPreview" class="report-preview" style="display: none;">
             <div class="report-header">
                 <h3 class="report-title">Reporte de Turnos Asignados</h3>
@@ -284,6 +330,7 @@
                 <p><strong>Fecha de generación:</strong> <span id="previewGenerationDate"></span></p>
             </div>
             
+            <!-- CA-16-2: Información del turno -->
             <table class="report-table">
                 <thead>
                     <tr>
@@ -302,9 +349,11 @@
             
             <div class="report-footer">
                 <p>Este documento es confidencial y para uso exclusivo del funcionario.</p>
+                <!-- CA-16-3: Indicación de protección contra edición -->
                 <p><strong>Documento protegido contra edición - Generado electrónicamente por TurnoMed</strong></p>
             </div>
             
+            <!-- CA-16-4: Botón de descarga solo para el usuario actual -->
             <div class="btn-container">
                 <button id="downloadBtn" class="btn btn-download">Descargar PDF</button>
             </div>
@@ -313,25 +362,26 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar fechas iniciales
-            const today = new Date();
-            document.getElementById('startDate').valueAsDate = today;
+            // Elementos del DOM
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const reportPreview = document.getElementById('reportPreview');
+            const previewDateRange = document.getElementById('previewDateRange');
+            const previewGenerationDate = document.getElementById('previewGenerationDate');
+            const previewShifts = document.getElementById('previewShifts');
             
+            // Configurar fecha actual
+            const today = new Date();
+            const formattedToday = formatDate(today);
+            document.getElementById('startDate').value = formattedToday;
+            
+            // Establecer fecha fin como 7 días después
             const nextWeek = new Date(today);
             nextWeek.setDate(today.getDate() + 7);
-            document.getElementById('endDate').valueAsDate = nextWeek;
+            document.getElementById('endDate').value = formatDate(nextWeek);
             
-            // Generar vista previa
-            document.getElementById('generateBtn').addEventListener('click', function() {
-                generateReportPreview();
-            });
-            
-            // Descargar PDF
-            document.getElementById('downloadBtn').addEventListener('click', function() {
-                downloadAsPDF();
-            });
-            
-            function generateReportPreview() {
+            // CA-16-1: Generar vista previa al hacer clic en el botón
+            generateBtn.addEventListener('click', function() {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 
@@ -346,91 +396,52 @@
                 }
                 
                 // Formatear fechas para mostrar
-                const startFormatted = formatDateDisplay(new Date(startDate));
-                const endFormatted = formatDateDisplay(new Date(endDate));
-                const todayFormatted = formatDateDisplay(today);
+                const startFormatted = formatDisplayDate(new Date(startDate));
+                const endFormatted = formatDisplayDate(new Date(endDate));
                 
-                document.getElementById('previewDateRange').textContent = `${startFormatted} al ${endFormatted}`;
-                document.getElementById('previewGenerationDate').textContent = todayFormatted;
+                previewDateRange.textContent = `${startFormatted} al ${endFormatted}`;
+                previewGenerationDate.textContent = formatDisplayDate(today);
                 
-                // Generar datos de ejemplo
-                generateSampleData(startDate, endDate);
+                // Simular datos de turnos (en un sistema real esto vendría de una API)
+                generateSampleShifts(startDate, endDate);
                 
-                // Mostrar vista previa
-                document.getElementById('reportPreview').style.display = 'block';
-            }
+                // Mostrar la vista previa con animación
+                reportPreview.style.display = 'block';
+                reportPreview.style.animation = 'fadeIn 0.3s ease-out';
+                
+                // Desplazarse suavemente hacia la vista previa
+                reportPreview.scrollIntoView({ behavior: 'smooth' });
+            });
             
-            function generateSampleData(startDate, endDate) {
-                const shiftsTable = document.getElementById('previewShifts');
-                shiftsTable.innerHTML = '';
+            // CA-16-4: Descargar PDF
+            downloadBtn.addEventListener('click', function() {
+                if (reportPreview.style.display === 'none') {
+                    alert('Por favor genere primero una vista previa del reporte');
+                    return;
+                }
                 
-                const sampleShifts = [
-                    { date: addDays(new Date(startDate), start: '08:00', end: '16:00', service: 'Guardia Diurna', location: 'Pabellón Central', status: 'Asignado' },
-                    { date: addDays(new Date(startDate), 1), start: '20:00', end: '08:00', service: 'Guardia Nocturna', location: 'Urgencias', status: 'Asignado' },
-                    { date: addDays(new Date(startDate), 2), start: '09:00', end: '14:00', service: 'Turno Administrativo', location: 'Consultorios', status: 'Confirmado' },
-                    { date: addDays(new Date(startDate), 3), start: '12:00', end: '20:00', service: 'Guardia de Fin de Semana', location: 'Pediatría', status: 'Pendiente' },
-                    { date: addDays(new Date(startDate), 5), start: '07:00', end: '15:00', service: 'Turno de Reemplazo', location: 'UCI', status: 'Asignado' }
-                ];
-                
-                sampleShifts.forEach(shift => {
-                    if (shift.date <= new Date(endDate)) {
-                        const row = document.createElement('tr');
-                        const formattedDate = formatDateDisplay(shift.date, true);
-                        const statusColor = getStatusColor(shift.status);
-                        
-                        row.innerHTML = `
-                            <td>${formattedDate}</td>
-                            <td>${shift.start}</td>
-                            <td>${shift.end}</td>
-                            <td>${shift.service}</td>
-                            <td>${shift.location}</td>
-                            <td><span class="status-badge" style="background-color: ${statusColor}">${shift.status}</span></td>
-                        `;
-                        
-                        shiftsTable.appendChild(row);
-                    }
-                });
-            }
-            
-            function downloadAsPDF() {
+                // Elemento que queremos convertir a PDF
                 const element = document.getElementById('reportPreview');
-                const downloadBtn = document.getElementById('downloadBtn');
                 
-                // Ocultar botón temporalmente
-                downloadBtn.style.visibility = 'hidden';
+                // Ocultar el botón de descarga en el PDF
+                const downloadBtnOriginal = document.getElementById('downloadBtn');
+                downloadBtnOriginal.style.display = 'none';
                 
-                // Mostrar mensaje de carga
-                const loadingDiv = document.createElement('div');
-                loadingDiv.style.position = 'fixed';
-                loadingDiv.style.top = '0';
-                loadingDiv.style.left = '0';
-                loadingDiv.style.width = '100%';
-                loadingDiv.style.height = '100%';
-                loadingDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                loadingDiv.style.display = 'flex';
-                loadingDiv.style.justifyContent = 'center';
-                loadingDiv.style.alignItems = 'center';
-                loadingDiv.style.zIndex = '1000';
-                loadingDiv.style.color = 'white';
-                loadingDiv.style.fontSize = '1.5rem';
-                loadingDiv.textContent = 'Generando PDF, por favor espere...';
-                document.body.appendChild(loadingDiv);
-                
-                // Configuración optimizada para PDF
+                // Opciones para el PDF
                 const opt = {
-                    margin: [10, 15, 10, 15],
-                    filename: `Reporte_Turnos_${document.getElementById('previewEmployeeName').textContent.replace(' ', '_')}_${formatDateForFilename(today)}.pdf`,
+                    margin: [10, 10, 10, 10],
+                    filename: `Turnos_${document.getElementById('previewEmployeeName').textContent.replace(' ', '_')}_${today.toISOString().split('T')[0]}.pdf`,
                     image: { 
                         type: 'jpeg', 
-                        quality: 1 
+                        quality: 0.98 
                     },
                     html2canvas: { 
-                        scale: 3, // Aumentar escala para mejor calidad
+                        scale: 2,
                         logging: false,
                         useCORS: true,
                         allowTaint: true,
-                        letterRendering: true,
-                        backgroundColor: '#FFFFFF'
+                        scrollX: 0,
+                        scrollY: 0
                     },
                     jsPDF: { 
                         unit: 'mm', 
@@ -440,36 +451,117 @@
                     },
                     pagebreak: { 
                         mode: ['avoid-all', 'css', 'legacy'] 
-                    }
+                    },
+                    enableLinks: true
                 };
                 
-                // Generar PDF con numeración de páginas
+                // Mostrar mensaje mientras se genera el PDF
+                const loadingMessage = document.createElement('div');
+                loadingMessage.style.position = 'fixed';
+                loadingMessage.style.top = '50%';
+                loadingMessage.style.left = '50%';
+                loadingMessage.style.transform = 'translate(-50%, -50%)';
+                loadingMessage.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                loadingMessage.style.color = 'white';
+                loadingMessage.style.padding = '20px';
+                loadingMessage.style.borderRadius = '5px';
+                loadingMessage.style.zIndex = '1000';
+                loadingMessage.textContent = 'Generando PDF, por favor espere...';
+                document.body.appendChild(loadingMessage);
+                
+                // Generar el PDF
                 html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+                    // Agregar número de página
                     const totalPages = pdf.internal.getNumberOfPages();
                     
                     for (let i = 1; i <= totalPages; i++) {
                         pdf.setPage(i);
                         pdf.setFontSize(10);
-                        pdf.setTextColor(100);
+                        pdf.setTextColor(150);
                         pdf.text(`Página ${i} de ${totalPages}`, 
-                            pdf.internal.pageSize.getWidth() - 40, 
+                            pdf.internal.pageSize.getWidth() - 30, 
                             pdf.internal.pageSize.getHeight() - 10);
                     }
                 }).save().then(function() {
-                    // Restaurar visibilidad del botón y eliminar mensaje
-                    downloadBtn.style.visibility = 'visible';
-                    document.body.removeChild(loadingDiv);
+                    // Eliminar mensaje de carga
+                    document.body.removeChild(loadingMessage);
+                    // Restaurar el botón de descarga
+                    downloadBtnOriginal.style.display = 'inline-block';
                 });
+            });
+            
+            // Función para generar datos de ejemplo
+            function generateSampleShifts(startDate, endDate) {
+                previewShifts.innerHTML = '';
+                
+                // Generar turnos de ejemplo entre las fechas seleccionadas
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+                
+                const sampleShifts = [
+                    { service: 'Guardia Diurna', location: 'Pabellón Central', hours: '08:00 - 16:00', status: 'Asignado' },
+                    { service: 'Guardia Nocturna', location: 'Urgencias', hours: '20:00 - 08:00', status: 'Asignado' },
+                    { service: 'Turno Administrativo', location: 'Consultorios', hours: '09:00 - 14:00', status: 'Confirmado' },
+                    { service: 'Guardia de Fin de Semana', location: 'Pediatría', hours: '12:00 - 20:00', status: 'Pendiente' },
+                    { service: 'Turno de Reemplazo', location: 'UCI', hours: '07:00 - 15:00', status: 'Asignado' },
+                    { service: 'Turno Extra', location: 'Oncología', hours: '13:00 - 21:00', status: 'Confirmado' }
+                ];
+                
+                // Generar turnos aleatorios en el rango de fechas
+                const numShifts = Math.min(Math.floor(Math.random() * 8) + 3, sampleShifts.length * 2);
+                const usedDates = new Set();
+                
+                for (let i = 0; i < numShifts; i++) {
+                    // Seleccionar fecha aleatoria en el rango que no se haya usado
+                    let randomDay, shiftDate;
+                    do {
+                        randomDay = Math.floor(Math.random() * (diffDays + 1));
+                        shiftDate = new Date(start);
+                        shiftDate.setDate(start.getDate() + randomDay);
+                    } while (usedDates.has(shiftDate.toDateString()) && usedDates.size < diffDays + 1);
+                    
+                    usedDates.add(shiftDate.toDateString());
+                    
+                    const formattedDate = formatDisplayDate(shiftDate, true);
+                    
+                    // Seleccionar turno aleatorio
+                    const shift = sampleShifts[Math.floor(Math.random() * sampleShifts.length)];
+                    const [startHour, endHour] = shift.hours.split(' - ');
+                    
+                    // Crear fila de tabla
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${startHour}</td>
+                        <td>${endHour}</td>
+                        <td>${shift.service}</td>
+                        <td>${shift.location}</td>
+                        <td><span class="status-badge" style="background-color: ${getStatusColor(shift.status)}; 
+                            color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                            ${shift.status}
+                        </span></td>
+                    `;
+                    
+                    previewShifts.appendChild(row);
+                }
             }
             
-            // Funciones auxiliares
-            function addDays(date, days = 0) {
-                const result = new Date(date);
-                result.setDate(date.getDate() + days);
-                return result;
+            // Función para formatear fecha para input date (YYYY-MM-DD)
+            function formatDate(date) {
+                const d = new Date(date);
+                let month = '' + (d.getMonth() + 1);
+                let day = '' + d.getDate();
+                const year = d.getFullYear();
+                
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                
+                return [year, month, day].join('-');
             }
             
-            function formatDateDisplay(date, withWeekday = false) {
+            // Función para formatear fecha para mostrar (DD/MM/YYYY)
+            function formatDisplayDate(date, withWeekday = false) {
                 const options = { 
                     day: '2-digit', 
                     month: '2-digit', 
@@ -483,11 +575,7 @@
                 return date.toLocaleDateString('es-CL', options);
             }
             
-            function formatDateForFilename(date) {
-                const d = new Date(date);
-                return `${d.getFullYear()}${(d.getMonth()+1).toString().padStart(2, '0')}${d.getDate().toString().padStart(2, '0')}`;
-            }
-            
+            // Función para obtener color según estado
             function getStatusColor(status) {
                 switch(status.toLowerCase()) {
                     case 'asignado': return '#2196F3';
