@@ -47,6 +47,47 @@
             opacity: 0.9;
         }
 
+        /* Menú de navegación */
+        .main-menu {
+            background-color: var(--color-lila-oscuro);
+            padding: 0.8rem 0;
+        }
+
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .main-menu li {
+            margin: 0;
+        }
+
+        .main-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.6rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .main-menu a:hover {
+            background-color: var(--color-lila);
+            transform: translateY(-2px);
+        }
+
+        .main-menu a.active {
+            background-color: var(--color-lila);
+            font-weight: 600;
+        }
+
         .main-container {
             flex-grow: 1;
             padding: 2rem;
@@ -210,6 +251,20 @@
             margin-bottom: 1.5rem;
             border-left: 4px solid var(--color-celeste);
         }
+
+        @media (max-width: 768px) {
+            .main-menu ul {
+                gap: 0.5rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .main-menu li {
+                flex: 0 0 auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -217,6 +272,15 @@
         <h1 class="app-title">TurnoMed</h1>
         <p class="app-subtitle">Sistema de Gestión de Turnos Médicos</p>
     </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html" id="inicioLink">Inicio</a></li>
+            <li><a href="coordinador.html" id="asignarTurnosLink">Asignar Turnos</a></li>
+            <li><a href="gestion-permisos.html" id="gestionPermisosLink">Gestión de Permisos</a></li>
+            <li><a href="reportes.html" id="reportesLink" class="active">Reportes</a></li>
+        </ul>
+    </nav>
 
     <div class="main-container">
         <h2>Reportes de Asistencia</h2>
@@ -528,6 +592,26 @@
             
             document.getElementById('startDate').valueAsDate = firstDay;
             document.getElementById('endDate').valueAsDate = today;
+            
+            // Resaltar menú activo
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const menuLinks = document.querySelectorAll('.main-menu a');
+            
+            menuLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            
+            // Configurar eventos para los enlaces del menú
+            menuLinks.forEach(enlace => {
+                enlace.addEventListener('click', function() {
+                    // Guardar en localStorage cuál es la página activa
+                    localStorage.setItem('paginaActiva', this.id);
+                });
+            });
         });
     </script>
 </body>
