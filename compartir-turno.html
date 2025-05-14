@@ -282,25 +282,14 @@
             
             iniciarCuentaRegresiva(enlace.expiracion);
         }
-
         function copiarEnlace() {
             const enlace = document.getElementById('enlaceGenerado').textContent;
             navigator.clipboard.writeText(enlace)
                 .then(() => {
                     alert('Enlace copiado al portapapeles');
-                    const enlaceGuardado = JSON.parse(localStorage.getItem('turnosCompartidos'));
-                    if (enlaceGuardado) {
-                        enlaceGuardado.usos++;
-                        localStorage.setItem('turnosCompartidos', JSON.stringify(enlaceGuardado));
-                        document.getElementById('contadorCompartidos').textContent = enlaceGuardado.usos;
-                    }
+                    actualizarContadorCompartidos();
                 })
                 .catch(err => console.error('Error al copiar: ', err));
-        }
-
-        function mostrarFormularioEmail() {
-            const formulario = document.getElementById('formularioEmail');
-            formulario.style.display = formulario.style.display === 'none' ? 'block' : 'none';
         }
 
         function enviarEmail(e) {
@@ -313,6 +302,30 @@
             alert(`Email enviado a: ${email}\n\nMensaje: ${mensaje || '(Sin mensaje)'}\n\nEnlace: ${enlace}`);
             document.getElementById('formularioEmail').style.display = 'none';
             document.getElementById('emailForm').reset();
+            
+            actualizarContadorCompartidos();
+        }
+
+        function actualizarContadorCompartidos() {
+            const enlaceGuardado = JSON.parse(localStorage.getItem('turnosCompartidos'));
+            if (enlaceGuardado) {
+                // Verificar si no se ha excedido el límite
+                if (enlaceGuardado.usos >= enlaceGuardado.maxUsos) {
+                    alert('Has alcanzado el límite de compartidos (3 veces)');
+                    return;
+                }
+                
+                enlaceGuardado.usos++;
+                localStorage.setItem('turnosCompartidos', JSON.stringify(enlaceGuardado));
+                document.getElementById('contadorCompartidos').textContent = enlaceGuardado.usos;
+                
+                // Deshabilitar botones si se alcanza el límite
+                if (enlaceGuardado.usos >= enlaceGuardado.maxUsos) {
+                    document.getElementById('copiarEnlace').disabled = true;
+                    document.getElementById('enviarEmail').disabled = true;
+                    alert('Has alcanzado el límite máximo de compartidos (3 veces)');
+                }
+            }
         }
 
         function iniciarCuentaRegresiva(fechaExpiracion) {
