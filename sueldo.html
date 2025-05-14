@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" rel="stylesheet">
     <style>
-        /* Paleta de colores lila/celeste */
         :root {
             --color-lila: #9a7bff;
             --color-lila-claro: #e6e6fa;
@@ -23,7 +22,6 @@
             flex-direction: column;
             min-height: 100vh;
             margin: 0;
-            justify-content: space-between;
             background-color: var(--color-fondo);
             color: var(--color-texto);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -51,7 +49,14 @@
         /* Menú mejorado */
         .main-menu {
             background-color: var(--color-lila-oscuro);
-            padding: 0.5rem 0;
+            padding: 1rem 0;
+        }
+
+        .main-menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 1rem;
         }
 
         .main-menu ul {
@@ -65,31 +70,37 @@
         }
 
         .main-menu li {
-            margin: 0.2rem 0;
+            margin: 0;
         }
 
         .main-menu a {
             color: white;
             text-decoration: none;
             font-weight: 500;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 4px;
             transition: all 0.3s;
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
-        .main-menu a:hover, .main-menu a.active {
+        .main-menu a:hover {
             background-color: var(--color-lila);
             transform: translateY(-2px);
         }
 
+        .main-menu a.active {
+            background-color: var(--color-lila);
+            font-weight: 600;
+        }
+
         .main-container {
-            flex-grow: 1;
-            padding: 2rem;
+            flex: 1;
+            padding: 2rem 1.5rem;
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            box-sizing: border-box;
         }
 
         .salary-section {
@@ -234,11 +245,14 @@
             
             .main-menu ul {
                 gap: 0.5rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
             }
             
-            .main-menu a {
-                padding: 0.5rem;
-                font-size: 0.8rem;
+            .main-menu li {
+                flex: 0 0 auto;
             }
         }
     </style>
@@ -250,38 +264,37 @@
     </div>
     
     <nav class="main-menu">
-        <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="funcionario.html">Calendario</a></li>
-            <li><a href="compartir-turno.html">Compartir Turno</a></li>
-            <li><a href="historial-turno.html">Historial de Turnos</a></li>
-            <li><a href="estadistica.html">Estadísticas</a></li>
-            <li><a href="sueldo.html" class="active">Sueldo</a></li>
-            <li><a href="descargar_reporte.html">Descargar reporte</a></li>
-        </ul>
+        <div class="main-menu-container">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="funcionario.html">Calendario</a></li>
+                <li><a href="compartir-turno.html">Compartir Turno</a></li>
+                <li><a href="historial-turno.html">Historial de Turnos</a></li>
+                <li><a href="estadistica.html">Estadísticas</a></li>
+                <li><a href="sueldo.html" class="active">Sueldo</a></li>
+                <li><a href="descargar_reporte.html">Descargar reporte</a></li>
+            </ul>
+        </div>
     </nav>
 
     <div class="main-container">
         <h2>Resumen de Sueldo</h2>
         <p class="text-muted">Visualiza tu sueldo calculado según las horas trabajadas y el valor hora de tu función.</p>
 
-        <!-- Selector de mes -->
         <div class="month-selector">
             <button class="btn-month" id="prevMonth" disabled>
-                <i class="fas fa-chevron-left"></i>
+                ←
             </button>
             <span class="month-title" id="currentMonth">Junio 2023</span>
             <button class="btn-month" id="nextMonth">
-                <i class="fas fa-chevron-right"></i>
+                →
             </button>
         </div>
 
-        <!-- Información del mes actual -->
         <div class="info-message">
-            <i class="fas fa-info-circle"></i> Los datos mostrados corresponden a las horas registradas en el sistema. No es posible modificar esta información.
+            Los datos mostrados corresponden a las horas registradas en el sistema. No es posible modificar esta información.
         </div>
 
-        <!-- Resumen de sueldo -->
         <div class="salary-section">
             <h3>Sueldo del Mes</h3>
             
@@ -314,7 +327,6 @@
             </div>
         </div>
 
-        <!-- Histórico de meses anteriores -->
         <div class="salary-section">
             <h3>Histórico de Ingresos</h3>
             
@@ -343,7 +355,6 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
         // Datos de ejemplo
         const salaryData = {
@@ -544,14 +555,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateView(currentMonth);
             initChart();
-            
-            // Marcar el enlace activo en el menú
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            document.querySelectorAll('.main-menu a').forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.classList.add('active');
-                }
-            });
         });
     </script>
 </body>
