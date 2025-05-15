@@ -282,11 +282,11 @@
         <p class="text-muted">Visualiza tu sueldo calculado según las horas trabajadas y el valor hora de tu función.</p>
 
         <div class="month-selector">
-            <button class="btn-month" id="prevMonth" disabled>
+            <button class="btn-month" id="prevMonth">
                 ←
             </button>
             <span class="month-title" id="currentMonth">Junio 2025</span>
-            <button class="btn-month" id="nextMonth">
+            <button class="btn-month" id="nextMonth" disabled>
                 →
             </button>
         </div>
@@ -299,25 +299,25 @@
             <h3>Sueldo del Mes</h3>
             
             <div class="salary-card">
-                <div class="salary-value" id="netSalary">$1,250,000</div>
+                <div class="salary-value" id="netSalary">$1,350,000</div>
                 <small class="text-muted">Líquido a pagar</small>
                 
                 <div class="salary-details mt-4">
                     <div class="salary-detail">
                         <span class="salary-label">Horas trabajadas:</span>
-                        <span class="salary-number" id="hoursWorked">150</span>
+                        <span class="salary-number" id="hoursWorked">160</span>
                     </div>
                     <div class="salary-detail">
                         <span class="salary-label">Valor hora:</span>
-                        <span class="salary-number" id="hourValue">$10,000</span>
+                        <span class="salary-number" id="hourValue">$12,000</span>
                     </div>
                     <div class="salary-detail">
                         <span class="salary-label">Sueldo bruto:</span>
-                        <span class="salary-number" id="grossSalary">$1,500,000</span>
+                        <span class="salary-number" id="grossSalary">$1,920,000</span>
                     </div>
                     <div class="salary-detail">
                         <span class="salary-label">Descuentos:</span>
-                        <span class="salary-number text-danger" id="discounts">$250,000</span>
+                        <span class="salary-number text-danger" id="discounts">$570,000</span>
                     </div>
                 </div>
             </div>
@@ -351,54 +351,54 @@
     </div>
 
     <footer>
-        <p>© 2023 TurnoMed - Sistema de Gestión Hospitalaria</p>
+        <p>© 2025 TurnoMed - Sistema de Gestión Hospitalaria</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // Datos de ejemplo
+        // Datos de ejemplo actualizados para 2025
         const salaryData = {
-            '2023-06': {
-                hours: 150,
-                hourValue: 10000,
-                gross: 1500000,
-                discounts: 250000,
-                net: 1250000
-            },
-            '2023-05': {
-                hours: 140,
-                hourValue: 9500,
-                gross: 1330000,
-                discounts: 213000,
-                net: 1117000
-            },
-            '2023-04': {
+            '2025-06': {
                 hours: 160,
-                hourValue: 9500,
-                gross: 1520000,
-                discounts: 243200,
-                net: 1276800
+                hourValue: 12000,
+                gross: 1920000,
+                discounts: 570000,
+                net: 1350000
             },
-            '2023-03': {
-                hours: 145,
-                hourValue: 9000,
-                gross: 1305000,
-                discounts: 208800,
-                net: 1096200
-            },
-            '2023-02': {
-                hours: 135,
-                hourValue: 9000,
-                gross: 1215000,
-                discounts: 194400,
-                net: 1020600
-            },
-            '2023-01': {
+            '2025-05': {
                 hours: 155,
-                hourValue: 8500,
-                gross: 1317500,
-                discounts: 210800,
-                net: 1106700
+                hourValue: 11500,
+                gross: 1782500,
+                discounts: 516000,
+                net: 1266500
+            },
+            '2025-04': {
+                hours: 150,
+                hourValue: 11500,
+                gross: 1725000,
+                discounts: 500000,
+                net: 1225000
+            },
+            '2025-03': {
+                hours: 145,
+                hourValue: 11000,
+                gross: 1595000,
+                discounts: 462000,
+                net: 1133000
+            },
+            '2025-02': {
+                hours: 140,
+                hourValue: 11000,
+                gross: 1540000,
+                discounts: 446000,
+                net: 1094000
+            },
+            '2025-01': {
+                hours: 165,
+                hourValue: 10500,
+                gross: 1732500,
+                discounts: 502000,
+                net: 1230500
             }
         };
 
@@ -419,14 +419,14 @@
                     datasets: [
                         {
                             label: 'Sueldo Bruto',
-                            data: [1317500, 1215000, 1305000, 1520000, 1330000, 1500000],
+                            data: [1732500, 1540000, 1595000, 1725000, 1782500, 1920000],
                             backgroundColor: 'rgba(154, 123, 255, 0.7)',
                             borderColor: 'rgba(154, 123, 255, 1)',
                             borderWidth: 1
                         },
                         {
                             label: 'Sueldo Líquido',
-                            data: [1106700, 1020600, 1096200, 1276800, 1117000, 1250000],
+                            data: [1230500, 1094000, 1133000, 1225000, 1266500, 1350000],
                             backgroundColor: 'rgba(135, 206, 250, 0.7)',
                             borderColor: 'rgba(135, 206, 250, 1)',
                             borderWidth: 1
@@ -509,7 +509,7 @@
         }
 
         // Navegación entre meses
-        let currentMonth = '2023-06';
+        let currentMonth = '2025-06';
         
         document.getElementById('prevMonth').addEventListener('click', function() {
             const [year, month] = currentMonth.split('-');
