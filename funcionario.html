@@ -266,6 +266,23 @@
             background-color: var(--color-secondary-dark);
         }
         
+        /* Botón de reportar incidencia */
+        .shift-incident-btn {
+            background-color: #ff6b6b;
+            color: var(--color-white);
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .shift-incident-btn:hover {
+            background-color: #ff5252;
+        }
+        
         /* Modal para cambio de turno */
         .modal {
             display: none;
@@ -429,11 +446,11 @@
         <ul>
             <li><a href="index.html" id="inicioLink">Inicio</a></li>
             <li><a href="funcionario.html" id="calendarioLink" style="background-color: var(--color-primary);">Calendario</a></li>
-            <li><a href="compartir-turno.html" >Compartir Turno </a></li>
-            <li><a href="historial-turno.html" >Historial de Turnos </a></li>
-            <li><a href="estadistica.html" > Estadísticas </a></li>
-            <li><a href="sueldo.html" > Sueldo </a></li>
-            <li><a href="descargar_reporte.html" > Descargar reporte de turnos </a></li>
+            <li><a href="compartir-turno.html">Compartir Turno</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html">Sueldo</a></li>
+            <li><a href="descargar_reporte.html">Descargar reporte de turnos</a></li>
         </ul>
     </nav>
     
@@ -521,6 +538,40 @@
         </div>
     </div>
 
+    <!-- Modal para reportar incidencia -->
+    <div class="modal" id="incidentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Reportar Incidencia</h3>
+                <button class="close-modal" id="closeIncidentModal">&times;</button>
+            </div>
+            <form id="incidentForm">
+                <div class="form-group">
+                    <label for="incidentShift">Turno:</label>
+                    <input type="text" id="incidentShift" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="incidentCategory">Categoría de Incidencia:</label>
+                    <select id="incidentCategory" class="form-control" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="Retraso">Retraso</option>
+                        <option value="Ausencia">Ausencia</option>
+                        <option value="Problema Operativo">Problema Operativo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="incidentDescription">Descripción (máximo 200 caracteres):</label>
+                    <textarea id="incidentDescription" class="form-control" maxlength="200" required></textarea>
+                    <small id="incidentCharCount">0/200 caracteres</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelIncident">Cancelar</button>
+                    <button type="submit" class="btn">Reportar Incidencia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Notificación -->
     <div class="notification" id="notification"></div>
 
@@ -529,26 +580,38 @@
         const funcionarioActual = {
             nombre: "María González",
             rut: "12.345.678-9",
-            area: "Urgencias"
+            area: "Urgencias",
+            coordinador: {
+                nombre: "Carlos Méndez",
+                email: "c.mendez@turnomed.com"
+            }
         };
         
-        // Obtener fechas de la próxima semana
-        const getNextWeekDates = () => {
+        // Obtener fechas de los últimos 3 días y próxima semana
+        const getRecentDates = () => {
             const today = new Date();
-            const nextWeek = [];
+            const dates = [];
             
+            // Últimos 3 días
+            for (let i = 3; i >= 1; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                dates.push(formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+            }
+            
+            // Próxima semana
             for (let i = 1; i <= 7; i++) {
                 const date = new Date(today);
                 date.setDate(today.getDate() + i);
-                nextWeek.push(formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+                dates.push(formatDate(date.getFullYear(), date.getMonth() + 1, date.getDate()));
             }
             
-            return nextWeek;
+            return dates;
         };
         
-        // Generar turnos para la próxima semana
-        const generateShiftsForNextWeek = () => {
-            const nextWeekDates = getNextWeekDates();
+        // Generar turnos para los últimos 3 días y próxima semana
+        const generateShifts = () => {
+            const dates = getRecentDates();
             const shifts = [];
             const shiftTypes = [
                 { name: "Turno Mañana", time: "08:00 - 16:00" },
@@ -556,14 +619,14 @@
                 { name: "Turno Noche", time: "00:00 - 08:00" }
             ];
             
-            // Crear 3 turnos aleatorios para el usuario en la próxima semana
-            for (let i = 0; i < 3; i++) {
-                const randomDateIndex = Math.floor(Math.random() * nextWeekDates.length);
+            // Crear turnos aleatorios para el usuario
+            for (let i = 0; i < 5; i++) {
+                const randomDateIndex = Math.floor(Math.random() * dates.length);
                 const randomShiftType = Math.floor(Math.random() * shiftTypes.length);
                 
                 shifts.push({
                     id: i + 1,
-                    fecha: nextWeekDates[randomDateIndex],
+                    fecha: dates[randomDateIndex],
                     area: ["Urgencias", "Pediatría", "Cirugía"][Math.floor(Math.random() * 3)],
                     nombre: shiftTypes[randomShiftType].name,
                     horario: shiftTypes[randomShiftType].time
@@ -573,9 +636,9 @@
             return shifts;
         };
         
-        // Generar turnos disponibles para la próxima semana (sin solapamiento con los turnos del usuario)
+        // Generar turnos disponibles (sin solapamiento con los turnos del usuario)
         const generateAvailableShifts = (userShifts) => {
-            const nextWeekDates = getNextWeekDates();
+            const dates = getRecentDates();
             const availableShifts = [];
             const shiftTypes = [
                 { name: "Turno Mañana", time: "08:00 - 16:00" },
@@ -584,7 +647,7 @@
             ];
             
             // Crear turnos disponibles que no coincidan con los turnos del usuario
-            nextWeekDates.forEach(date => {
+            dates.forEach(date => {
                 // Verificar si el usuario ya tiene un turno ese día
                 const userHasShift = userShifts.some(shift => shift.fecha === date);
                 
@@ -604,8 +667,8 @@
             return availableShifts;
         };
         
-        // Datos de ejemplo de turnos (próxima semana)
-        const misTurnos = generateShiftsForNextWeek();
+        // Datos de ejemplo de turnos
+        const misTurnos = generateShifts();
         const turnosDisponibles = generateAvailableShifts(misTurnos);
         
         // Variables globales
@@ -631,9 +694,11 @@
                 document.getElementById('charCount').textContent = `${charCount}/200 caracteres`;
             });
             
-            // Mostrar en consola los turnos generados para referencia
-            console.log("Turnos del usuario:", misTurnos);
-            console.log("Turnos disponibles:", turnosDisponibles);
+            // Configurar contador de caracteres para incidencia
+            document.getElementById('incidentDescription').addEventListener('input', function() {
+                const charCount = this.value.length;
+                document.getElementById('incidentCharCount').textContent = `${charCount}/200 caracteres`;
+            });
         });
         
         // Función para actualizar el calendario
@@ -716,6 +781,18 @@
                             turnoDiv.appendChild(changeBtn);
                         }
                         
+                        // Verificar si el turno es de los últimos 3 días (para reportar incidencia)
+                        if (diffDays < 0 && diffDays >= -3) {
+                            const incidentBtn = document.createElement('button');
+                            incidentBtn.className = 'shift-incident-btn';
+                            incidentBtn.textContent = 'Reportar Incidencia';
+                            incidentBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                openIncidentModal(turno);
+                            });
+                            turnoDiv.appendChild(incidentBtn);
+                        }
+                        
                         cell.appendChild(turnoDiv);
                     });
                 }
@@ -763,9 +840,33 @@
             modal.style.display = 'flex';
         }
         
-        // Función para cerrar el modal
+        // Función para abrir el modal de reporte de incidencia (CA-06-1, CA-06-3)
+        function openIncidentModal(turno) {
+            selectedShift = turno;
+            const modal = document.getElementById('incidentModal');
+            const incidentShiftInput = document.getElementById('incidentShift');
+            
+            // Mostrar información del turno
+            incidentShiftInput.value = `${turno.nombre} (${turno.fecha}) - ${turno.horario}`;
+            
+            // Limpiar formulario
+            document.getElementById('incidentCategory').value = '';
+            document.getElementById('incidentDescription').value = '';
+            document.getElementById('incidentCharCount').textContent = '0/200 caracteres';
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+        }
+        
+        // Función para cerrar el modal de cambio de turno
         function closeChangeShiftModal() {
             document.getElementById('changeShiftModal').style.display = 'none';
+            selectedShift = null;
+        }
+        
+        // Función para cerrar el modal de incidencia
+        function closeIncidentModal() {
+            document.getElementById('incidentModal').style.display = 'none';
             selectedShift = null;
         }
         
@@ -779,6 +880,22 @@
             setTimeout(() => {
                 notification.style.display = 'none';
             }, 5000);
+        }
+        
+        // Función para enviar incidencia al coordinador (CA-06-2)
+        function sendIncidentToCoordinator(incidentData) {
+            // Simular envío de incidencia
+            console.log("Incidencia enviada al coordinador:", incidentData);
+            
+            // Aquí normalmente haríamos una petición AJAX al servidor
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        success: true,
+                        message: "Incidencia registrada correctamente"
+                    });
+                }, 1000);
+            });
         }
         
         // Función para configurar event listeners
@@ -814,9 +931,11 @@
                 updateCalendar(currentMonth, currentYear);
             });
             
-            // Cerrar modal
+            // Cerrar modales
             document.getElementById('closeModal').addEventListener('click', closeChangeShiftModal);
             document.getElementById('cancelChange').addEventListener('click', closeChangeShiftModal);
+            document.getElementById('closeIncidentModal').addEventListener('click', closeIncidentModal);
+            document.getElementById('cancelIncident').addEventListener('click', closeIncidentModal);
             
             // Enviar formulario de cambio de turno
             document.getElementById('changeShiftForm').addEventListener('submit', function(e) {
@@ -844,10 +963,62 @@
                 }, 1000);
             });
             
-            // Cerrar modal haciendo clic fuera del contenido
+            // Enviar formulario de incidencia (CA-06-1, CA-06-2, CA-06-3)
+            document.getElementById('incidentForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const category = document.getElementById('incidentCategory').value;
+                const description = document.getElementById('incidentDescription').value;
+                
+                if (!category || !description) {
+                    showNotification('Por favor complete todos los campos', false);
+                    return;
+                }
+                
+                if (description.length > 200) {
+                    showNotification('La descripción no puede exceder los 200 caracteres', false);
+                    return;
+                }
+                
+                // Crear objeto de incidencia
+                const incidentData = {
+                    turno: selectedShift,
+                    funcionario: {
+                        nombre: funcionarioActual.nombre,
+                        rut: funcionarioActual.rut
+                    },
+                    categoria: category,
+                    descripcion: description,
+                    fechaReporte: new Date().toISOString(),
+                    coordinador: funcionarioActual.coordinador
+                };
+                
+                try {
+                    // Enviar incidencia al coordinador
+                    const result = await sendIncidentToCoordinator(incidentData);
+                    
+                    if (result.success) {
+                        showNotification('Incidencia reportada correctamente. El coordinador ha sido notificado.');
+                        closeIncidentModal();
+                    } else {
+                        showNotification('Error al reportar la incidencia', false);
+                    }
+                } catch (error) {
+                    console.error("Error al enviar incidencia:", error);
+                    showNotification('Error al reportar la incidencia', false);
+                }
+            });
+            
+            // Cerrar modales haciendo clic fuera del contenido
             document.getElementById('changeShiftModal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeChangeShiftModal();
+                }
+            });
+            
+            document.getElementById('incidentModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeIncidentModal();
                 }
             });
         }
