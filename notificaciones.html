@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurnoMed - Asignación de Turnos</title>
+    <style>
+        /* Estilos generales con paleta lila/celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-gray: #e1e5eb;
+            --color-error: #ff6b6b;
+            --color-success: #6bff8f;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+        
+        /* Encabezado */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Menú principal */
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .main-menu a {
+            color: var(--color-white);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: var(--color-primary-dark);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--color-primary-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Formulario de asignación */
+        .assignment-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-undo {
+            background-color: var(--color-secondary);
+        }
+        
+        .btn-undo:hover {
+            background-color: var(--color-secondary-dark);
+        }
+        
+        /* Mensajes de error */
+        .error-message {
+            color: var(--color-error);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--color-success);
+            color: var(--color-white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            max-width: 400px;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-error {
+            background-color: var(--color-error);
+        }
+        
+        .notification-close {
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        /* Calendario */
+        .calendar-container {
+            margin-top: 2rem;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .month-title {
+            font-size: 1.5rem;
+            color: var(--color-primary-dark);
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: var(--color-primary-light);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .day-header {
+            background-color: var(--color-primary-dark);
+            color: var(--color-white);
+            text-align: center;
+            font-weight: bold;
+            padding: 0.8rem;
+        }
+        
+        .calendar-day {
+            min-height: 100px;
+            background: var(--color-white);
+            padding: 0.5rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background-color: var(--color-background);
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-dark);
+        }
+        
+        /* Día actual */
+        .calendar-day.current-day {
+            background-color: var(--color-secondary-light);
+            border: 2px solid var(--color-secondary);
+        }
+        
+        /* Turnos en el calendario */
+        .calendar-shift {
+            background-color: var(--color-background);
+            border-left: 3px solid var(--color-primary);
+            padding: 0.4rem;
+            margin: 0.2rem 0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .calendar-shift p {
+            margin: 0.1rem 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .shift-employee {
+            font-weight: bold;
+            color: var(--color-primary-dark);
+        }
+        
+        .shift-time {
+            color: var(--color-text);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .assignment-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-menu ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .day-header {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Nuevos estilos para notificaciones masivas */
+        .notification-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .notification-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--color-primary-light);
+            border-radius: 6px;
+            font-size: 1rem;
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--color-primary-light);
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--color-primary);
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Notificaciones Masivas - Coordinador</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="coordinador.html">Asignar Turnos</a></li>
+            <li><a href="gestion-permisos.html">Gestión de Permisos</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
+            <li><a href="notificaciones.html" style="background-color: var(--color-primary);">Notificaciones</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>Notificaciones Masivas</h2>
+        
+        <div class="tab-container">
+            <div class="tab active" data-tab="send">Enviar Notificación</div>
+            <div class="tab" data-tab="scheduled">Notificaciones Programadas</div>
+        </div>
+        
+        <!-- Pestaña de enviar notificación -->
+        <div class="tab-content active" id="send-tab">
+            <form id="notification-form" class="notification-form">
+                <div class="notification-group">
+                    <label for="notification-subject">Asunto:</label>
+                    <input type="text" id="notification-subject" required>
+                </div>
+                
+                <div class="notification-group">
+                    <label for="notification-message">Mensaje:</label>
+                    <textarea id="notification-message" required></textarea>
+                </div>
+                
+                <div class="notification-group">
+                    <label>Destinatarios:</label>
+                    <div class="checkbox-group" id="recipient-groups">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="all-users" name="recipients" value="all">
+                            <label for="all-users">Todos los usuarios</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="urgent-care" name="recipients" value="Urgencias">
+                            <label for="urgent-care">Urgencias</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="pediatrics" name="recipients" value="Pediatría">
+                            <label for="pediatrics">Pediatría</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="surgery" name="recipients" value="Cirugía">
+                            <label for="surgery">Cirugía</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cardiology" name="recipients" value="Cardiología">
+                            <label for="cardiology">Cardiología</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="neurology" name="recipients" value="Neurología">
+                            <label for="neurology">Neurología</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-group">
+                    <label for="notification-type">Tipo de notificación:</label>
+                    <select id="notification-type">
+                        <option value="immediate">Enviar ahora</option>
+                        <option value="scheduled">Programar envío</option>
+                    </select>
+                </div>
+                
+                <div class="notification-group" id="scheduled-date-group" style="display: none;">
+                    <label for="scheduled-date">Fecha y hora de envío:</label>
+                    <input type="datetime-local" id="scheduled-date">
+                </div>
+                
+                <div class="notification-group">
+                    <label for="notification-method">Método de envío:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="method-system" name="methods" value="system" checked>
+                            <label for="method-system">Sistema</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="method-email" name="methods" value="email" checked>
+                            <label for="method-email">Correo electrónico</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-block">Enviar Notificación</button>
+            </form>
+        </div>
+        
+        <!-- Pestaña de notificaciones programadas -->
+        <div class="tab-content" id="scheduled-tab">
+            <div id="scheduled-notifications-list">
+                <p>Cargando notificaciones programadas...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Datos de ejemplo para notificaciones programadas
+        let scheduledNotifications = [
+            {
+                id: 1,
+                subject: "Reunión de personal",
+                message: "Se convoca a todo el personal de Urgencias a reunión el próximo viernes a las 15:00 en la sala de conferencias.",
+                recipients: ["Urgencias"],
+                sendDate: "2023-11-15T09:00",
+                methods: ["system", "email"],
+                status: "pending"
+            },
+            {
+                id: 2,
+                subject: "Actualización de protocolos",
+                message: "Se han actualizado los protocolos de atención para Pediatría. Por favor revisar los cambios en el sistema.",
+                recipients: ["Pediatría"],
+                sendDate: "2023-11-20T08:00",
+                methods: ["system", "email"],
+                status: "pending"
+            }
+        ];
+
+        // Elementos del DOM
+        const notificationForm = document.getElementById('notification-form');
+        const notificationType = document.getElementById('notification-type');
+        const scheduledDateGroup = document.getElementById('scheduled-date-group');
+        const scheduledDate = document.getElementById('scheduled-date');
+        const allUsersCheckbox = document.getElementById('all-users');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const scheduledNotificationsList = document.getElementById('scheduled-notifications-list');
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadScheduledNotifications();
+            setupDateTimeMinValue();
+        });
+
+        function setupEventListeners() {
+            // Mostrar/ocultar fecha programada según selección
+            notificationType.addEventListener('change', function() {
+                if (this.value === 'scheduled') {
+                    scheduledDateGroup.style.display = 'block';
+                } else {
+                    scheduledDateGroup.style.display = 'none';
+                }
+            });
+
+            // Manejar selección de "Todos los usuarios"
+            allUsersCheckbox.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('#recipient-groups input[type="checkbox"]:not(#all-users)');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                    checkbox.disabled = this.checked;
+                });
+            });
+
+            // Manejar envío del formulario
+            notificationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendNotification();
+            });
+
+            // Manejar pestañas
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    changeTab(tabId);
+                });
+            });
+        }
+
+        function setupDateTimeMinValue() {
+            // Establecer fecha mínima como la fecha y hora actual
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            scheduledDate.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function changeTab(tabId) {
+            // Actualizar pestañas activas
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Actualizar contenido de pestañas
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            // Si es la pestaña de programadas, recargar la lista
+            if (tabId === 'scheduled') {
+                loadScheduledNotifications();
+            }
+        }
+
+        function sendNotification() {
+            // Obtener datos del formulario
+            const subject = document.getElementById('notification-subject').value;
+            const message = document.getElementById('notification-message').value;
+            const isScheduled = notificationType.value === 'scheduled';
+            const sendDate = isScheduled ? scheduledDate.value : null;
+            
+            // Obtener destinatarios seleccionados
+            const recipientCheckboxes = document.querySelectorAll('#recipient-groups input[type="checkbox"]:checked:not(#all-users)');
+            const recipients = Array.from(recipientCheckboxes).map(cb => cb.value);
+            
+            // Si está seleccionado "Todos los usuarios", ignorar los demás
+            if (allUsersCheckbox.checked) {
+                recipients.length = 0;
+                recipients.push('all');
+            }
+            
+            // Validar que haya al menos un destinatario
+            if (recipients.length === 0 && !allUsersCheckbox.checked) {
+                showNotification('Seleccione al menos un grupo de destinatarios', true);
+                return;
+            }
+            
+            // Obtener métodos de envío seleccionados
+            const methodCheckboxes = document.querySelectorAll('input[name="methods"]:checked');
+            const methods = Array.from(methodCheckboxes).map(cb => cb.value);
+            
+            // Validar que haya al menos un método de envío
+            if (methods.length === 0) {
+                showNotification('Seleccione al menos un método de envío', true);
+                return;
+            }
+            
+            // Validar fecha programada si es necesario
+            if (isScheduled) {
+                const selectedDate = new Date(sendDate);
+                const now = new Date();
+                
+                if (selectedDate <= now) {
+                    showNotification('La fecha programada debe ser futura', true);
+                    return;
+                }
+            }
+            
+            // Crear objeto de notificación
+            const notification = {
+                id: scheduledNotifications.length > 0 ? Math.max(...scheduledNotifications.map(n => n.id)) + 1 : 1,
+                subject,
+                message,
+                recipients: allUsersCheckbox.checked ? ['all'] : recipients,
+                sendDate: isScheduled ? sendDate : null,
+                methods,
+                status: isScheduled ? 'pending' : 'sent',
+                sentAt: isScheduled ? null : new Date().toISOString()
+            };
+            
+            // Si es programada, agregar a la lista
+            if (isScheduled) {
+                scheduledNotifications.push(notification);
+                showNotification('Notificación programada correctamente');
+                loadScheduledNotifications();
+            } else {
+                // Simular envío inmediato
+                showNotification('Notificación enviada correctamente');
+                
+                // Aquí iría el código real para enviar la notificación
+                console.log('Notificación enviada:', notification);
+            }
+            
+            // Limpiar formulario
+            notificationForm.reset();
+            scheduledDateGroup.style.display = 'none';
+            
+            // Desmarcar y habilitar todos los checkboxes de destinatarios
+            const allRecipientCheckboxes = document.querySelectorAll('#recipient-groups input[type="checkbox"]');
+            allRecipientCheckboxes.forEach(cb => {
+                cb.checked = false;
+                cb.disabled = false;
+            });
+        }
+
+        function loadScheduledNotifications() {
+            // Filtrar notificaciones pendientes (futuras)
+            const pendingNotifications = scheduledNotifications.filter(n => n.status === 'pending');
+            
+            if (pendingNotifications.length === 0) {
+                scheduledNotificationsList.innerHTML = '<p>No hay notificaciones programadas.</p>';
+                return;
+            }
+            
+            // Ordenar por fecha de envío
+            pendingNotifications.sort((a, b) => new Date(a.sendDate) - new Date(b.sendDate));
+            
+            // Generar HTML
+            let html = '<div class="scheduled-notifications-container">';
+            
+            pendingNotifications.forEach(notification => {
+                const formattedDate = formatDateTime(notification.sendDate);
+                const recipients = notification.recipients[0] === 'all' ? 'Todos los usuarios' : notification.recipients.join(', ');
+                const methods = notification.methods.map(m => {
+                    return m === 'system' ? 'Sistema' : 'Correo electrónico';
+                }).join(' + ');
+                
+                html += `
+                    <div class="scheduled-notification">
+                        <h3>${notification.subject}</h3>
+                        <p><strong>Programada para:</strong> ${formattedDate}</p>
+                        <p><strong>Destinatarios:</strong> ${recipients}</p>
+                        <p><strong>Métodos:</strong> ${methods}</p>
+                        <p>${notification.message}</p>
+                        <div class="notification-actions">
+                            <button class="btn btn-undo" data-id="${notification.id}">Cancelar</button>
+                            <button class="btn" data-id="${notification.id}" data-action="edit">Editar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            scheduledNotificationsList.innerHTML = html;
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.notification-actions button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const notificationId = parseInt(this.getAttribute('data-id'));
+                    const action = this.getAttribute('data-action');
+                    
+                    if (action === 'edit') {
+                        editScheduledNotification(notificationId);
+                    } else {
+                        cancelScheduledNotification(notificationId);
+                    }
+                });
+            });
+        }
+
+        function cancelScheduledNotification(id) {
+            scheduledNotifications = scheduledNotifications.filter(n => n.id !== id);
+            showNotification('Notificación cancelada correctamente');
+            loadScheduledNotifications();
+        }
+
+        function editScheduledNotification(id) {
+            const notification = scheduledNotifications.find(n => n.id === id);
+            if (!notification) return;
+            
+            // Cambiar a la pestaña de envío
+            changeTab('send');
+            
+            // Rellenar formulario con los datos de la notificación
+            document.getElementById('notification-subject').value = notification.subject;
+            document.getElementById('notification-message').value = notification.message;
+            
+            // Seleccionar destinatarios
+            const allRecipientCheckboxes = document.querySelectorAll('#recipient-groups input[type="checkbox"]');
+            allRecipientCheckboxes.forEach(cb => {
+                cb.checked = false;
+                cb.disabled = false;
+            });
+            
+            if (notification.recipients[0] === 'all') {
+                allUsersCheckbox.checked = true;
+                allRecipientCheckboxes.forEach(cb => {
+                    if (cb.id !== 'all-users') {
+                        cb.disabled = true;
+                    }
+                });
+            } else {
+                notification.recipients.forEach(recipient => {
+                    const checkbox = document.querySelector(`#recipient-groups input[value="${recipient}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Seleccionar métodos
+            document.querySelectorAll('input[name="methods"]').forEach(cb => {
+                cb.checked = notification.methods.includes(cb.value);
+            });
+            
+            // Configurar como programada
+            notificationType.value = 'scheduled';
+            scheduledDateGroup.style.display = 'block';
+            scheduledDate.value = notification.sendDate;
+            
+            // Eliminar la notificación original
+            scheduledNotifications = scheduledNotifications.filter(n => n.id !== id);
+            
+            // Desplazarse al formulario
+            window.scrollTo(0, 0);
+        }
+
+        function formatDateTime(dateTimeStr) {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${isError ? 'notification-error' : ''} show`;
+            notification.innerHTML = `
+                <div>${message}</div>
+                <span class="notification-close">×</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Cerrar notificación
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // Cerrar automáticamente después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
