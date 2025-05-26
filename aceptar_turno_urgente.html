@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Cambios Urgentes</title>
+    <style>
+        /* Estilos generales */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Paleta de colores lila y celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-warning: #ff9a3c;
+            --color-danger: #ff6b6b;
+            --color-success: #6bff8b;
+        }
+        
+        /* Header y navegación */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 1rem 0;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .main-menu a {
+            color: var(--color-white);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* Contenedor principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            color: var(--color-primary-dark);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-primary-light);
+        }
+        
+        /* Listado de solicitudes */
+        .requests-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .request-card {
+            background-color: var(--color-white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--color-warning);
+            transition: all 0.3s;
+        }
+        
+        .request-card.urgent {
+            border-left-color: var(--color-danger);
+            background-color: rgba(255, 107, 107, 0.05);
+        }
+        
+        .request-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .request-title {
+            color: var(--color-primary-dark);
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .request-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--color-text);
+        }
+        
+        .request-urgent {
+            background-color: var(--color-danger);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .request-body {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: var(--color-background);
+            border-radius: 6px;
+        }
+        
+        .request-shift {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .request-shift {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .shift-info {
+            background-color: var(--color-white);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .shift-label {
+            font-size: 0.9rem;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .shift-details {
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .request-message {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .request-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            color: var(--color-white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-accept {
+            background-color: var(--color-success);
+        }
+        
+        .btn-accept:hover {
+            background-color: #4ae371;
+        }
+        
+        .btn-reject {
+            background-color: var(--color-danger);
+        }
+        
+        .btn-reject:hover {
+            background-color: #e65a5a;
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Notificación */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Sin solicitudes */
+        .no-requests {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-text);
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .request-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .request-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .main-menu ul {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .main-menu a {
+                padding: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 2rem;
+            }
+            
+            .request-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú principal -->
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Gestión de Cambios Urgentes</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html" id="inicioLink">Inicio</a></li>
+            <li><a href="funcionario.html" id="calendarioLink">Calendario</a></li>
+            <li><a href="solicitar-cambio-urgente.html">Cambio Urgente</a></li>
+            <li><a href="gestionar-cambios-urgentes.html" style="background-color: var(--color-primary);">Gestionar Cambios</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html">Sueldo</a></li>
+            <li><a href="descargar_reporte.html">Descargar reporte</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <h2 class="page-title">Solicitudes de Cambio Urgente</h2>
+        
+        <!-- Listado de solicitudes (CA-04-1) -->
+        <div class="requests-list" id="requestsList">
+            <!-- Solicitud 1 -->
+            <div class="request-card urgent">
+                <div class="request-header">
+                    <h3 class="request-title">Solicitud de cambio urgente</h3>
+                    <div class="request-meta">
+                        <span>Hace 5 minutos</span>
+                        <span class="request-urgent">URGENTE</span>
+                    </div>
+                </div>
+                
+                <div class="request-body">
+                    <div class="request-shift">
+                        <div class="shift-info">
+                            <div class="shift-label">Turno actual de María:</div>
+                            <div class="shift-details">15/04/2024 - Turno Mañana (08:00 a 16:00)</div>
+                        </div>
+                        
+                        <div class="shift-info">
+                            <div class="shift-label">Propone cambiar a tu turno:</div>
+                            <div class="shift-details">18/04/2024 - Turno Tarde (16:00 a 00:00)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="request-message">
+                        <strong>Motivo:</strong> "Emergencia familiar, necesito estar disponible el día 15 por la mañana. Agradecería mucho si puedes considerar este cambio."
+                    </div>
+                </div>
+                
+                <div class="request-actions">
+                    <button class="btn btn-reject btn-small reject-btn" data-request="1">Rechazar</button>
+                    <button class="btn btn-accept btn-small accept-btn" data-request="1">Aceptar</button>
+                </div>
+            </div>
+            
+            <!-- Solicitud 2 -->
+            <div class="request-card">
+                <div class="request-header">
+                    <h3 class="request-title">Solicitud de cambio de turno</h3>
+                    <div class="request-meta">
+                        <span>Hace 2 horas</span>
+                    </div>
+                </div>
+                
+                <div class="request-body">
+                    <div class="request-shift">
+                        <div class="shift-info">
+                            <div class="shift-label">Turno actual de Juan:</div>
+                            <div class="shift-details">20/04/2024 - Turno Noche (00:00 a 08:00)</div>
+                        </div>
+                        
+                        <div class="shift-info">
+                            <div class="shift-label">Propone cambiar a tu turno:</div>
+                            <div class="shift-details">22/04/2024 - Turno Mañana (08:00 a 16:00)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="request-message">
+                        <strong>Motivo:</strong> "Tengo un compromiso académico el día 22 por la mañana. ¿Podrías considerar intercambiar nuestros turnos?"
+                    </div>
+                </div>
+                
+                <div class="request-actions">
+                    <button class="btn btn-reject btn-small reject-btn" data-request="2">Rechazar</button>
+                    <button class="btn btn-accept btn-small accept-btn" data-request="2">Aceptar</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sin solicitudes (oculto por defecto) -->
+        <div class="no-requests" id="noRequests" style="display: none;">
+            <p>No tienes solicitudes de cambio pendientes</p>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Datos del funcionario actual
+        const funcionarioActual = {
+            nombre: "Carlos Rojas",
+            rut: "13.445.566-7",
+            area: "Urgencias"
+        };
+        
+        // Datos de solicitudes (simuladas)
+        const solicitudes = [
+            {
+                id: 1,
+                solicitante: "María González",
+                rut: "12.345.678-9",
+                turnoActual: "15/04/2024 - Turno Mañana (08:00 a 16:00)",
+                turnoPropuesto: "18/04/2024 - Turno Tarde (16:00 a 00:00)",
+                motivo: "Emergencia familiar, necesito estar disponible el día 15 por la mañana. Agradecería mucho si puedes considerar este cambio.",
+                urgente: true,
+                fechaSolicitud: new Date(Date.now() - 5 * 60 * 1000) // 5 minutos atrás
+            },
+            {
+                id: 2,
+                solicitante: "Juan Pérez",
+                rut: "11.223.344-5",
+                turnoActual: "20/04/2024 - Turno Noche (00:00 a 08:00)",
+                turnoPropuesto: "22/04/2024 - Turno Mañana (08:00 a 16:00)",
+                motivo: "Tengo un compromiso académico el día 22 por la mañana. ¿Podrías considerar intercambiar nuestros turnos?",
+                urgente: false,
+                fechaSolicitud: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 horas atrás
+            }
+        ];
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar botones de aceptar/rechazar (CA-04-1)
+            document.querySelectorAll('.accept-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.getAttribute('data-request');
+                    acceptRequest(requestId);
+                });
+            });
+            
+            document.querySelectorAll('.reject-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.getAttribute('data-request');
+                    rejectRequest(requestId);
+                });
+            });
+            
+            // Verificar si hay solicitudes para mostrar "No hay solicitudes"
+            if (solicitudes.length === 0) {
+                document.getElementById('requestsList').style.display = 'none';
+                document.getElementById('noRequests').style.display = 'block';
+            }
+        });
+        
+        // Función para aceptar solicitud (CA-04-1, CA-04-2)
+        function acceptRequest(requestId) {
+            const request = solicitudes.find(r => r.id == requestId);
+            if (!request) return;
+            
+            // Simular aceptación (CA-04-2 - notificación en menos de 30 segundos)
+            setTimeout(() => {
+                showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}`);
+                
+                // Simular notificación al coordinador (CA-04-1)
+                console.log(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
+                
+                // Eliminar la solicitud de la lista
+                const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
+                requestElement.remove();
+                
+                // Verificar si quedan solicitudes
+                if (document.querySelectorAll('.request-card').length === 0) {
+                    document.getElementById('requestsList').style.display = 'none';
+                    document.getElementById('noRequests').style.display = 'block';
+                }
+            }, 500); // Simulamos menos de 30 segundos
+        }
+        
+        // Función para rechazar solicitud (CA-04-1, CA-04-2)
+        function rejectRequest(requestId) {
+            const request = solicitudes.find(r => r.id == requestId);
+            if (!request) return;
+            
+            // Simular rechazo (CA-04-2 - notificación en menos de 30 segundos)
+            setTimeout(() => {
+                showNotification(`Has rechazado la solicitud de cambio de ${request.solicitante}`, false);
+                
+                // Simular notificación al coordinador (CA-04-1)
+                console.log(`Notificación enviada al coordinador sobre el rechazo de cambio con ${request.solicitante}`);
+                
+                // Eliminar la solicitud de la lista
+                const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
+                requestElement.remove();
+                
+                // Verificar si quedan solicitudes
+                if (document.querySelectorAll('.request-card').length === 0) {
+                    document.getElementById('requestsList').style.display = 'none';
+                    document.getElementById('noRequests').style.display = 'block';
+                }
+            }, 500); // Simulamos menos de 30 segundos
+        }
+        
+        // Función para mostrar notificación
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isSuccess ? 'var(--color-primary)' : 'var(--color-danger)';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
