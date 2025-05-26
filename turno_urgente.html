@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Cambio Urgente</title>
+    <style>
+        /* Estilos generales */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Paleta de colores lila y celeste */
+        :root {
+            --color-primary: #9a7bff; /* Lila principal */
+            --color-primary-light: #c5b3ff;
+            --color-primary-dark: #7a5bff;
+            --color-secondary: #6bd6ff; /* Celeste */
+            --color-secondary-light: #a5e7ff;
+            --color-secondary-dark: #3ac2ff;
+            --color-background: #f8f9ff;
+            --color-text: #3a3a68;
+            --color-white: #ffffff;
+            --color-warning: #ff9a3c;
+            --color-warning-light: #ffd8b3;
+            --color-danger: #ff6b6b;
+            --color-success: #6bff8b;
+        }
+        
+        /* Header y navegación */
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-white);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-menu {
+            background-color: var(--color-primary-dark);
+            padding: 1rem 0;
+        }
+        
+        .main-menu ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        
+        .main-menu a {
+            color: var(--color-white);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .main-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* Contenedor principal */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--color-white);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            color: var(--color-primary-dark);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-primary-light);
+        }
+        
+        /* Formulario de solicitud */
+        .request-form {
+            background-color: var(--color-background);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-primary-light);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid var(--color-primary-light);
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 123, 255, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        /* Listado de funcionarios */
+        .staff-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .staff-card {
+            background-color: var(--color-white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--color-primary-light);
+            transition: all 0.3s;
+        }
+        
+        .staff-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--color-primary);
+        }
+        
+        .staff-card h3 {
+            color: var(--color-primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .staff-info {
+            color: var(--color-text);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .staff-shift {
+            display: inline-block;
+            background-color: var(--color-secondary-light);
+            color: var(--color-text);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-small {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-warning {
+            background-color: var(--color-warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #ff8a1a;
+        }
+        
+        /* Checkbox urgente */
+        .urgent-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .urgent-checkbox input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .urgent-checkbox label {
+            font-weight: 600;
+            color: var(--color-danger);
+        }
+        
+        /* Contador de caracteres */
+        .char-counter {
+            font-size: 0.8rem;
+            color: var(--color-text);
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+        
+        /* Notificación */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Contador de cambios */
+        .change-counter {
+            background-color: var(--color-warning-light);
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+        
+        .change-counter .badge {
+            background-color: var(--color-warning);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .staff-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-menu ul {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .main-menu a {
+                padding: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 2rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú principal -->
+    <div class="app-header">
+        <h1 class="app-title">TurnoMed</h1>
+        <p class="app-subtitle">Solicitud de Cambio Urgente</p>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="index.html" id="inicioLink">Inicio</a></li>
+            <li><a href="funcionario.html" id="calendarioLink">Calendario</a></li>
+            <li><a href="solicitar-cambio-urgente.html" style="background-color: var(--color-primary);">Cambio Urgente</a></li>
+            <li><a href="historial-turno.html">Historial de Turnos</a></li>
+            <li><a href="estadistica.html">Estadísticas</a></li>
+            <li><a href="sueldo.html">Sueldo</a></li>
+            <li><a href="descargar_reporte.html">Descargar reporte</a></li>
+        </ul>
+    </nav>
+    
+    <!-- Contenedor principal -->
+    <div class="main-container">
+        <h2 class="page-title">Solicitar Cambio de Turno Urgente</h2>
+        
+        <!-- Contador de cambios (CA-03-3) -->
+        <div class="change-counter">
+            <span>Cambios urgentes realizados este mes:</span>
+            <span class="badge" id="changeCounter">1/2</span>
+        </div>
+        
+        <!-- Formulario de solicitud (CA-03-1) -->
+        <div class="request-form">
+            <div class="form-group">
+                <label for="shiftSelect">Turno que necesita cambiar:</label>
+                <select id="shiftSelect" class="form-control" required>
+                    <option value="">Seleccione su turno</option>
+                    <option value="1">Turno Mañana (15/04/2024) - 08:00 a 16:00</option>
+                    <option value="2">Turno Tarde (18/04/2024) - 16:00 a 00:00</option>
+                    <option value="3">Turno Noche (21/04/2024) - 00:00 a 08:00</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="messageSubject">Asunto:</label>
+                <input type="text" id="messageSubject" class="form-control" placeholder="Ej: Necesito cambiar turno por emergencia familiar" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="messageBody">Mensaje (máximo 200 caracteres):</label>
+                <textarea id="messageBody" class="form-control" maxlength="200" required placeholder="Explique brevemente el motivo de su solicitud"></textarea>
+                <div class="char-counter"><span id="charCount">0</span>/200 caracteres</div>
+            </div>
+            
+            <div class="urgent-checkbox">
+                <input type="checkbox" id="urgentCheck">
+                <label for="urgentCheck">Marcar como urgente</label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn" id="cancelBtn">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="sendRequestBtn">Enviar Solicitud</button>
+            </div>
+        </div>
+        
+        <!-- Listado de funcionarios (CA-03-1) -->
+        <h3>Seleccione un colega para el cambio:</h3>
+        <div class="staff-list" id="staffList">
+            <!-- Funcionarios del mismo turno -->
+            <div class="staff-card">
+                <h3>Juan Pérez</h3>
+                <div class="staff-info">RUT: 11.223.344-5 | Área: Urgencias</div>
+                <div class="staff-shift">Mismo turno: 15/04/2024 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+            
+            <div class="staff-card">
+                <h3>Ana Silva</h3>
+                <div class="staff-info">RUT: 12.334.455-6 | Área: Urgencias</div>
+                <div class="staff-shift">Mismo turno: 15/04/2024 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+            
+            <!-- Otros funcionarios del área -->
+            <div class="staff-card">
+                <h3>Carlos Rojas</h3>
+                <div class="staff-info">RUT: 13.445.566-7 | Área: Urgencias</div>
+                <div class="staff-shift">Turno diferente: 16/04/2024 - 16:00 a 00:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+            
+            <div class="staff-card">
+                <h3>María González</h3>
+                <div class="staff-info">RUT: 14.556.677-8 | Área: Urgencias</div>
+                <div class="staff-shift">Turno diferente: 17/04/2024 - 00:00 a 08:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+            
+            <div class="staff-card">
+                <h3>Pedro Sánchez</h3>
+                <div class="staff-info">RUT: 15.667.788-9 | Área: Urgencias</div>
+                <div class="staff-shift">Turno diferente: 18/04/2024 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+            
+            <div class="staff-card">
+                <h3>Laura Méndez</h3>
+                <div class="staff-info">RUT: 16.778.899-0 | Área: Urgencias</div>
+                <div class="staff-shift">Turno diferente: 19/04/2024 - 16:00 a 00:00</div>
+                <button class="btn btn-small select-staff">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Datos del funcionario actual
+        const funcionarioActual = {
+            nombre: "María González",
+            rut: "12.345.678-9",
+            area: "Urgencias",
+            cambiosUrgentesRealizados: 1
+        };
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar contador de cambios
+            document.getElementById('changeCounter').textContent = 
+                `${funcionarioActual.cambiosUrgentesRealizados}/2`;
+            
+            // Configurar contador de caracteres
+            document.getElementById('messageBody').addEventListener('input', function() {
+                const charCount = this.value.length;
+                document.getElementById('charCount').textContent = charCount;
+            });
+            
+            // Seleccionar funcionario
+            const selectButtons = document.querySelectorAll('.select-staff');
+            selectButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Deseleccionar todos
+                    selectButtons.forEach(btn => {
+                        btn.textContent = 'Seleccionar';
+                        btn.parentElement.style.borderColor = 'var(--color-primary-light)';
+                    });
+                    
+                    // Seleccionar este
+                    this.textContent = 'Seleccionado ✓';
+                    this.parentElement.style.borderColor = 'var(--color-primary)';
+                });
+            });
+            
+            // Enviar solicitud (CA-03-2)
+            document.getElementById('sendRequestBtn').addEventListener('click', function() {
+                const shiftSelected = document.getElementById('shiftSelect').value;
+                const subject = document.getElementById('messageSubject').value;
+                const message = document.getElementById('messageBody').value;
+                const isUrgent = document.getElementById('urgentCheck').checked;
+                const staffSelected = document.querySelector('.select-staff[textContent="Seleccionado ✓"]');
+                
+                if (!shiftSelected || !subject || !message || !staffSelected) {
+                    showNotification('Por favor complete todos los campos y seleccione un colega', false);
+                    return;
+                }
+                
+                if (funcionarioActual.cambiosUrgentesRealizados >= 2) {
+                    showNotification('Ha alcanzado el límite de cambios urgentes este mes', false);
+                    return;
+                }
+                
+                // Simular envío de solicitud
+                setTimeout(() => {
+                    showNotification('Solicitud de cambio urgente enviada correctamente');
+                    
+                    // Simular notificación por email (CA-03-2)
+                    console.log('Notificación enviada por email al colega y coordinador');
+                    
+                    // Incrementar contador si es urgente
+                    if (isUrgent) {
+                        funcionarioActual.cambiosUrgentesRealizados++;
+                        document.getElementById('changeCounter').textContent = 
+                            `${funcionarioActual.cambiosUrgentesRealizados}/2`;
+                    }
+                    
+                    // Resetear formulario
+                    document.getElementById('shiftSelect').value = '';
+                    document.getElementById('messageSubject').value = '';
+                    document.getElementById('messageBody').value = '';
+                    document.getElementById('urgentCheck').checked = false;
+                    document.getElementById('charCount').textContent = '0';
+                    
+                    // Deseleccionar funcionario
+                    selectButtons.forEach(btn => {
+                        btn.textContent = 'Seleccionar';
+                        btn.parentElement.style.borderColor = 'var(--color-primary-light)';
+                    });
+                }, 1000);
+            });
+            
+            // Cancelar
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                // Resetear formulario
+                document.getElementById('shiftSelect').value = '';
+                document.getElementById('messageSubject').value = '';
+                document.getElementById('messageBody').value = '';
+                document.getElementById('urgentCheck').checked = false;
+                document.getElementById('charCount').textContent = '0';
+                
+                // Deseleccionar funcionario
+                selectButtons.forEach(btn => {
+                    btn.textContent = 'Seleccionar';
+                    btn.parentElement.style.borderColor = 'var(--color-primary-light)';
+                });
+            });
+        });
+        
+        // Función para mostrar notificación
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = isSuccess ? 'var(--color-primary)' : 'var(--color-danger)';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
