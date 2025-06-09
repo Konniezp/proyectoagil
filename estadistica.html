@@ -290,9 +290,9 @@
                         <div class="filter-group">
                             <label for="anio">Año:</label>
                             <select id="anio" class="form-select">
-                                <option value="2023">2024</option>
-                                <option value="2022">2023</option>
-                                <option value="2021">2022</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
                             </select>
                         </div>
                     </div>
@@ -367,28 +367,76 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Datos simulados para las estadísticas
+        // Datos simulados para las estadísticas (2023-2025)
         const estadisticas = {
-            mensual: {
-                asistidos: [24, 22, 25, 20, 23, 26, 24, 25, 23, 26, 24, 25],
-                cambiados: [8, 6, 7, 5, 9, 7, 6, 8, 5, 7, 6, 8],
-                autorizados: [6, 5, 6, 4, 7, 6, 5, 7, 4, 6, 5, 7],
-                noAutorizados: [2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1],
-                meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            '2025': {
+                mensual: {
+                    asistidos: [24, 22, 25, 20, 23, 26, 24, 25, 23, 26, 24, 25],
+                    cambiados: [8, 6, 7, 5, 9, 7, 6, 8, 5, 7, 6, 8],
+                    autorizados: [6, 5, 6, 4, 7, 6, 5, 7, 4, 6, 5, 7],
+                    noAutorizados: [2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+                    meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun']
+                },
+                semestral: {
+                    asistidos: [145, 142],
+                    cambiados: [42, 45],
+                    autorizados: [35, 38],
+                    noAutorizados: [7, 7],
+                    meses: ['1er Semestre', '2do Semestre']
+                },
+                anual: {
+                    asistidos: [287],
+                    cambiados: [87],
+                    autorizados: [73],
+                    noAutorizados: [14],
+                    meses: ['Anual']
+                }
             },
-            semestral: {
-                asistidos: [145, 142],
-                cambiados: [42, 45],
-                autorizados: [35, 38],
-                noAutorizados: [7, 7],
-                meses: ['1er Semestre', '2do Semestre']
+            '2024': {
+                mensual: {
+                    asistidos: [22, 20, 23, 21, 22, 24, 23, 22, 21, 24, 22, 23],
+                    cambiados: [7, 5, 6, 4, 8, 6, 5, 7, 4, 6, 5, 7],
+                    autorizados: [5, 4, 5, 3, 6, 5, 4, 6, 3, 5, 4, 6],
+                    noAutorizados: [2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+                    meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+                },
+                semestral: {
+                    asistidos: [130, 138],
+                    cambiados: [38, 42],
+                    autorizados: [31, 36],
+                    noAutorizados: [7, 6],
+                    meses: ['1er Semestre', '2do Semestre']
+                },
+                anual: {
+                    asistidos: [268],
+                    cambiados: [80],
+                    autorizados: [67],
+                    noAutorizados: [13],
+                    meses: ['Anual']
+                }
             },
-            anual: {
-                asistidos: [287],
-                cambiados: [87],
-                autorizados: [73],
-                noAutorizados: [14],
-                meses: ['Anual']
+            '2023': {
+                mensual: {
+                    asistidos: [20, 18, 21, 19, 20, 22, 21, 20, 19, 22, 20, 21],
+                    cambiados: [6, 4, 5, 3, 7, 5, 4, 6, 3, 5, 4, 6],
+                    autorizados: [4, 3, 4, 2, 5, 4, 3, 5, 2, 4, 3, 5],
+                    noAutorizados: [2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+                    meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+                },
+                semestral: {
+                    asistidos: [118, 126],
+                    cambiados: [32, 36],
+                    autorizados: [26, 30],
+                    noAutorizados: [6, 6],
+                    meses: ['1er Semestre', '2do Semestre']
+                },
+                anual: {
+                    asistidos: [244],
+                    cambiados: [68],
+                    autorizados: [56],
+                    noAutorizados: [12],
+                    meses: ['Anual']
+                }
             }
         };
 
@@ -397,19 +445,20 @@
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Cargar datos iniciales (mensual)
-            cargarDatos('mensual');
+            // Cargar datos iniciales (2025, mensual)
+            cargarDatos('2025', 'mensual');
             
             // Configurar event listeners
             document.getElementById('aplicarFiltros').addEventListener('click', function() {
+                const anio = document.getElementById('anio').value;
                 const periodo = document.getElementById('periodo').value;
-                cargarDatos(periodo);
+                cargarDatos(anio, periodo);
             });
         });
 
-        // Función para cargar datos según el periodo seleccionado
-        function cargarDatos(periodo) {
-            const data = estadisticas[periodo];
+        // Función para cargar datos según el año y periodo seleccionado
+        function cargarDatos(anio, periodo) {
+            const data = estadisticas[anio][periodo];
             
             // Actualizar resumen
             document.getElementById('total-asistidos').textContent = 
@@ -427,13 +476,13 @@
             if (evolucionChart) evolucionChart.destroy();
             
             // Crear gráficos
-            crearGraficoAsistencia(data, periodo);
-            crearGraficoCambios(data, periodo);
-            crearGraficoEvolucion(data, periodo);
+            crearGraficoAsistencia(data, periodo, anio);
+            crearGraficoCambios(data, periodo, anio);
+            crearGraficoEvolucion(data, periodo, anio);
         }
 
         // Gráfico de asistencia vs cambios
-        function crearGraficoAsistencia(data, periodo) {
+        function crearGraficoAsistencia(data, periodo, anio) {
             const ctx = document.getElementById('asistenciaChart').getContext('2d');
             
             asistenciaChart = new Chart(ctx, {
@@ -478,7 +527,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Comparación de Turnos Asistidos y Cambiados',
+                            text: `Comparación de Turnos (${anio})`,
                             font: {
                                 size: 16
                             }
@@ -492,7 +541,7 @@
         }
 
         // Gráfico de distribución de cambios (CA-12-3)
-        function crearGraficoCambios(data, periodo) {
+        function crearGraficoCambios(data, periodo, anio) {
             const ctx = document.getElementById('cambiosChart').getContext('2d');
             
             cambiosChart = new Chart(ctx, {
@@ -521,7 +570,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Distribución de Cambios de Turno',
+                            text: `Distribución de Cambios (${anio})`,
                             font: {
                                 size: 16
                             }
@@ -535,7 +584,7 @@
         }
 
         // Gráfico de evolución mensual
-        function crearGraficoEvolucion(data, periodo) {
+        function crearGraficoEvolucion(data, periodo, anio) {
             const ctx = document.getElementById('evolucionChart').getContext('2d');
             
             evolucionChart = new Chart(ctx, {
@@ -584,7 +633,7 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Evolución de Turnos Asistidos y Cambiados',
+                            text: `Evolución de Turnos (${anio})`,
                             font: {
                                 size: 16
                             }
