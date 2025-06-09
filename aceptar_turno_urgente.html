@@ -268,6 +268,21 @@
             }
         }
         
+        /* Notificación coordinador */
+        .coordinator-notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-secondary-dark);
+            color: var(--color-white);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        
         /* Sin solicitudes */
         .no-requests {
             text-align: center;
@@ -355,12 +370,12 @@
                     <div class="request-shift">
                         <div class="shift-info">
                             <div class="shift-label">Turno actual de María:</div>
-                            <div class="shift-details">15/04/2024 - Turno Mañana (08:00 a 16:00)</div>
+                            <div class="shift-details">15/06/2025 - Turno Mañana (08:00 a 16:00)</div>
                         </div>
                         
                         <div class="shift-info">
                             <div class="shift-label">Propone cambiar a tu turno:</div>
-                            <div class="shift-details">18/04/2024 - Turno Tarde (16:00 a 00:00)</div>
+                            <div class="shift-details">18/06/2025 - Turno Tarde (16:00 a 00:00)</div>
                         </div>
                     </div>
                     
@@ -388,12 +403,12 @@
                     <div class="request-shift">
                         <div class="shift-info">
                             <div class="shift-label">Turno actual de Juan:</div>
-                            <div class="shift-details">20/04/2024 - Turno Noche (00:00 a 08:00)</div>
+                            <div class="shift-details">20/06/2025 - Turno Noche (00:00 a 08:00)</div>
                         </div>
                         
                         <div class="shift-info">
                             <div class="shift-label">Propone cambiar a tu turno:</div>
-                            <div class="shift-details">22/04/2024 - Turno Mañana (08:00 a 16:00)</div>
+                            <div class="shift-details">22/06/2025 - Turno Mañana (08:00 a 16:00)</div>
                         </div>
                     </div>
                     
@@ -417,6 +432,9 @@
 
     <!-- Notificación -->
     <div class="notification" id="notification"></div>
+    
+    <!-- Notificación para coordinador -->
+    <div class="coordinator-notification" id="coordinatorNotification"></div>
 
     <script>
         // Datos del funcionario actual
@@ -426,14 +444,14 @@
             area: "Urgencias"
         };
         
-        // Datos de solicitudes (simuladas)
+        // Datos de solicitudes (simuladas) con fechas actualizadas a junio 2025
         const solicitudes = [
             {
                 id: 1,
                 solicitante: "María González",
                 rut: "12.345.678-9",
-                turnoActual: "15/04/2024 - Turno Mañana (08:00 a 16:00)",
-                turnoPropuesto: "18/04/2024 - Turno Tarde (16:00 a 00:00)",
+                turnoActual: "15/06/2025 - Turno Mañana (08:00 a 16:00)",
+                turnoPropuesto: "18/06/2025 - Turno Tarde (16:00 a 00:00)",
                 motivo: "Emergencia familiar, necesito estar disponible el día 15 por la mañana. Agradecería mucho si puedes considerar este cambio.",
                 urgente: true,
                 fechaSolicitud: new Date(Date.now() - 5 * 60 * 1000) // 5 minutos atrás
@@ -442,8 +460,8 @@
                 id: 2,
                 solicitante: "Juan Pérez",
                 rut: "11.223.344-5",
-                turnoActual: "20/04/2024 - Turno Noche (00:00 a 08:00)",
-                turnoPropuesto: "22/04/2024 - Turno Mañana (08:00 a 16:00)",
+                turnoActual: "20/06/2025 - Turno Noche (00:00 a 08:00)",
+                turnoPropuesto: "22/06/2025 - Turno Mañana (08:00 a 16:00)",
                 motivo: "Tengo un compromiso académico el día 22 por la mañana. ¿Podrías considerar intercambiar nuestros turnos?",
                 urgente: false,
                 fechaSolicitud: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 horas atrás
@@ -481,10 +499,10 @@
             
             // Simular aceptación (CA-04-2 - notificación en menos de 30 segundos)
             setTimeout(() => {
-                showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}. Se ha enviado notificación al coordinador.`. );
+                showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}`);
                 
-                // Simular notificación al coordinador (CA-04-1)
-                console.log(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
+                // Mostrar notificación al coordinador (CA-04-1)
+                showCoordinatorNotification(`Se ha aceptado el cambio de turno con ${request.solicitante}. Se ha notificado al coordinador.`);
                 
                 // Eliminar la solicitud de la lista
                 const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
@@ -505,10 +523,10 @@
             
             // Simular rechazo (CA-04-2 - notificación en menos de 30 segundos)
             setTimeout(() => {
-                showNotification(`Has rechazado la solicitud de cambio de ${request.solicitante}. Se ha enviado notificación al coordinador.`, false);
+                showNotification(`Has rechazado la solicitud de cambio de ${request.solicitante}`, false);
                 
-                // Simular notificación al coordinador (CA-04-1)
-                console.log(`Notificación enviada al coordinador sobre el rechazo de cambio con ${request.solicitante}`);
+                // Mostrar notificación al coordinador (CA-04-1)
+                showCoordinatorNotification(`Se ha rechazado el cambio de turno con ${request.solicitante}. Se ha notificado al coordinador.`);
                 
                 // Eliminar la solicitud de la lista
                 const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
@@ -522,11 +540,22 @@
             }, 500); // Simulamos menos de 30 segundos
         }
         
-        // Función para mostrar notificación
+        // Función para mostrar notificación al usuario
         function showNotification(message, isSuccess = true) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.style.backgroundColor = isSuccess ? 'var(--color-primary)' : 'var(--color-danger)';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Función para mostrar notificación de coordinador
+        function showCoordinatorNotification(message) {
+            const notification = document.getElementById('coordinatorNotification');
+            notification.textContent = message;
             notification.style.display = 'block';
             
             setTimeout(() => {
