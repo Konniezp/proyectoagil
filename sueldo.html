@@ -287,7 +287,7 @@
             <button class="btn-month" id="prevMonth">
                 ←
             </button>
-            <span class="month-title" id="currentMonth">Junio 2025</span>
+            <span class="month-title" id="currentMonth">Junio 2024</span>
             <button class="btn-month" id="nextMonth" disabled>
                 →
             </button>
@@ -353,54 +353,75 @@
     </div>
 
     <footer>
-        <p>© 2025 TurnoMed - Sistema de Gestión Hospitalaria</p>
+        <p>© 2024 TurnoMed - Sistema de Gestión Hospitalaria</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // Datos de ejemplo actualizados para 2025
+        // Datos de ejemplo actualizados para 2023-2024
         const salaryData = {
-            '2025-06': {
+            '2024-06': {
                 hours: 160,
                 hourValue: 12000,
                 gross: 1920000,
                 discounts: 570000,
                 net: 1350000
             },
-            '2025-05': {
+            '2024-05': {
                 hours: 155,
                 hourValue: 11500,
                 gross: 1782500,
                 discounts: 516000,
                 net: 1266500
             },
-            '2025-04': {
+            '2024-04': {
                 hours: 150,
                 hourValue: 11500,
                 gross: 1725000,
                 discounts: 500000,
                 net: 1225000
             },
-            '2025-03': {
+            '2024-03': {
                 hours: 145,
                 hourValue: 11000,
                 gross: 1595000,
                 discounts: 462000,
                 net: 1133000
             },
-            '2025-02': {
+            '2024-02': {
                 hours: 140,
                 hourValue: 11000,
                 gross: 1540000,
                 discounts: 446000,
                 net: 1094000
             },
-            '2025-01': {
+            '2024-01': {
                 hours: 165,
                 hourValue: 10500,
                 gross: 1732500,
                 discounts: 502000,
                 net: 1230500
+            },
+            '2023-12': {
+                hours: 170,
+                hourValue: 10000,
+                gross: 1700000,
+                discounts: 493000,
+                net: 1207000
+            },
+            '2023-11': {
+                hours: 160,
+                hourValue: 10000,
+                gross: 1600000,
+                discounts: 464000,
+                net: 1136000
+            },
+            '2023-10': {
+                hours: 155,
+                hourValue: 9500,
+                gross: 1472500,
+                discounts: 427000,
+                net: 1045500
             }
         };
 
@@ -417,18 +438,18 @@
             salaryChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                    labels: ['Oct 2023', 'Nov 2023', 'Dic 2023', 'Ene 2024', 'Feb 2024', 'Mar 2024', 'Abr 2024', 'May 2024', 'Jun 2024'],
                     datasets: [
                         {
                             label: 'Sueldo Bruto',
-                            data: [1732500, 1540000, 1595000, 1725000, 1782500, 1920000],
+                            data: [1472500, 1600000, 1700000, 1732500, 1540000, 1595000, 1725000, 1782500, 1920000],
                             backgroundColor: 'rgba(154, 123, 255, 0.7)',
                             borderColor: 'rgba(154, 123, 255, 1)',
                             borderWidth: 1
                         },
                         {
                             label: 'Sueldo Líquido',
-                            data: [1230500, 1094000, 1133000, 1225000, 1266500, 1350000],
+                            data: [1045500, 1136000, 1207000, 1230500, 1094000, 1133000, 1225000, 1266500, 1350000],
                             backgroundColor: 'rgba(135, 206, 250, 0.7)',
                             borderColor: 'rgba(135, 206, 250, 1)',
                             borderWidth: 1
@@ -491,7 +512,11 @@
             const tbody = document.getElementById('salaryHistory');
             tbody.innerHTML = '';
             
-            Object.entries(salaryData).forEach(([key, data]) => {
+            // Ordenar los meses de más reciente a más antiguo
+            const sortedMonths = Object.keys(salaryData).sort().reverse();
+            
+            sortedMonths.forEach(key => {
+                const data = salaryData[key];
                 const [year, month] = key.split('-');
                 const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
                                   'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -511,7 +536,7 @@
         }
 
         // Navegación entre meses
-        let currentMonth = '2025-06';
+        let currentMonth = '2024-06';
         
         document.getElementById('prevMonth').addEventListener('click', function() {
             const [year, month] = currentMonth.split('-');
