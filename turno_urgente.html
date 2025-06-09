@@ -354,7 +354,7 @@
         <!-- Contador de cambios (CA-03-3) -->
         <div class="change-counter">
             <span>Cambios urgentes realizados este mes:</span>
-            <span class="badge" id="changeCounter">1/2</span>
+            <span class="badge" id="changeCounter">0/2</span>
         </div>
         
         <!-- Formulario de solicitud (CA-03-1) -->
@@ -363,9 +363,9 @@
                 <label for="shiftSelect">Turno que necesita cambiar:</label>
                 <select id="shiftSelect" class="form-control" required>
                     <option value="">Seleccione su turno</option>
-                    <option value="1">Turno Mañana (15/04/2024) - 08:00 a 16:00</option>
-                    <option value="2">Turno Tarde (18/04/2024) - 16:00 a 00:00</option>
-                    <option value="3">Turno Noche (21/04/2024) - 00:00 a 08:00</option>
+                    <option value="1">Turno Mañana (15/06/2025) - 08:00 a 16:00</option>
+                    <option value="2">Turno Tarde (18/06/2025) - 16:00 a 00:00</option>
+                    <option value="3">Turno Noche (21/06/2025) - 00:00 a 08:00</option>
                 </select>
             </div>
             
@@ -398,44 +398,44 @@
             <div class="staff-card">
                 <h3>Juan Pérez</h3>
                 <div class="staff-info">RUT: 11.223.344-5 | Área: Urgencias</div>
-                <div class="staff-shift">Mismo turno: 15/04/2024 - 08:00 a 16:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Mismo turno: 15/06/2025 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff" data-rut="11.223.344-5" data-email="juan.perez@hospital.cl">Seleccionar</button>
             </div>
             
             <div class="staff-card">
                 <h3>Ana Silva</h3>
                 <div class="staff-info">RUT: 12.334.455-6 | Área: Urgencias</div>
-                <div class="staff-shift">Mismo turno: 15/04/2024 - 08:00 a 16:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Mismo turno: 15/06/2025 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff" data-rut="12.334.455-6" data-email="ana.silva@hospital.cl">Seleccionar</button>
             </div>
             
             <!-- Otros funcionarios del área -->
             <div class="staff-card">
                 <h3>Carlos Rojas</h3>
                 <div class="staff-info">RUT: 13.445.566-7 | Área: Urgencias</div>
-                <div class="staff-shift">Turno diferente: 16/04/2024 - 16:00 a 00:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Turno diferente: 16/06/2025 - 16:00 a 00:00</div>
+                <button class="btn btn-small select-staff" data-rut="13.445.566-7" data-email="carlos.rojas@hospital.cl">Seleccionar</button>
             </div>
             
             <div class="staff-card">
                 <h3>María González</h3>
                 <div class="staff-info">RUT: 14.556.677-8 | Área: Urgencias</div>
-                <div class="staff-shift">Turno diferente: 17/04/2024 - 00:00 a 08:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Turno diferente: 17/06/2025 - 00:00 a 08:00</div>
+                <button class="btn btn-small select-staff" data-rut="14.556.677-8" data-email="maria.gonzalez@hospital.cl">Seleccionar</button>
             </div>
             
             <div class="staff-card">
                 <h3>Pedro Sánchez</h3>
                 <div class="staff-info">RUT: 15.667.788-9 | Área: Urgencias</div>
-                <div class="staff-shift">Turno diferente: 18/04/2024 - 08:00 a 16:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Turno diferente: 18/06/2025 - 08:00 a 16:00</div>
+                <button class="btn btn-small select-staff" data-rut="15.667.788-9" data-email="pedro.sanchez@hospital.cl">Seleccionar</button>
             </div>
             
             <div class="staff-card">
                 <h3>Laura Méndez</h3>
                 <div class="staff-info">RUT: 16.778.899-0 | Área: Urgencias</div>
-                <div class="staff-shift">Turno diferente: 19/04/2024 - 16:00 a 00:00</div>
-                <button class="btn btn-small select-staff">Seleccionar</button>
+                <div class="staff-shift">Turno diferente: 19/06/2025 - 16:00 a 00:00</div>
+                <button class="btn btn-small select-staff" data-rut="16.778.899-0" data-email="laura.mendez@hospital.cl">Seleccionar</button>
             </div>
         </div>
     </div>
@@ -449,7 +449,14 @@
             nombre: "María González",
             rut: "12.345.678-9",
             area: "Urgencias",
-            cambiosUrgentesRealizados: 1
+            cambiosUrgentesRealizados: 0,
+            email: "maria.gonzalez@hospital.cl"
+        };
+        
+        // Datos del coordinador
+        const coordinadorArea = {
+            nombre: "Roberto Jiménez",
+            email: "roberto.jimenez@hospital.cl"
         };
         
         // Inicialización
@@ -466,6 +473,8 @@
             
             // Seleccionar funcionario
             const selectButtons = document.querySelectorAll('.select-staff');
+            let staffSelected = null;
+            
             selectButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     // Deseleccionar todos
@@ -477,23 +486,28 @@
                     // Seleccionar este
                     this.textContent = 'Seleccionado ✓';
                     this.parentElement.style.borderColor = 'var(--color-primary)';
+                    staffSelected = {
+                        nombre: this.parentElement.querySelector('h3').textContent,
+                        rut: this.dataset.rut,
+                        email: this.dataset.email
+                    };
                 });
             });
             
             // Enviar solicitud (CA-03-2)
             document.getElementById('sendRequestBtn').addEventListener('click', function() {
-                const shiftSelected = document.getElementById('shiftSelect').value;
-                const subject = document.getElementById('messageSubject').value;
-                const message = document.getElementById('messageBody').value;
+                const shiftSelected = document.getElementById('shiftSelect');
+                const shiftText = shiftSelected.options[shiftSelected.selectedIndex].text;
+                const subject = document.getElementById('messageSubject').value.trim();
+                const message = document.getElementById('messageBody').value.trim();
                 const isUrgent = document.getElementById('urgentCheck').checked;
-                const staffSelected = document.querySelector('.select-staff[textContent="Seleccionado ✓"]');
                 
-                if (!shiftSelected || !subject || !message || !staffSelected) {
+                if (!shiftSelected.value || !subject || !message || !staffSelected) {
                     showNotification('Por favor complete todos los campos y seleccione un colega', false);
                     return;
                 }
                 
-                if (funcionarioActual.cambiosUrgentesRealizados >= 2) {
+                if (isUrgent && funcionarioActual.cambiosUrgentesRealizados >= 2) {
                     showNotification('Ha alcanzado el límite de cambios urgentes este mes', false);
                     return;
                 }
@@ -503,7 +517,23 @@
                     showNotification('Solicitud de cambio urgente enviada correctamente');
                     
                     // Simular notificación por email (CA-03-2)
-                    console.log('Notificación enviada por email al colega y coordinador');
+                    const emailData = {
+                        to: staffSelected.email,
+                        cc: coordinadorArea.email,
+                        subject: `Solicitud de cambio de turno: ${subject}`,
+                        body: `Estimado/a ${staffSelected.nombre},\n\n` +
+                              `${funcionarioActual.nombre} (RUT: ${funcionarioActual.rut}) solicita cambiar el siguiente turno:\n\n` +
+                              `Turno: ${shiftText}\n` +
+                              `Motivo: ${message}\n\n` +
+                              `Por favor responda a esta solicitud a la brevedad.\n\n` +
+                              `Atentamente,\nSistema TurnoMed`
+                    };
+                    
+                    console.log('Notificación enviada por email:');
+                    console.log('Para:', emailData.to);
+                    console.log('CC:', emailData.cc);
+                    console.log('Asunto:', emailData.subject);
+                    console.log('Mensaje:', emailData.body);
                     
                     // Incrementar contador si es urgente
                     if (isUrgent) {
@@ -513,7 +543,7 @@
                     }
                     
                     // Resetear formulario
-                    document.getElementById('shiftSelect').value = '';
+                    shiftSelected.value = '';
                     document.getElementById('messageSubject').value = '';
                     document.getElementById('messageBody').value = '';
                     document.getElementById('urgentCheck').checked = false;
@@ -524,6 +554,8 @@
                         btn.textContent = 'Seleccionar';
                         btn.parentElement.style.borderColor = 'var(--color-primary-light)';
                     });
+                    
+                    staffSelected = null;
                 }, 1000);
             });
             
@@ -541,6 +573,8 @@
                     btn.textContent = 'Seleccionar';
                     btn.parentElement.style.borderColor = 'var(--color-primary-light)';
                 });
+                
+                staffSelected = null;
             });
         });
         
