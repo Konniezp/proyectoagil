@@ -481,10 +481,10 @@
             
             // Simular aceptación (CA-04-2 - notificación en menos de 30 segundos)
             setTimeout(() => {
-                showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}`);
+                showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}. Se ha enviado notificación al coordinador.`. );
                 
                 // Simular notificación al coordinador (CA-04-1)
-                showNotificacation(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
+                console.log(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
                 
                 // Eliminar la solicitud de la lista
                 const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
@@ -505,7 +505,7 @@
             
             // Simular rechazo (CA-04-2 - notificación en menos de 30 segundos)
             setTimeout(() => {
-                showNotification(`Has rechazado la solicitud de cambio de ${request.solicitante}`, false);
+                showNotification(`Has rechazado la solicitud de cambio de ${request.solicitante}. Se ha enviado notificación al coordinador.`, false);
                 
                 // Simular notificación al coordinador (CA-04-1)
                 console.log(`Notificación enviada al coordinador sobre el rechazo de cambio con ${request.solicitante}`);
