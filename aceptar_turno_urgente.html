@@ -484,7 +484,7 @@
                 showNotification(`Has aceptado la solicitud de cambio de ${request.solicitante}`);
                 
                 // Simular notificación al coordinador (CA-04-1)
-                console.log(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
+                showNotificacation(`Notificación enviada al coordinador sobre el cambio con ${request.solicitante}`);
                 
                 // Eliminar la solicitud de la lista
                 const requestElement = document.querySelector(`[data-request="${requestId}"]`).closest('.request-card');
