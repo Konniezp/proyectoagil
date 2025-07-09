@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurnoMed - Reportes de Asistencia</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Paleta de colores lila/celeste */
         :root {
@@ -104,6 +105,77 @@
             margin-bottom: 2rem;
         }
 
+        /* Nuevos estilos para la sección de intercambios */
+        .intercambios-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border-top: 4px solid var(--color-lila);
+        }
+
+        .intercambios-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .intercambios-alert {
+            background-color: var(--color-celeste-claro);
+            border-left: 4px solid var(--color-celeste);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            border: 1px solid var(--color-lila-claro);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .stat-value.safe { color: #28a745; }
+        .stat-value.warning { color: #ffc107; }
+        .stat-value.danger { color: #dc3545; }
+
+        .progress {
+            height: 10px;
+            margin: 0.5rem 0;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar.safe { background-color: #28a745; }
+        .progress-bar.warning { background-color: #ffc107; }
+        .progress-bar.danger { background-color: #dc3545; }
+
+        .chart-container {
+            height: 250px;
+            margin-top: 1rem;
+        }
+
+        .top-funcionarios {
+            list-style: none;
+            padding: 0;
+        }
+
+        .top-funcionarios li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Estilos originales restantes */
         .form-group {
             margin-bottom: 1rem;
             text-align: left;
@@ -264,6 +336,15 @@
             .main-menu li {
                 flex: 0 0 auto;
             }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .intercambios-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -286,7 +367,63 @@
         <h2>Reportes de Asistencia</h2>
         <p class="text-muted">Genera reportes detallados de asistencia y cambios de turno del personal.</p>
 
-        <!-- Filtros del reporte -->
+        <!-- ========== NUEVA SECCIÓN: Análisis de Intercambios ========== -->
+        <div class="intercambios-section">
+            <div class="intercambios-header">
+                <h3>Análisis de Intercambios de Turnos</h3>
+                <div class="badge bg-primary">Límite recomendado: &lt;5%</div>
+            </div>
+            
+            <div class="intercambios-alert">
+                <strong>Política de Intercambios:</strong> El porcentaje de intercambios no debe superar el 5% del total de turnos asignados en ningún segmento del calendario.
+            </div>
+            
+            <div class="row">
+                <!-- Tarjeta 1: Resumen general -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h5>Resumen General</h5>
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <span class="stat-value" id="porcentajeIntercambios">0%</span>
+                                <p class="text-muted small">de turnos cambiados</p>
+                            </div>
+                            <div>
+                                <span class="stat-value" id="totalIntercambios">0</span>
+                                <p class="text-muted small">intercambios</p>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div id="intercambiosProgress" class="progress-bar" role="progressbar"></div>
+                        </div>
+                        <p id="estadoIntercambios" class="small mb-0"></p>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta 2: Gráfico por áreas -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h5>Intercambios por Área</h5>
+                        <div class="chart-container">
+                            <canvas id="intercambiosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tarjeta 3: Top funcionarios -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h5>Top 3 Funcionarios</h5>
+                        <ul class="top-funcionarios" id="topFuncionariosList">
+                            <li>Cargando datos...</li>
+                        </ul>
+                        <p class="small text-muted mt-2">Con más cambios solicitados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SECCIÓN ORIGINAL: Filtros del reporte ========== -->
         <div class="report-section">
             <h3>Configurar Reporte</h3>
             <form id="reportForm">
@@ -346,7 +483,7 @@
             </form>
         </div>
 
-        <!-- Resultados del reporte -->
+        <!-- ========== SECCIÓN ORIGINAL: Resultados del reporte ========== -->
         <div class="report-section" id="resultsSection" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>Resultados del Reporte</h3>
@@ -420,41 +557,193 @@
     </footer>
 
     <script>
-        // Simulación de generación de reporte
-        document.getElementById('reportForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Datos simulados para intercambios
+        const intercambiosData = [
+            { id: 1, funcionario: "Dra. María González", area: "emergency", fecha: "2025-06-01", estado: "aprobado", tipo: "urgente" },
+            { id: 2, funcionario: "Dr. Carlos Mendoza", area: "surgery", fecha: "2025-06-02", estado: "aprobado", tipo: "programado" },
+            { id: 3, funcionario: "Enf. Laura Pérez", area: "emergency", fecha: "2025-06-03", estado: "rechazado", tipo: "urgente" },
+            { id: 4, funcionario: "Dra. María González", area: "emergency", fecha: "2025-06-05", estado: "aprobado", tipo: "programado" },
+            { id: 5, funcionario: "Tec. Javier Ruiz", area: "pediatrics", fecha: "2025-06-06", estado: "aprobado", tipo: "urgente" },
+            { id: 6, funcionario: "Dr. Carlos Mendoza", area: "surgery", fecha: "2025-06-07", estado: "aprobado", tipo: "programado" },
+            { id: 7, funcionario: "Dra. Ana López", area: "internal", fecha: "2025-06-08", estado: "pendiente", tipo: "urgente" },
+            { id: 8, funcionario: "Enf. Laura Pérez", area: "emergency", fecha: "2025-06-09", estado: "aprobado", tipo: "programado" }
+        ];
+
+        // Variables globales
+        let intercambiosChart = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar fechas
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
             
-            // Mostrar sección de resultados
-            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('startDate').valueAsDate = firstDay;
+            document.getElementById('endDate').valueAsDate = today;
             
-            // Actualizar período seleccionado
-            const period = document.getElementById('period').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            // Calcular y mostrar estadísticas de intercambios
+            actualizarEstadisticasIntercambios();
             
-            let periodText = '';
-            if (period === 'week') {
-                periodText = `Semana del ${formatDate(startDate)} al ${formatDate(endDate)}`;
-            } else if (period === 'month') {
-                periodText = `Mes de ${getMonthName(startDate)} ${new Date(startDate).getFullYear()}`;
-            } else if (period === 'quarter') {
-                periodText = `Trimestre ${getQuarter(startDate)} del ${new Date(startDate).getFullYear()}`;
+            // Resaltar menú activo
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const menuLinks = document.querySelectorAll('.main-menu a');
+            
+            menuLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        // ========== NUEVAS FUNCIONES PARA ANALIZAR INTERCAMBIOS ==========
+        function actualizarEstadisticasIntercambios() {
+            // 1. Filtrar intercambios aprobados
+            const intercambiosAprobados = intercambiosData.filter(i => i.estado === 'aprobado');
+            const totalIntercambios = intercambiosAprobados.length;
+            
+            // 2. Calcular porcentaje (usamos 100 turnos como base para la demo)
+            const totalTurnos = 100;
+            const porcentaje = ((totalIntercambios / totalTurnos) * 100).toFixed(1);
+            
+            // 3. Actualizar UI
+            document.getElementById('porcentajeIntercambios').textContent = `${porcentaje}%`;
+            document.getElementById('totalIntercambios').textContent = totalIntercambios;
+            
+            const progressBar = document.getElementById('intercambiosProgress');
+            progressBar.style.width = `${Math.min(porcentaje, 100)}%`;
+            
+            const estadoElem = document.getElementById('estadoIntercambios');
+            
+            // Establecer colores según el porcentaje
+            if (porcentaje < 3) {
+                document.getElementById('porcentajeIntercambios').className = 'stat-value safe';
+                progressBar.className = 'progress-bar safe';
+                estadoElem.textContent = "✅ Dentro del límite recomendado (<5%)";
+                estadoElem.className = 'small mb-0 text-success';
+            } else if (porcentaje < 5) {
+                document.getElementById('porcentajeIntercambios').className = 'stat-value warning';
+                progressBar.className = 'progress-bar warning';
+                estadoElem.textContent = "⚠️ Cerca del límite máximo (5%)";
+                estadoElem.className = 'small mb-0 text-warning';
             } else {
-                periodText = `Del ${formatDate(startDate)} al ${formatDate(endDate)}`;
+                document.getElementById('porcentajeIntercambios').className = 'stat-value danger';
+                progressBar.className = 'progress-bar danger';
+                estadoElem.textContent = "❌ Supera el límite máximo (5%)";
+                estadoElem.className = 'small mb-0 text-danger';
             }
             
-            document.getElementById('selectedPeriod').textContent = periodText;
+            // 4. Actualizar gráfico
+            actualizarGraficoIntercambios(intercambiosAprobados);
             
-            // Generar datos de ejemplo
-            generateSampleData();
+            // 5. Actualizar top funcionarios
+            actualizarTopFuncionarios(intercambiosAprobados);
+        }
+
+        function actualizarGraficoIntercambios(intercambios) {
+            const ctx = document.getElementById('intercambiosChart').getContext('2d');
             
-            // Mostrar notificación
-            showNotification('Reporte generado exitosamente');
+            // Agrupar por área
+            const areas = {
+                emergency: "Emergencias",
+                surgery: "Cirugía",
+                pediatrics: "Pediatría",
+                internal: "Medicina Interna"
+            };
             
-            // Desplazarse a los resultados
-            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-        });
-        
+            const datosAreas = {
+                emergency: 0,
+                surgery: 0,
+                pediatrics: 0,
+                internal: 0
+            };
+            
+            intercambios.forEach(item => {
+                datosAreas[item.area]++;
+            });
+            
+            // Ordenar áreas por cantidad de intercambios
+            const areasOrdenadas = Object.keys(datosAreas).sort((a, b) => datosAreas[b] - datosAreas[a]);
+            
+            // Destruir gráfico anterior si existe
+            if (intercambiosChart) {
+                intercambiosChart.destroy();
+            }
+            
+            // Crear nuevo gráfico
+            intercambiosChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: areasOrdenadas.map(area => areas[area]),
+                    datasets: [{
+                        label: 'Intercambios por Área',
+                        data: areasOrdenadas.map(area => datosAreas[area]),
+                        backgroundColor: areasOrdenadas.map(area => 
+                            (datosAreas[area] / 10) > 0.5 ? 'rgba(220, 53, 69, 0.7)' : 'rgba(40, 167, 69, 0.7)'
+                        ),
+                        borderColor: areasOrdenadas.map(area => 
+                            (datosAreas[area] / 10) > 0.5 ? 'rgba(220, 53, 69, 1)' : 'rgba(40, 167, 69, 1)'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function actualizarTopFuncionarios(intercambios) {
+            // Contar intercambios por funcionario
+            const conteoFuncionarios = {};
+            
+            intercambios.forEach(item => {
+                if (!conteoFuncionarios[item.funcionario]) {
+                    conteoFuncionarios[item.funcionario] = 0;
+                }
+                conteoFuncionarios[item.funcionario]++;
+            });
+            
+            // Ordenar funcionarios
+            const topFuncionarios = Object.entries(conteoFuncionarios)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            // Actualizar UI
+            const lista = document.getElementById('topFuncionariosList');
+            lista.innerHTML = '';
+            
+            if (topFuncionarios.length === 0) {
+                lista.innerHTML = '<li>No hay datos de intercambios</li>';
+                return;
+            }
+            
+            topFuncionarios.forEach(([nombre, count]) => {
+                const item = document.createElement('li');
+                item.innerHTML = `
+                    ${nombre}
+                    <span class="badge ${count > 2 ? 'bg-danger' : 'bg-primary'} rounded-pill">${count}</span>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        // ========== FUNCIONES ORIGINALES DEL REPORTE ==========
         // Función para mostrar notificación
         function showNotification(message) {
             const notification = document.getElementById('notification');
@@ -585,33 +874,42 @@
             showNotification('Función de exportación simulada');
         });
         
-        // Inicializar fechas
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        // Generar reporte
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            document.getElementById('startDate').valueAsDate = firstDay;
-            document.getElementById('endDate').valueAsDate = today;
+            // Mostrar sección de resultados
+            document.getElementById('resultsSection').style.display = 'block';
             
-            // Resaltar menú activo
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            const menuLinks = document.querySelectorAll('.main-menu a');
+            // Actualizar período seleccionado
+            const period = document.getElementById('period').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
             
-            menuLinks.forEach(link => {
-                if (link.getAttribute('href') === currentPage) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
+            let periodText = '';
+            if (period === 'week') {
+                periodText = `Semana del ${formatDate(startDate)} al ${formatDate(endDate)}`;
+            } else if (period === 'month') {
+                periodText = `Mes de ${getMonthName(startDate)} ${new Date(startDate).getFullYear()}`;
+            } else if (period === 'quarter') {
+                periodText = `Trimestre ${getQuarter(startDate)} del ${new Date(startDate).getFullYear()}`;
+            } else {
+                periodText = `Del ${formatDate(startDate)} al ${formatDate(endDate)}`;
+            }
             
-            // Configurar eventos para los enlaces del menú
-            menuLinks.forEach(enlace => {
-                enlace.addEventListener('click', function() {
-                    // Guardar en localStorage cuál es la página activa
-                    localStorage.setItem('paginaActiva', this.id);
-                });
-            });
+            document.getElementById('selectedPeriod').textContent = periodText;
+            
+            // Generar datos de ejemplo
+            generateSampleData();
+            
+            // Actualizar estadísticas de intercambios con los nuevos filtros
+            actualizarEstadisticasIntercambios();
+            
+            // Mostrar notificación
+            showNotification('Reporte generado exitosamente');
+            
+            // Desplazarse a los resultados
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
         });
     </script>
 </body>
